@@ -1,15 +1,16 @@
 {
-    "name":		"idata-study",
+    "name":		"survana-study",
     "version":	"0.0.1",
     "author":	"Victor Petrov <victor_petrov@harvard.edu>",
     "private":  true,
-    "description":"iData study module",
+    "description":"Survana study module",
     "repository":{
         "type":	"git",
-        "url":	"https://github.com/vpetrov/idata-study.git"
+        "url":	"https://github.com/vpetrov/survana-study.git"
     },
     "license":"New BSD",
     "dependencies": {
-        "step":		">= 0.0.5"
+        "step":		    ">= 0.0.5",
+        "elementtree":  ">= 0.1.1"
     }
 }

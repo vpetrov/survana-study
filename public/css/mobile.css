@@ -1,0 +1,119 @@
+.os-ui-question
+{
+	margin-top:35px;
+	margin-bottom:35px;
+}
+
+table tbody tr th:first-child
+{
+	text-align:left;
+	padding-right:10px;
+}
+
+.ui-controlgroup-label
+{
+	padding-top:5px !important;
+}
+
+.os-ui-number
+{
+	width:65px !important;
+	margin-right:10px;
+}
+
+.os-ui-text
+{
+	clear:both;
+	width:100% !important;
+}
+
+.os-ui-container-text
+{
+	padding-right:15px;
+	margin-bottom:10px;
+}
+
+.os-ui-suffix
+{
+	display:inline !important;
+}
+
+.os-ui-error-label
+{
+	position:relative;
+	z-index:99;
+}
+
+.hidden
+{
+	display:none;
+}
+
+.os-ui-bubble
+{
+	float:right;
+	font-size:11px;
+	font-weight: bold;
+	padding: 2px 5px 2px 5px;
+}
+
+.ui-tooltip, .ui-tooltip-top, .ui-tooltip-right, .ui-tooltip-bottom, .ui-tooltip-left {
+	position:relative;
+	overflow:visible !important;
+	font-size: smaller;
+	display:inline;
+	left:10px;
+	border-radius:5
+}
+.ui-tooltip:after, .ui-tooltip-top:after, .ui-tooltip-right:after, .ui-tooltip-bottom:after, .ui-tooltip-left:after {
+  content:"\25B8";
+  display:block;
+  font-size:2em;
+  height:0;
+  line-height:0;
+  position:absolute;
+  color:#800517; /* fireBrick */
+}
+.ui-tooltip:after, .ui-tooltip-bottom:after {
+  bottom:-2px;
+  left:1px;
+  text-align:center;
+  text-shadow:1px 0 2px #000000;
+  -o-transform:rotate(90deg);
+  -moz-transform:rotate(90deg);
+  -khtml-transform:rotate(90deg);
+  -webkit-transform:rotate(90deg);
+  width:100%;
+}
+.ui-tooltip-top:after {
+  bottom:auto;
+  left:-2px;
+  top:-3px;
+  text-align:center;
+  text-shadow:none;
+  -o-transform:rotate(-90deg);
+  -moz-transform:rotate(-90deg);
+  -khtml-transform:rotate(-90deg);
+  -webkit-transform:rotate(-90deg);
+  width:100%;
+}
+.ui-tooltip-right:after {
+  right:-0.375em;
+  top:45%;
+  margin-top:-.05em;
+  text-shadow:0 1px 2px #000000;
+  -o-transform:rotate(0);
+  -moz-transform:rotate(0);
+  -khtml-transform:rotate(0);
+  -webkit-transform:rotate(0);
+}
+.ui-tooltip-left:after {
+  left:-0.375em;
+  top:55%;
+  margin-top:.1em;
+  text-shadow:0 -1px 2px #000000;
+  -o-transform:rotate(180deg);
+  -moz-transform:rotate(180deg);
+  -khtml-transform:rotate(180deg);
+  -webkit-transform:rotate(180deg);
+}

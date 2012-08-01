@@ -1,4 +1,4 @@
-idata-study
+survana-study
 ===========
 
-iData Study Module
+Survana Study Module

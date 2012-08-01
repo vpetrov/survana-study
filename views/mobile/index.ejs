@@ -1,0 +1,43 @@
+<!-- Home -->
+<div id='pageIndex' data-role="page" data-theme="{{=config.theme.global}}">
+    <div data-role="header">
+        <h1>{{=config.brand}}</h1>
+        <a id='next' href="#" data-role="button" data-inline="true" data-icon="arrow-r" data-iconpos="right" class="ui-btn-right" data-theme="{{=config.theme.active}}">Next</a>
+    </div>
+
+    <div data-role="content">
+        <h1>
+            Welcome to {{= config.brand }}!
+        </h1>
+        <p>
+            Please enter your Study ID to continue:
+        </p>
+        <p>
+        <form>
+            <ul data-role="listview" data-inset="true" data-theme="{{=config.theme.content}}">
+                <li data-role="fieldcontain">
+                    <label for="subject_id">Study ID:</label>
+                    <input type="text" id="study_id" value="" autocomplete="off" autofocus="autofocus"/>
+                </li>
+            </ul>
+        </form>
+        </p>
+        <script type="text/javascript">
+
+            function go(e)
+            {
+                if (e)
+                    e.preventDefault();
+
+                var study_id=$('#study_id').val();
+                if (study_id && study_id.length)
+                    window.location.href="{{=config.prefix}}"+study_id;
+
+                return false;
+            }
+
+            $('form').submit(go);
+            $('#next').click(go);
+        </script>
+    </div>
+</div>

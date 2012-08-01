@@ -1,0 +1,12 @@
+<div id='changeme' data-role='page' data-theme='{{=config.theme.global}}' data-enhance='false'>
+    <div data-role='header' data-theme='{{=config.theme.nav}}'>
+        <h1>{{=form.title}}</h1>
+        <a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
+           class='ui-btn-left'>Back</a>
+        <a href="#" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
+           class='ui-btn-right' onclick="return Workflow_next(this)">Next</a>
+    </div>
+    <div data-role='content'>
+        {{- html }}
+    </div>
+</div>
