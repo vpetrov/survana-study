@@ -39,6 +39,7 @@ function(require,$)
             'pagecreate':Survana.onPageCreate,
             'pageinit':Survana.onPageInit,
             'pageremove':Survana.onPageRemove,
+            'fielddisabled':Survana.onFieldDisabled,
             'updatelayout':Survana.onPageUpdateLayout
         });
 

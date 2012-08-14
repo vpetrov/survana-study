@@ -161,7 +161,30 @@ function ($,$m,Workflow,Depend,Validate)
     function onFieldChanged(e)
     {
         logevent(e);
-        dependCheck($(e.target).attr('name'));
+        var target=$(e.target);
+        dependCheck(target.attr('name'));
+        Validate.checkField($.mobile.activePage.attr('data-form'),target);
+    }
+
+    function onFieldDisabled(e)
+    {
+        logevent(e);
+
+        var field=$(e.target);
+
+        //if the field has an error attached to it
+        if (field.hasClass('os-ui-error'))
+        {
+            //find the first container element (since errors will be attached to parent container)
+            //then find all warning buttons (because one could have embedded errors (in theory)) and remove the wrapper
+            //element
+            var container=field.closest('.os-ui-container,.ui-controlgroup-controls')
+                               .first()
+                               .find('a.os-ui-error').each(function(i,error){
+                                   $(error).parent().remove();
+                               });
+            field.removeClass('os-ui-error');
+        }
     }
 
     function onNextClick(e)
@@ -277,7 +300,10 @@ function ($,$m,Workflow,Depend,Validate)
 
                     //todo: make sure this works on numeric inputs, on selects, on radiogroups and checkboxgroups
                     if (action_name==='disable')
+                    {
                         el.val('');
+                        el.trigger('fielddisabled');
+                    }
 
                     //perform the jquery mobile action
                     el[jqm_method](action_name);
@@ -333,7 +359,6 @@ function ($,$m,Workflow,Depend,Validate)
 
     function dependAction(field_name,actions)
     {
-        console.log('dependAction',field_name,actions);
         return action('[name='+field_name+']',actions);
     }
 
@@ -357,10 +382,8 @@ function ($,$m,Workflow,Depend,Validate)
         var result=true;
 
         $.mobile.activePage.find('form').each(function(i,f){
-            $.mobile.activePage.find('form').each(function(i,f){
-                if (!Validate.check(f))
-                    result=false;
-            });
+            if (!Validate.check(f))
+                result=false;
         });
 
         return result;
@@ -430,6 +453,8 @@ function ($,$m,Workflow,Depend,Validate)
         'onPageShow':onPageShow,
         'onPageRemove':onPageRemove,
         'onPageUpdateLayout':onPageUpdateLayout,
+        'onFieldChanged':onFieldChanged,
+        'onFieldDisabled':onFieldDisabled,
         'action':action,
         'dependAction':dependAction,
         'scrollTo':scrollTo
