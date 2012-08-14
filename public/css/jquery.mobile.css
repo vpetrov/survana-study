@@ -2,6 +2,7 @@
 {
     max-width:1024px !important; /* 1024px + 8px padding from ui-content */
     margin:0 auto;
+    z-index: 100; /* error button +1 */
 }
 
 .os-ui-header-top
@@ -9,7 +10,6 @@
     position:fixed;
     top:0;
     width:100%;
-    z-index: 99;
 }
 
 .ui-header+.ui-content
