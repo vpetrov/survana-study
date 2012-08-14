@@ -1,0 +1,26 @@
+<div id="pageIndex" data-role="page">
+    <div data-role="content">
+        <script type='text/javascript'>
+            //key
+            window.localStorage['key_id']="key.id";
+            window.localStorage['key_pem']="addslashes(str_replace(Array(\"\\r\",\"\\n\"),'',$key->publicPEM))";
+            window.localStorage['key_data']=''; //clear cached key data
+            window.localStorage['key_bits']="key->bits";
+
+            //todo: this is broken
+            window.localStorage['subject']='';
+            window.localStorage['save-url']="config.save-url')/$id/save"
+            window.localStorage['workflow']='{{- JSON.stringify(workflow) }}';
+            window.localStorage['workflow_current']=-1;
+
+            //Start the Survey when this page loads
+
+            require(['jquery','Survana'],function($,Survana){
+                $('#pageIndex').on('pageshow',function(){
+                    Survana.resume();
+                });
+            });
+
+        </script>
+    </div>
+</div>

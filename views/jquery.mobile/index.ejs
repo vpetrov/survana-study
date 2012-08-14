@@ -1,0 +1,46 @@
+<!-- Home -->
+<div id='pageIndex' data-role="page" data-theme="{{=config.theme.global}}" style="visibility:hidden">
+    <div data-role="header">
+        <h1>{{=config.brand}}</h1>
+        <a id='next' href="#" data-role="button" data-inline="true" data-icon="arrow-r" data-iconpos="right" class="ui-btn-right" data-theme="{{=config.theme.active}}">Next</a>
+    </div>
+
+    <div data-role="content">
+        <h1>
+            Welcome to {{= config.brand }}!
+        </h1>
+        <form>
+            <ul data-inset="true" data-role="listview" data-theme="c">
+                <li class="os-ui-question" data-role="heading" data-theme="b">Please enter your Study ID to continue:</li>
+                <li data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <legend>Study ID:</legend>
+                        <div class="os-ui-container-text">
+                            <input class="os-ui-text" data-mini="true" data-theme="c" id="study_id" tabindex="1"
+                                   type="text" autocomplete="off" autofocus="autofocus"/>
+                        </div>
+                    </fieldset>
+                </li>
+            </ul>
+        </form>
+        <script type="text/javascript">
+            require(['jquery'],
+            function($){
+                function go(e)
+                {
+                    if (e)
+                        e.preventDefault();
+
+                    var study_id=$('#study_id').val();
+                    if (study_id && study_id.length)
+                        window.location.href="{{=config.prefix}}"+study_id;
+
+                    return false;
+                }
+
+                $('form').submit(go);
+                $('#next').click(go);
+            });
+        </script>
+    </div>
+</div>

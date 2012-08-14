@@ -1,0 +1,32 @@
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="#">{{= study.title }}</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class="active"><a href="#">{{= form.title}}</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='content' class='container'>
+{{- html }}
+
+    <div class="row">
+        <span class="offset2">
+            <button id='btn-page-next' class="btn btn-success btn-medium" type='submit'>
+                <i class="icon-circle-arrow-right icon-white"></i>
+                Continue
+            </button>
+        </span>
+    </div>
+
+    <p>&nbsp;</p>
+</div>

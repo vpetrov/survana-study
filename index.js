@@ -25,12 +25,12 @@ function routing(app,config)
            )
         {
             req.mobile=true;
-            req.views='mobile/';
+            req.views=config.views.mobile+'/';
         }
         else
         {
             req.mobile=false;
-            req.views='desktop/';
+            req.views=config.views.desktop+'/';
         }
 
         next();

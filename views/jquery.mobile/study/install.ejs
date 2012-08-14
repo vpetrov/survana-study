@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html manifest="/manifest">
+<head>
+    <title>Install</title>
+</head>
+<body>
+
+<!-- Home -->
+<div id='pageInstall' data-role="page" data-theme="{{=config.theme.global}}">
+    <div data-role="header">
+        <h1>{{=study.title}}</h1>
+    </div>
+
+    <div data-role="content">
+        <h1>
+            Welcome to {{=study.title}}.
+        </h1>
+        <p>
+            You are installing the following questionnaires:
+        </p>
+        <p>
+        <ul data-role="listview" data-inset="true" data-theme="{{=config.theme.content}}">
+            {{ for (var f in study.forms) { }}
+            {{     var form=study.forms[f]; }}
+            <li>
+                <h3>{{= form.title }}</h3>
+                <p><strong>Author:</strong> {{= form.author||'Unknown' }}</p>
+                <p><strong>Date:</strong> {{= (new Date(form.created_on)).toLocaleDateString() }}</p>
+                <p class="ui-li-aside"><strong>{{= form.code+'/'+form.version }}</strong></p>
+            </li>
+            {{ } }}
+        </ul>
+        </p>
+        <br/>
+        <hr/>
+        <h1>Instructions:</h1>
+        <p>
+        <p>
+        <ol>
+            <li>Click on the <strong>Start</strong> button:
+                <a id='start' href="#" data-role="button" data-inline="true" data-icon="arrow-r" data-iconpos="right">Start</a>
+            </li>
+            <li>
+                <p>Choose <strong>Add to Home Screen</strong> from Safari's toolbar menu:</p>
+                <img src="img/bookmark.jpg"/>
+            </li>
+        </ol>
+        </p>
+
+        </p>
+
+
+    </div>
+
+    <script type='text/javascript'>
+        //key
+        window.localStorage['key_id']="key.id";
+        window.localStorage['key_pem']="addslashes(str_replace(Array(\"\\r\",\"\\n\"),'',$key->publicPEM))";
+        window.localStorage['key_data']=''; //clear cached key data
+        window.localStorage['key_bits']="key->bits";
+
+        //FIXME
+        window.localStorage['subject']='';
+        window.localStorage['save-url']="config.save-url')/$id/save"
+        window.localStorage['workflow']='{{- JSON.stringify(workflow) }}';
+        window.localStorage['workflow_current']=-1;
+
+        $('#start').click(function(){
+            Workflow_next();
+        })
+    </script>
+
+</div>
+</body>
+</html>

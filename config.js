@@ -4,7 +4,8 @@ exports.routes={
     'GET':{
         '/': 			'index',
         '/(([\\w]+))':  'study',
-        '/(([\\w]+))/(([\\w]+))':   {'study':'form'}
+        '/(([\\w]+))/(([\\w]+))':   {'study':'form'},
+        '/(([\\w]+))/(([\\w]+))/((mini))': {'study':'form'}
     },
 
     'POST':{
@@ -13,6 +14,8 @@ exports.routes={
 
 exports.theme={
     global:'b',
+    form:'c',
+    question:'d',
     nav:'a',
     content:'c',
     input:'c',
@@ -26,16 +29,28 @@ exports.theme={
 }
 
 exports.adapters={
-    'mobile':'adapters/jquery-mobile',
-    'desktop':'adapters/bootstrap'
+    'mobile':'adapters/jquery.mobile',
+    'desktop':'adapters/jquery.mobile.mini'
+    //'desktop':'adapters/bootstrap'
 };
+
+exports.views={
+    'mobile':'jquery.mobile',
+    'desktop':'jquery.mobile',
+    //'desktop':'bootstrap'
+}
 
 exports.lib={
 	'jquery':'lib/jquery/1.7.2',
-    'jquery-mobile':'lib/jquery/mobile/1.1.0',
-    'jquery-plugins':'lib/jquery/plugins'
+    //'jquery.mobile':'lib/jquery/mobile/1.1.0',
+    //'jquery.mobile':'lib/jquery/mobile/1.1.1',
+    //'jquery.mobile':'lib/jquery/mobile/1.2.0-alpha.1',
+    'jquery.mobile':'lib/jquery/mobile/latest',
+    'jquery.plugins':'lib/jquery/plugins',
+    'require':'lib/require/2.0.4',
+    'bootstrap':'lib/bootstrap/2.0.4',
+    'validation':'lib/jquery/plugins'
 };
-
 /* default database config */
 exports.db={
 	name:'admin',

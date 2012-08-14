@@ -1,0 +1,190 @@
+.ui-header,.ui-footer
+{
+    max-width:1024px !important; /* 1024px + 8px padding from ui-content */
+    margin:0 auto;
+}
+
+.os-ui-header-top
+{
+    position:fixed;
+    top:0;
+    width:100%;
+    z-index: 99;
+}
+
+.ui-header+.ui-content
+{
+    padding:8px !important;
+    max-width: 800px !important;
+    min-height:300px;
+    margin:0 auto;
+}
+
+.ui-content
+{
+    padding:8px !important;
+    max-width: 800px !important;
+    margin:0 auto;
+}
+
+.os-ui-tooltip
+{
+    font-weight:normal;
+    font-size:small;
+    display:inline-block;
+}
+
+.os-ui-header-top+.ui-content
+{
+    margin-top:30px;
+}
+
+/* desktop: keeps radio/checkbox groups from extending indefinitely to the right */
+.ui-controlgroup-controls
+{
+    max-width:400px !important;
+}
+
+.os-ui-inline .ui-controlgroup-controls
+{
+    display:inline;
+    margin-left:5px;
+}
+
+.ui-controlgroup-label
+{
+    font-size:14px !important;
+    position:relative !important;
+    top:2px !important;
+}
+
+.ui-controlgroup.os-ui-inline .ui-controlgroup-label
+{
+    width:inherit;
+    display:inline;
+}
+
+/* limits the width of number inputs. some formatting for suffixes */
+.os-ui-number
+{
+	width:65px !important;
+    display:inline !important;
+}
+
+.os-ui-container
+{
+    width:100% !important;
+    padding:5px 0px 5px 0px !important;
+    text-align:right;
+    position:relative;
+}
+
+/* in text inputs embedded in radiogroups or checkboxgroups, the previous radio/checkbox does not
+ have a border. This applies to inputs that are not the last item in the list.
+ The convoluted selector bellow attempts to find such embedded inputs and adds a top border to them */
+.ui-radio+.os-ui-container:not(:last-child),.ui-checkbox+.os-ui-container:not(:last-child)
+{
+    border-top:1px solid lightgray;
+}
+
+/* some items in horizontal radiogroups in containers don't have a bottom border */
+fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-controls .ui-radio label
+{
+    border-bottom-width:1px !important;
+}
+
+.os-ui-field-container
+{
+    padding-left:0px;
+}
+
+.os-ui-container-text
+{
+    margin-top:3px !important;
+}
+
+/* make text inputs have the same width as the radio/checkbox groups */
+.os-ui-text
+{
+    width:95% !important;
+}
+
+/* make embedded fields extend to 100%. NOTE: not sure we need this anymore (jqm 1.2.0) */
+/*fieldset[data-role=controlgroup] div.ui-controlgroup-controls div[data-role=fieldcontain] fieldset[data-role=controlgroup] div.ui-controlgroup-controls
+{
+    width:100% !important;
+}*/
+
+.os-ui-suffix
+{
+	display:inline !important;
+    margin-left:10px;
+    font-size:14px;
+}
+
+.os-ui-button-mini
+{
+    width:24px !important;
+    height:23px !important;
+    display:inline-block !important;
+    position:absolute !important;
+    z-index:99;
+}
+
+div.os-ui-container a.os-ui-button-mini
+{
+    top:4px !important;
+    right:-10px !important;
+}
+
+.ui-controlgroup-controls .os-ui-button-mini
+{
+    top:7px !important;
+    right:5px !important;
+
+}
+
+.os-ui-button-mini span
+{
+    padding:0px 0px 0px 0px !important;
+    width:18px !important;
+    margin-left:3px;
+}
+
+
+input {
+    box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+}
+
+/* for <li> elements representing s-type="container". keeps error buttons right-aligned properly */
+li.os-ui-container-container
+{
+    padding-right:0px !important;
+}
+
+.os-ui-hidden
+{
+    display:none !important;
+}
+
+.os-ui-error-label
+{
+    position:absolute;
+    padding-right:35px !important;
+    z-index:98; /* error mini button -1 */
+}
+
+.ui-controlgroup-controls .os-ui-error-label
+{
+    right:2px !important;
+    top:4px !important;
+}
+
+div.os-ui-container .os-ui-error-label
+{
+    top:1px !important;
+    right:-13px !important; /* check os-ui-button-mini */
+
+}

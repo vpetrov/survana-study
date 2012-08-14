@@ -1,5 +1,7 @@
 var step=require('step');
 var path=require('path');
+var depend=require('../lib/depend');
+var validate=require('../lib/validate');
 
 //returns an array of objects, of the form {'id':str,'url':str}
 function build_workflow(url_prefix,forms)
@@ -88,6 +90,12 @@ exports.index=function(req,res,rerror)
         {
             if (err) throw err;
 
+            if (!result)
+            {
+                res.send('Study not found: '+study_id,404);
+                return;
+            }
+
             study=result;
 
             dbGetForms(db,study.forms,this)
@@ -109,7 +117,7 @@ exports.index=function(req,res,rerror)
                 study.forms[pos]=form;
             }
 
-            res.render(req.views+'study/install',{
+            res.render(req.views+'study/index',{
                 study:study,
                 workflow:build_workflow(req.originalUrl,study.forms),
                 layout:'../layout'
@@ -120,8 +128,9 @@ exports.index=function(req,res,rerror)
 
 exports.form=function(req,res,rerror)
 {
-    var db=req.app.db;
-    var config=req.app.config;
+    var app=req.app;
+    var db=app.db;
+    var config=app.config;
 
     var study_id=req.params[0];
     var form_id=req.params[1];
@@ -164,15 +173,27 @@ exports.form=function(req,res,rerror)
 
             //load appropriate adapter, from module root
             if (req.mobile)
-                adapter=require(path.join(req.app.dirname,config.adapters.mobile));
+                adapter=require(path.join(app.dirname,config.adapters.mobile));
             else
-                adapter=require(path.join(req.app.dirname,config.adapters.desktop));
+                adapter=require(path.join(app.dirname,config.adapters.desktop));
+
+            //compute field dependencies
+            var dep=depend.get(form['data']);
+            //translate dependencies to javascript
+            var dep_js=depend.translate(dep);
+            var rules=validate.get(form['data']);
+
+            console.log('rules',rules);
 
             res.render(req.views+'study/form',{
                 study:study,
                 form:form,
-                html:adapter.toHTML(form,req.app.config.theme),
-                layout:'../layout'
+                mobile:req.mobile,
+                dep:dep,
+                dep_js:dep_js,
+                validation_rules:rules,
+                html:adapter.toHTML(form,config.theme),
+                layout:'../form'
             });
         }
     );

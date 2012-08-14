@@ -1,0 +1,59 @@
+define(
+        [
+            'require',
+            'jquery'
+        ],
+function(require,$)
+{
+    //fix jQuery/Apple issue with Ajax loading in offline mode
+    if (window.navigator.standalone)
+        $.ajaxSetup({isLocal:true});
+
+    //jquery.mobile init
+    $(document).bind('mobileinit',function(){
+        //$.mobile.autoInitializePage=false;
+        $.mobile.ignoreContentEnabled=true; //@data-enhance support
+    });
+
+    //load jquery mobile and survana
+    require([
+                'jquery.mobile',
+                'survana'
+            ],
+    function($m,Survana){
+
+        $(document).on({
+            'pagesave':Survana.onPageSave, //custom event
+
+            'pagebeforeload':Survana.onPageBeforeLoad,
+            'pageload':Survana.onPageLoad,
+            'pageloadfailed':Survana.onPageLoadFailed,
+            'pagebeforechange':Survana.onPageBeforeChange,
+            'pagechange':Survana.onPageChange,
+            'pagechangefailed':Survana.onPageChangeFailed,
+            'pagebeforeshow':Survana.onPageBeforeShow,
+            'pagebeforehide':Survana.onPageBeforeHide,
+            'pageshow':Survana.onPageShow,
+            'pagehide':Survana.onPageHide,
+            'pagebeforecreate':Survana.onPageBeforeCreate,
+            'pagecreate':Survana.onPageCreate,
+            'pageinit':Survana.onPageInit,
+            'pageremove':Survana.onPageRemove,
+            'updatelayout':Survana.onPageUpdateLayout
+        });
+
+        $(document).ready(function(){
+
+            var check=Survana.checkPrerequisites();
+
+            if (check!==true)
+            {
+                window.location.href='unsupported';
+                return;
+            }
+
+            $(window).on('orientationchange',Survana.onOrientationChanged);
+        });
+
+    });
+});

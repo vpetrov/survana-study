@@ -1,3 +1,7 @@
+/** Notes:
+ * s-inline : can only inline input boxes
+ * @type {*}
+ */
 var etree=require('elementtree');
 var ElementTree=etree.ElementTree;
 var Element=etree.Element;
@@ -18,9 +22,6 @@ exports.element=function(obj,extra,extra2)
 {
     var result=html.element(obj,extra,extra2);
 
-    if (this.mini===true)
-        result.set('data-mini','true');
-
     //return the new element
     return result;
 }
@@ -32,8 +33,7 @@ exports.label=function(obj,for_element)
         for_element.set('id',autil.randomId());
 
     var opt={
-        'tag':  'label',
-        'class':'control-label'
+        'tag':  'label'
     };
 
     //label from object
@@ -49,28 +49,46 @@ exports.label=function(obj,for_element)
     return this.element(opt);
 }
 
-exports.field=function(obj,label,type)
+/** direction: horizontal or vertical (default)*
+ *  cel: container element: div or li (default)
+ */
+exports.field=function(obj,opt)
 {
+    var label=autil.extract(opt,'label',null);
+    var direction=autil.extract(opt,'direction','vertical');
+    var container=autil.extract(opt,'container');
+    var enable_fieldset=autil.extract(opt,'fieldset',true);
+    var inline_fieldset=autil.extract(opt,'s-inline',false);
+
     var container_opt={
-        'tag':          'div',
-        'class':        'control-group'
+        'tag':          'li',
+        'data-role':    'fieldcontain'
     };
+
+    autil.override(container_opt,container);
 
     var container=this.element(container_opt);
+    var fieldset;
 
-    if (label)
-        container.append(this.label({
-            'html':label,
-            'class':'control-label'
-        }));
+    if (enable_fieldset)
+    {
+        var fieldset_opt={
+            'tag':          'fieldset',
+            'data-role':    'controlgroup',
+            'data-type':    direction,
+        };
 
-    var opt={
-        'tag':          'div',
-        'class':        'controls'
-    };
+        if (inline_fieldset)
+            fieldset_opt['class']='os-ui-inline';
 
-    var fieldset=this.element(opt);
-    container.append(fieldset);
+        fieldset=this.element(fieldset_opt);
+        container.append(fieldset);
+
+        if (label)
+            fieldset.append(this.element('legend',label));
+    }
+    else
+        fieldset=container;
 
     this.append(fieldset,obj);
 
@@ -94,9 +112,14 @@ exports.append=function(container,obj,createCallback)
         //else, attempt to call user-specified create function
         else if (typeof(createCallback)==='function')
             element=createCallback.call(this,obj);
-        //else, fallback on this.xtype() and this.element()
+        //else, fallback on this.stype() and this.element()
         else
-            element=this.xtype(obj);
+        {
+            if (typeof(obj['s-embedded'])==='undefined')
+                obj['s-embedded']=true;
+
+            element=this.stype(obj);
+        }
 
         //finally, append the element, if possible
         if (element)
@@ -115,7 +138,10 @@ exports.append=function(container,obj,createCallback)
 
 exports.hfield=function(obj,label)
 {
-    return this.field(obj,label,'horizontal');
+    return this.field(obj,{
+        'label':label,
+        'direction':'horizontal'
+    });
 }
 
 exports.input=function(obj)
@@ -124,6 +150,8 @@ exports.input=function(obj)
     var inner=autil.extract(obj,'inner');
     var label=autil.extract(obj,'label');
     var suffix=autil.extract(obj,'suffix');
+    var embedded=autil.extract(obj,'s-embedded',false);
+    var inline=autil.extract(obj,'s-inline',false);
 
     var opt={
         'tag':      'input',
@@ -163,15 +191,15 @@ exports.input=function(obj)
                 opt=obj;
 
                 if (typeof(opt['class'])==='undefined')
-                    opt['class']='os-ui-suffix help-inline';
+                    opt['class']='os-ui-suffix';
                 else
-                    opt['class']+=' os-ui-suffix help-inline';
+                    opt['class']+=' os-ui-suffix';
             }
             //create label from string
             else
                 opt={
                     'html':obj,
-                    'class':'os-ui-suffix help-inline'
+                    'class':'os-ui-suffix'
                 }
 
             return this.label(opt);
@@ -179,15 +207,29 @@ exports.input=function(obj)
         });
     }
 
-    return this.field(elements,label);
+    if (embedded)
+    {
+        var container=this.element({
+            'tag':'div',
+            'class':'os-ui-container'
+        });
+
+        this.append(container,elements);
+
+        return container;
+    }
+    else
+        return this.field(elements,{
+            'label':label,
+            's-inline':inline
+        });
 }
 
 exports.number=function(obj)
 {
     var opt={
         'type':     'number',
-        'pattern':  '\\d*',
-        'class':    'os-ui-number span2',
+        'class':    'os-ui-number',
         'data-theme':   this.theme.input
     };
 
@@ -201,14 +243,13 @@ exports.radio=function(obj)
     var opt={
         'tag':          'input',
         'type':         'radio',
+        'data-theme':   this.theme.radio,
         'tabindex':     this.tabindex++
     };
 
     autil.override(opt,obj);
 
-    var radio=this.element(opt);
-
-    return radio;
+    return this.element(opt);
 }
 
 exports.radiogroup=function(obj)
@@ -254,30 +295,26 @@ exports.radiogroup=function(obj)
                 autil.override(rgopt,ropt);
 
                 var radio=this.radio(rgopt);
-                var radiolabel=this.label({
-                                              'html':rlabel,
-                                              'class':'radio'
-                                          },radio);
+                var radiolabel=this.label(rlabel,radio);
 
-                radiolabel.append(radio);
-
-                return radiolabel;
+                return [radiolabel,radio];
             });
         }
 
         return result;
     });
 
-    if (direction==='vertical')
-        return this.field(fields,label);
-
-    return this.hfield(fields,label);
+    return this.field(fields,{
+        'label':label,
+        'direction':direction
+    });
 }
 
 exports.question=function(obj)
 {
     var opt={
-        'tag':  'h3',
+        'tag':  'li',
+        'data-role':'list-divider',
         'class':'os-ui-question'
     };
 
@@ -295,7 +332,8 @@ exports.text=function(obj)
         'type':         'text',
         'value':        undefined,
         'label':        ' ',
-        'class':        'os-ui-text span4',
+        'data-theme':   this.theme.input,
+        'class':        'os-ui-text',
         'inner':        {
             'tag':  'div',
             'class':'os-ui-container-text'
@@ -307,11 +345,58 @@ exports.text=function(obj)
     return this.input(opt);
 }
 
+exports.container=function(obj)
+{
+    var items=autil.extract(obj,'items',[]);
+
+    //prevent container items from being treated as embedded fields,
+    //as jquery won't render them properly
+    for (var i in items)
+        if (typeof(items[i]['s-embedded'])==='undefined')
+            items[i]['s-embedded']=false;
+
+    var cel=this.element({
+        'tag':'ul',
+        'class':'os-ui-field-container'
+    });
+
+    this.append(cel,items);
+
+    //this div is used to prevent the container from being treated as
+    //an embedded list by jquery mobile
+    var buffer=this.element({
+        tag:'div'
+    });
+
+    buffer.append(cel);
+
+    var field=this.field(buffer,{
+        'fieldset':false,
+        'container':{
+            'class':'os-ui-container-container'
+        }
+    });
+
+    if (obj['s-embedded'])
+    {
+        var buffer2=this.element({
+            'tag':'ul',
+            'class':'os-ui-field-container'
+        });
+
+        buffer2.append(field);
+        return buffer2;
+    }
+
+    return field;
+}
+
 exports.checkbox=function(obj)
 {
     var opt={
         'tag':  'input',
         'type': 'checkbox',
+        'data-theme':   this.theme.check,
         'tabindex': this.tabindex++
     };
 
@@ -351,6 +436,12 @@ exports.checkboxgroup=function(obj)
                         name=name_prefix+(i+1);
 
                 }
+                //custom objects? let this.append handle those
+                else if (typeof(obj2['s-type'])!=='undefined')
+                {
+                    this.append(result,obj2);
+                    return;
+                }
                 else
                 {
                     id=obj2['id'];
@@ -367,16 +458,11 @@ exports.checkboxgroup=function(obj)
                 autil.override(opt,obj);
 
                 var check=this.checkbox(opt);
-                var checklabel=this.label({
-                                              'html':clabel,
-                                              'class':'checkbox'
-                                          },check);
-
-                checklabel.append(check);
+                var checklabel=this.label(clabel,check);
 
                 ++i;
 
-                return checklabel;
+                return [checklabel,check];
             });
         }
 
@@ -384,24 +470,37 @@ exports.checkboxgroup=function(obj)
     });
 
 
-    return this.field(elements,label);
+    return this.field(elements,{
+        'label':label
+    });
 }
 
-exports.xtype=function(obj)
+exports.stype=function(obj)
 {
-    if (typeof obj['xtype'] === 'undefined')
-        return this.element(obj);
+    //does this object have an s-type property?
+    if (typeof obj['s-type'] === 'undefined')
+    {
+        //does it have an HTML tag?
+        if (typeof(obj['tag'])!=='undefined')
+            return this.element(obj);
 
-    var xtype=obj['xtype'];
+        //if the object has an 'items' property, then we can assume it is a container
+        if (typeof(obj['items'])!=='undefined')
+            obj['s-type']='container';
+        else
+        {
+            //give up at this point
+            console.error('SType: Don\'t know what to do with this object:',obj);
+        }
+    }
 
-    if (typeof this[xtype] === 'undefined')
-        throw Error('Unsupported XType "'+xtype+'" declared by object with label: '+obj.label);
+    var stype=autil.extract(obj,'s-type');
 
-    //remove 'xtype' property
-    delete obj['xtype'];
+    if (typeof this[stype] === 'undefined')
+        throw Error('Unsupported SType "'+stype+'" declared by object with label: '+obj.label);
 
-    //call the xtype handler
-    return this[xtype](obj);
+    //call the stype handler
+    return this[stype](obj);
 };
 
 exports.form=function(obj)
@@ -411,17 +510,32 @@ exports.form=function(obj)
         'id':           obj.id,
         'action':       '?',        //unused
         'method':       'post',     //unused
-        'class':        'form-horizontal'
+        'data-form':    obj.code,
+        'data-version': obj.version
+    };
+
+    var list={
+        'tag':'ul',
+        'data-role':'listview',
+        'data-inset':'true',
+        'data-theme':this.theme.form,
+        'data-divider-theme':this.theme.question
     };
 
     var form=this.element(opt);
+    var list=this.element(list);
+
+    form.append(list);
 
     //convert all questions
     for (var i in obj.data)
     {
         var q=obj.data[i];
 
-        form.append(this.xtype(q));
+        var xel=this.stype(q);
+
+        if (xel)
+            list.append(xel);
     }
 
     return form;
@@ -429,16 +543,14 @@ exports.form=function(obj)
 
 exports.toHTML=function(obj,theme)
 {
-    this.tabindex=0;
+    this.tabindex=1;
     this.theme=theme;
 
     var form=this.form(obj);
     var html=new ElementTree(form);
 
-    console.log(form);
-
     //return 'xhtml'
     return html.write({
-                          'xml_declaration':false
-                      });
+       'xml_declaration':false
+    });
 };

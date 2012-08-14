@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{=config.title}}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href='{{=config.prefix}}js/{{=config.lib['jquery.mobile']}}/jquery.mobile.css' />
+
+    <link rel="stylesheet" href='{{=config.prefix}}css/jquery.mobile.css' />
+<!--
+    <script type="text/javascript" src='{{=config.prefix}}js/{{=config.lib.jquery}}/jquery.js'></script>
+    <script type="text/javascript" src='{{=config.prefix}}js/{{=config.lib['jquery-mobile']}}/jquery.mobile.js'></script>
+    <script type="text/javascript" src='{{=config.prefix}}js/{{=config.lib['jquery-plugins']}}/validation.min.js'></script>
+    <script type="text/javascript" src='{{=config.prefix}}js/crypto.min.js'></script>
+
+    <script type="text/javascript" src='{{=config.prefix}}js/appcache.js'></script>
+    <script type="text/javascript" src='{{=config.prefix}}js/survana.js'></script>
+    <script type="text/javascript" src='{{=config.prefix}}js/workflow.js'></script>
+-->
+    <script type="text/javascript" data-main="{{=config.prefix}}js/app" src='{{=config.prefix}}js/{{=config.lib.require}}/require.js'></script>
+    <script type="text/javascript">
+        requirejs.config({
+            baseUrl:"{{=config.prefix}}js",
+            paths:{{- JSON.stringify(config.to_requirejs())}}
+        });
+    </script>
+
+
+</head>
+<body>
+{{- body }}
+</body>
+</html>
