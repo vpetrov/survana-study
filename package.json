@@ -2,7 +2,7 @@
     "name":		"survana-study",
     "version":	"0.0.1c",
     "author":	"Victor Petrov <victor_petrov@harvard.edu>",
-    "private":  true,
+    "private":  false,
     "description":"Survana study module",
     "repository":{
         "type":	"git",
