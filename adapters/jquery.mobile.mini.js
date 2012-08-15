@@ -44,7 +44,12 @@ exports.checkbox=function(obj)
 }
 exports.checkboxgroup=jqm.checkboxgroup;
 exports.option=jqm.option;
-exports.select=jqm.select;
+exports.optgroup=jqm.optgroup;
+exports.select=function(obj)
+{
+    this.minify(obj);
+    return jqm.select.apply(this,arguments);
+}
 exports.stype=jqm.stype;
 exports.form=jqm.form;
 exports.toHTML=function(obj,theme)

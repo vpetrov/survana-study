@@ -27,6 +27,15 @@
     margin:0 auto;
 }
 
+@media all and (max-width:450px)
+{
+    .ui-header .ui-title, .ui-footer .ui-title
+    {
+        margin-left:10px !important;
+        text-align:left;
+    }
+}
+
 .os-ui-tooltip
 {
     font-weight:normal;

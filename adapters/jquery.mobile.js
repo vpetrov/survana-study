@@ -454,10 +454,57 @@ exports.option=function(obj)
     return this.element(opt);
 }
 
+exports.optgroup=function(obj)
+{
+    var label=autil.extract(obj,'s-label','');
+    var items=autil.extract(obj,'items',[]);
+
+    var opt={
+        'tag':'optgroup',
+        'label':label
+    };
+
+    autil.override(opt,obj);
+
+    var result=this.element(opt);
+
+    console.log('optgroup pre',items);
+
+    this.append(result,items,function(obj){
+        if (typeof(obj['s-type'])!=='undefined')
+        {
+            this.append(result,obj);
+            return;
+        }
+
+        var options=[];
+
+        for (var i in obj)
+        {
+            var label=i;
+            var value=obj[i];
+
+            var oopt={
+                's-type':'option',
+                's-label':i,
+                "s-value":value
+            }
+
+            this.append(options,oopt);
+        }
+
+        return options;
+    });
+
+    return result;
+}
+
 exports.select=function(obj)
 {
+
     var items=autil.extract(obj,'items',[]);
     var label=autil.extract(obj,'label');
+    var empty=autil.extract(obj,'s-empty',false);
     var opt={
         'tag':'select',
         'data-theme':this.theme.select,
@@ -466,20 +513,49 @@ exports.select=function(obj)
 
     autil.override(opt,obj);
 
+    console.log('select id',opt);
     autil.tryset(opt,'id','name');
+
+    console.log('select id',opt);
 
     var select=this.element(opt);
 
-    //attempt to convert items with no s-type into 'option' objects
-    //for convenience, items with 's-store' are ignored
-    for (var i in items)
+    if (empty)
     {
-        var item=items[i];
-        if ((typeof(item['s-type'])==='undefined') && (typeof(item['s-store'])==='undefined'))
-            item['s-type']='option';
+        items.unshift({
+            's-type':'option',
+            's-label':''
+        });
     }
 
-    this.append(select,items);
+    console.log('select pre',items);
+    this.append(select,items,function(obj){
+        if (typeof(obj['s-type'])!=='undefined')
+        {
+            this.append(select,obj);
+            return;
+        }
+
+        console.log('select dealing with ',obj);
+
+        var options=[];
+
+        for (var i in obj)
+        {
+            var label=i;
+            var value=obj[i];
+
+            var oopt={
+                's-type':'option',
+                's-label':i,
+                "s-value":value
+            }
+
+            this.append(options,oopt);
+        }
+
+        return options;
+    });
 
     return this.field(select,{
         'label':label

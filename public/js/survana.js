@@ -343,6 +343,9 @@ function ($,$m,Workflow,Depend,Validate)
 
                 //show
                 case 'show':
+                    //make sure the element is enabled
+                    action(el,'enable');
+
                     //embedded fields
                     var elements=el.closest('.os-ui-container');
 
@@ -370,6 +373,8 @@ function ($,$m,Workflow,Depend,Validate)
 
                     elements.hide();
 
+                    //make sure the element is disabled
+                    action(el,'disable');
                     break;
             }
         }
