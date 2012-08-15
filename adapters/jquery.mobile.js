@@ -9,6 +9,7 @@ var SubElement=etree.SubElement;
 var util=require('util');
 var autil=require('../lib/util');
 var html=require('./html');
+var store=require('../lib/store');
 
 /** Generates an HTML element
  * Call type 1: element('div','text value',{'attr1':'value','attr2':value});
@@ -23,6 +24,50 @@ exports.element=function(obj,extra,extra2)
     var result=html.element(obj,extra,extra2);
 
     //return the new element
+    return result;
+}
+
+function store_item(data,tpl)
+{
+    var result={};
+
+    for (var p in tpl)
+    {
+        var from=tpl[p];
+
+        if (typeof(data[from])!=='undefined')
+            result[p]=data[from];
+        else
+            result[p]=from;
+    }
+
+    if (result)
+        return result;
+}
+
+exports.store=function(obj)
+{
+    var store_name=autil.extract(obj,'s-store');
+    var sort=autil.extract(obj,'s-sort');
+    var item_tpl=autil.extract(obj,'s-item');
+
+    if (!store_name)
+        return;
+
+    var result=[];
+
+    var data=store.load(store_name);
+
+    for (var i in data)
+    {
+        var item_data={
+            'key':i,
+            'value':data[i]
+        };
+
+        result.push(store_item(item_data,item_tpl));
+    }
+
     return result;
 }
 
@@ -97,6 +142,9 @@ exports.field=function(obj,opt)
 
 exports.append=function(container,obj,createCallback)
 {
+    if (typeof(obj)==='undefined')
+        return;
+
     if (util.isArray(obj))
     {
         for (var i=0;i<obj.length;++i)
@@ -391,6 +439,53 @@ exports.container=function(obj)
     return field;
 }
 
+exports.option=function(obj)
+{
+    var label=autil.extract(obj,'s-label','');
+    var value=autil.extract(obj,'s-value','');
+    var opt={
+        'tag':'option',
+        'html':label,
+        'value':value
+    };
+
+    autil.override(opt,obj);
+
+    return this.element(opt);
+}
+
+exports.select=function(obj)
+{
+    var items=autil.extract(obj,'items',[]);
+    var label=autil.extract(obj,'label');
+    var opt={
+        'tag':'select',
+        'data-theme':this.theme.select,
+        'tabindex': this.tabindex++
+    };
+
+    autil.override(opt,obj);
+
+    autil.tryset(opt,'id','name');
+
+    var select=this.element(opt);
+
+    //attempt to convert items with no s-type into 'option' objects
+    //for convenience, items with 's-store' are ignored
+    for (var i in items)
+    {
+        var item=items[i];
+        if ((typeof(item['s-type'])==='undefined') && (typeof(item['s-store'])==='undefined'))
+            item['s-type']='option';
+    }
+
+    this.append(select,items);
+
+    return this.field(select,{
+        'label':label
+    });
+}
+
 exports.checkbox=function(obj)
 {
     var opt={
@@ -487,11 +582,12 @@ exports.stype=function(obj)
         //if the object has an 'items' property, then we can assume it is a container
         if (typeof(obj['items'])!=='undefined')
             obj['s-type']='container';
+        //if the object has an 's-store' property, then its stype should be 'store'
+        else if (typeof(obj['s-store'])!=='undefined')
+            obj['s-type']='store';
         else
-        {
             //give up at this point
             console.error('SType: Don\'t know what to do with this object:',obj);
-        }
     }
 
     var stype=autil.extract(obj,'s-type');

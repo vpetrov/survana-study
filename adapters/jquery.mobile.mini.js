@@ -1,11 +1,14 @@
 var jqm=require('./jquery.mobile');
 
+//todo: this file needs inheritance, instead of delegation
+
 exports.minify=function(obj)
 {
     if (typeof(obj['data-mini'])==='undefined')
         obj['data-mini']='true';
 }
 exports.element=jqm.element;
+exports.store=jqm.store;
 exports.label=jqm.label;
 exports.field=function(obj,label,type)
 {
@@ -40,6 +43,8 @@ exports.checkbox=function(obj)
     return jqm.checkbox.apply(this,arguments);
 }
 exports.checkboxgroup=jqm.checkboxgroup;
+exports.option=jqm.option;
+exports.select=jqm.select;
 exports.stype=jqm.stype;
 exports.form=jqm.form;
 exports.toHTML=function(obj,theme)

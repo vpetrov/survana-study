@@ -93,6 +93,14 @@ fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-c
     border-bottom-width:1px !important;
 }
 
+/* some items in horizontal radiogroups in containers don't have a bottom border */
+.ui-select
+{
+    height:40px !important;
+    margin-right:10px !important;
+}
+
+
 .os-ui-field-container
 {
     padding-left:0px;
@@ -219,4 +227,15 @@ div.os-ui-container .os-ui-error-label
     top:1px !important;
     right:-13px !important; /* check os-ui-button-mini */
 
+}
+
+@media all and (min-width:450px)
+{
+    /* because of the embedded <li> (which has its right padding removed), the select box expands all the way to the
+       edge of the page (for non-iphone styles). The default is 78%, so decreasing it to 76% compensates visually for
+       the missing padding */
+    .os-ui-container-container div .os-ui-field-container li fieldset .ui-controlgroup-controls
+    {
+        width:76% !important;
+    }
 }

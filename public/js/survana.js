@@ -113,6 +113,26 @@ function ($,$m,Workflow,Depend,Validate)
         Validate.clean();
     }
 
+    function clearField(f)
+    {
+        f=$(f);
+        var el=f.get(0);
+
+        //note: couldn't get jquery mobile to use .val() to update select values, so this hack uses the raw html
+        //select and its 'selectedIndex' property, and then fires a 'change' even on that select, which is then
+        //handled by jquery mobile to update the UI.
+        if (el.tagName.toLowerCase()==='select')
+        {
+            if (!el.disabled && (el.selectedIndex!=0))
+            {
+                el.selectedIndex=0;
+                f.trigger('change');
+            }
+        }
+        else
+            $(f).val('');
+    }
+
     function onPageHide(e)
     {
         logevent(e);
@@ -134,7 +154,7 @@ function ($,$m,Workflow,Depend,Validate)
 
         page.css('visibility','');
         page.find('a.btn-next').click(onNextClick);
-        page.find('input').change(onFieldChanged);
+        page.find('input,select').change(onFieldChanged);
 
         page.find('form').each(function(i,f){
             Validate.init(f.id,f);
@@ -301,7 +321,7 @@ function ($,$m,Workflow,Depend,Validate)
                     //todo: make sure this works on numeric inputs, on selects, on radiogroups and checkboxgroups
                     if (action_name==='disable')
                     {
-                        el.val('');
+                        clearField(el);
                         el.trigger('fielddisabled');
                     }
 
