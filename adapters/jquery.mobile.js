@@ -104,6 +104,7 @@ exports.field=function(obj,opt)
     var container=autil.extract(opt,'container');
     var enable_fieldset=autil.extract(opt,'fieldset',true);
     var inline_fieldset=autil.extract(opt,'s-inline',false);
+    var maximize_fieldset=autil.extract(opt,'s-maximize',false);
 
     var container_opt={
         'tag':          'li',
@@ -123,8 +124,23 @@ exports.field=function(obj,opt)
             'data-type':    direction,
         };
 
+        autil.override(fieldset_opt,opt);
+
         if (inline_fieldset)
-            fieldset_opt['class']='os-ui-inline';
+        {
+            if (typeof(fieldset_opt['class'])!=='undefined')
+                fieldset_opt['class']+=' os-ui-inline';
+            else
+                fieldset_opt['class']='os-ui-inline';
+        }
+
+        if (maximize_fieldset)
+        {
+            if (typeof(fieldset_opt['class'])!=='undefined')
+                fieldset_opt['class']+=' os-ui-maximize';
+            else
+                fieldset_opt['class']='os-ui-maximize';
+        }
 
         fieldset=this.element(fieldset_opt);
         container.append(fieldset);
@@ -200,6 +216,13 @@ exports.input=function(obj)
     var suffix=autil.extract(obj,'suffix');
     var embedded=autil.extract(obj,'s-embedded',false);
     var inline=autil.extract(obj,'s-inline',false);
+    var maximize=autil.extract(obj,'s-maximize',false);
+    var field_opt={
+        'label':label,
+        's-inline':inline,
+        's-maximize':maximize
+    };
+    autil.override(field_opt,autil.extract(obj,'s-field-opt',{}));
 
     var opt={
         'tag':      'input',
@@ -230,28 +253,18 @@ exports.input=function(obj)
     {
         //append suffix to elements, specify create callback
         this.append(elements,suffix,function(obj){
-            var result=null;
-            var opt=null;
 
-            //create label from obj
-            if (typeof(obj)==='object')
-            {
-                opt=obj;
-
-                if (typeof(opt['class'])==='undefined')
-                    opt['class']='os-ui-suffix';
-                else
-                    opt['class']+=' os-ui-suffix';
-            }
-            //create label from string
+            if (typeof(obj)==="object")
+                this.append(elements,obj);
             else
-                opt={
-                    'html':obj,
-                    'class':'os-ui-suffix'
-                }
+            {
+                obj={
+                    "html":obj,
+                    "class":"os-ui-suffix"
+                };
 
-            return this.label(opt);
-
+                return this.label(obj);
+            }
         });
     }
 
@@ -267,18 +280,19 @@ exports.input=function(obj)
         return container;
     }
     else
-        return this.field(elements,{
-            'label':label,
-            's-inline':inline
-        });
+        return this.field(elements,field_opt);
 }
 
 exports.number=function(obj)
 {
+    //the controlgroup 'div' element is created by jqm in the browser, and we need to make the element be displayed
+    //inline. the only way I found to do that, is to attach a class to the parent, which happens to be a fieldset,
+    //so this is passing a special class for the fieldset and the css file defines rules for the controlgroup 'div'
+    //that is a child of the fieldset.
     var opt={
         'type':     'number',
         'class':    'os-ui-number',
-        'data-theme':   this.theme.input
+        'data-theme':   this.theme.input,
     };
 
     autil.override(opt,obj);
@@ -312,6 +326,8 @@ exports.radiogroup=function(obj)
     var direction=autil.extract(obj,'direction','horizontal',function(d){
         return d.toLowerCase();
     });
+    var inline=autil.extract(obj,'s-inline',false);
+    var maximize=autil.extract(obj,'s-maximize',false);
 
     autil.override(opt,obj);
 
@@ -354,7 +370,10 @@ exports.radiogroup=function(obj)
 
     return this.field(fields,{
         'label':label,
-        'direction':direction
+        'direction':direction,
+        's-inline':inline,
+        's-maximize':maximize,
+        'class':'os-ui-radiogroup'
     });
 }
 
@@ -468,8 +487,6 @@ exports.optgroup=function(obj)
 
     var result=this.element(opt);
 
-    console.log('optgroup pre',items);
-
     this.append(result,items,function(obj){
         if (typeof(obj['s-type'])!=='undefined')
         {
@@ -505,6 +522,8 @@ exports.select=function(obj)
     var items=autil.extract(obj,'items',[]);
     var label=autil.extract(obj,'label');
     var empty=autil.extract(obj,'s-empty',false);
+    var inline=autil.extract(obj,'s-inline',false);
+    var maximize=autil.extract(obj,'s-maximize',false);
     var opt={
         'tag':'select',
         'data-theme':this.theme.select,
@@ -558,7 +577,9 @@ exports.select=function(obj)
     });
 
     return this.field(select,{
-        'label':label
+        'label':label,
+        's-maximize':maximize,
+        's-inline':inline
     });
 }
 
@@ -583,6 +604,8 @@ exports.checkboxgroup=function(obj)
     var name_prefix=autil.extract(obj,'name_prefix');
     var label=autil.extract(obj,'label');
     var cbg_id=autil.extract(obj,'id');
+    var inline=autil.extract(obj,'s-inline',false);
+    var maximize=autil.extract(obj,'s-maximize',false);
 
     var elements=[];
     var i=0;
@@ -642,7 +665,9 @@ exports.checkboxgroup=function(obj)
 
 
     return this.field(elements,{
-        'label':label
+        'label':label,
+        's-inline':inline,
+        's-maximize':maximize
     });
 }
 

@@ -2,7 +2,6 @@
 {
     max-width:1024px !important; /* 1024px + 8px padding from ui-content */
     margin:0 auto;
-    z-index: 100; /* error button +1 */
 }
 
 .os-ui-header-top
@@ -10,6 +9,7 @@
     position:fixed;
     top:0;
     width:100%;
+    z-index: 100;
 }
 
 .ui-header+.ui-content
@@ -49,15 +49,25 @@
 }
 
 /* desktop: keeps radio/checkbox groups from extending indefinitely to the right */
-.ui-controlgroup-controls
+fieldset:not(.os-ui-maximize) .ui-controlgroup-controls
 {
     max-width:400px !important;
 }
 
 .os-ui-inline .ui-controlgroup-controls
 {
-    display:inline;
+    /*display:inline; */
     margin-left:5px;
+}
+
+.os-ui-inline .ui-controlgroup-controls .ui-radio
+{
+    margin-top:5px !important;
+}
+
+.os-ui-inline .ui-controlgroup-controls .ui-checkbox:first-child
+{
+    margin-top:5px !important;
 }
 
 .ui-controlgroup-label
@@ -77,7 +87,6 @@
 .os-ui-number
 {
 	width:65px !important;
-    display:inline !important;
 }
 
 .os-ui-container
@@ -120,7 +129,7 @@ fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-c
     margin-top:3px !important;
 }
 
-/* make text inputs have the same width as the radio/checkbox groups */
+/* make text inputs have the same width as the radio/checkbox groups (in embedded fields) */
 .os-ui-text
 {
     width:95% !important;
@@ -165,6 +174,13 @@ input {
 li.os-ui-container-container
 {
     padding-right:0px !important;
+}
+
+ul.os-ui-field-container li.os-ui-question
+{
+    list-style: none;
+    font-weight: normal;
+    font-size: 15px;
 }
 
 .os-ui-hidden
@@ -247,4 +263,48 @@ div.os-ui-container .os-ui-error-label
     {
         width:76% !important;
     }
+}
+
+/* this is so number inputs can be displayed inline. os-ui-inline is not enough. */
+fieldset.os-ui-inline-controlgroup .ui-controlgroup-controls
+{
+    display:inline !important;
+}
+
+/* horizontal radiogroups aren't compatible with 'display:inline' - they float left and the label floats right. */
+.os-ui-inline:not(.os-ui-radiogroup) .ui-controlgroup-controls
+{
+    display:inline !important;
+}
+
+li.ui-field-contain .os-ui-radiogroup.ui-controlgroup-vertical .ui-controlgroup-controls li.ui-field-contain
+{
+    margin-top:3px;
+    margin-bottom:5px;
+    text-align:right;
+}
+
+.os-ui-radiogroup.ui-controlgroup-vertical .ui-controlgroup-controls .ui-field-contain .ui-controlgroup .ui-controlgroup-controls
+{
+    max-width:none !important;
+    width:95% !important;
+}
+
+
+
+/*
+.ui-field-contain .ui-controlgroup-vertical .ui-controlgroup-controls .ui-field-contain .ui-controlgroup-vertical .ui-controlgroup-controls
+{
+    width:95% !important;
+} */
+
+/* these 2 rules make sure that inline textboxes don't resize to 100% due to some weird css rules in jquery mobile */
+.os-ui-inline .ui-controlgroup-controls .os-ui-container-text
+{
+    display:inline !important;
+}
+.os-ui-inline .ui-controlgroup-controls .os-ui-container-text .os-ui-text
+{
+    width:78% !important;
+    max-width:400px !important;
 }
