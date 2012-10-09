@@ -694,7 +694,7 @@ exports.stype=function(obj)
     var stype=autil.extract(obj,'s-type');
 
     if (typeof this[stype] === 'undefined')
-        throw Error('Unsupported SType "'+stype+'" declared by object with label: '+obj.label);
+        return null; //ignore unknown s-types
 
     //call the stype handler
     return this[stype](obj);
