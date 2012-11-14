@@ -1,5 +1,13 @@
+/** adapters/jquery.mobile.js
+ *
+ * @author Victor Petrov <victor.petrov@gmail.com>
+ * @copyright (c) 2012, The Neuroinformatics Research Group at Harvard University.
+ * @copyright (c) 2012, The President and Fellows of Harvard College.
+ * @license New BSD License (see LICENSE file for details).
+ */
+
 /** Notes:
- * s-inline : can only inline input boxes
+ * s-inline : can only inline input boxes (todo: double-check this)
  * @type {*}
  */
 var etree=require('elementtree');

@@ -1,3 +1,11 @@
+/** adapters/jquery.mobile.mini.js
+ *
+ * @author Victor Petrov <victor.petrov@gmail.com>
+ * @copyright (c) 2012, The Neuroinformatics Research Group at Harvard University.
+ * @copyright (c) 2012, The President and Fellows of Harvard College.
+ * @license New BSD License (see LICENSE file for details).
+ */
+
 var jqm=require('./jquery.mobile');
 
 //todo: this file needs inheritance, instead of delegation

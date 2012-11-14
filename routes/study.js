@@ -1,7 +1,17 @@
-var step=require('step');
+/** routes/study.js
+ *
+ * @author Victor Petrov <victor.petrov@gmail.com>
+ * @copyright (c) 2012, The Neuroinformatics Research Group at Harvard University.
+ * @copyright (c) 2012, The President and Fellows of Harvard College.
+ * @license New BSD License (see LICENSE file for details).
+ */
+
+var async=require('async');
 var path=require('path');
 var depend=require('../lib/depend');
 var validate=require('../lib/validate');
+var bind=require('../lib/bind');
+var ursa=require('ursa');
 
 //returns an array of objects, of the form {'id':str,'url':str}
 function build_workflow(url_prefix,forms)
@@ -21,112 +31,112 @@ function build_workflow(url_prefix,forms)
     return workflow;
 }
 
-function dbGetStudy(db,study_id,fnSuccess)
+function dbGetStudy(db,study_id,next)
 {
-    var colStudy=null;
-
-    step(
-        function getCollection() {
-            db.collection('study',this);
+    async.waterfall([
+        function getCollection(next2) {
+            db.collection('study',next2);
         },
 
-        function findStudy(err,collection){
-            if (err) throw err;
-
-            col=collection;
-
-            col.findOne({'id':study_id},fnSuccess);
+        function findStudy(collection,next2){
+            collection.findOne({'id':study_id},next2);
         }
-    );
+    ],
+    function processResult(err,result)
+    {
+        if (err)
+            return next(err);
+
+        next(null,result);
+    });
 }
 
-function dbGetForm(db,form_id,fnSuccess)
+function dbGetForm(db,form_id,next)
 {
-    step(
-        function getCollection() {
-            db.collection('form',this);
+    async.waterfall([
+        function getCollection(next2) {
+            db.collection('form',next2);
         },
 
-        function getForm(err,collection)
+        function getForm(collection,next2)
         {
-            if (err) throw err;
-
-            collection.findOne({'id':form_id},fnSuccess);
+            collection.findOne({'id':form_id},next2);
         }
-    );
+    ],
+    function processResult(err,result){
+        if (err)
+            next(err);
+
+        next(null,result);
+    });
 }
 
-function dbGetForms(db,forms,fnSuccess)
+function dbGetForms(db,forms,next)
 {
-    step(
-        function getCollection() {
-            db.collection('form',this);
+    async.waterfall([
+        function getCollection(next2) {
+            db.collection('form',next2);
         },
 
-        function getForms(err,collection)
+        function getForms(collection,next2)
         {
-            if (err) throw err;
-
             collection.find({'id':{
                 '$in':forms
-            }}).toArray(fnSuccess);
+            }}).toArray(next2);
         }
-    );
-}
+    ],
+    function processResult(err,result)
+    {
+        if (err)
+            next(err);
 
-exports.index=function(req,res,rerror)
+        next(null,result);
+    });
+};
+
+exports.index=function(req,res,next)
 {
     var db=req.app.db;
     var study_id=req.params[0];
-    var study=null;
 
-    step(
-        function getStudy()
+    async.waterfall([
+
+        function getStudy(next2)
         {
-            dbGetStudy(db,study_id,this);
+            dbGetStudy(db,study_id,next2);
         },
 
-        function getForms(err,result)
+        function prepareResult(study,next2)
         {
-            if (err) throw err;
-
-            if (!result)
-            {
-                res.send('Study not found: '+study_id,404);
-                return;
-            }
-
-            study=result;
-
-            dbGetForms(db,study.forms,this)
-        },
-
-        function result(err,forms)
-        {
-            if (err) return rerror(err);
-
-            if (!forms) return rerror(Error('Failed to fetch form descriptions'));
-
-            if (forms.length!=study.forms.length)
-                return rerror(Error("Study "+study.id+" has references to missing forms."));
-
-            for (var f in forms)
-            {
-                var form=forms[f];
-                var pos=study.forms.indexOf(form.id);
-                study.forms[pos]=form;
-            }
-
-            res.render(req.views+'study/index',{
-                study:study,
-                workflow:build_workflow(req.originalUrl,study.forms),
-                layout:'../layout'
-            });
+            console.log('found study',study);
+            next2(null,study);
         }
-    );
+    ],
+    function processResult(err,study){
+        if (err) {
+            next(err);
+            return;
+        }
+
+        if (!study.keys) {
+            next(new Error("No public keys could be found for this study."));
+            return;
+        }
+
+        var key=study.keys[parseInt(Math.random()*1000)%study.keys.length]; //random key
+
+        res.render(req.views+'study/index',{
+            key:key,
+            study:study,
+            server_id:req.app.keyID,
+            session_id:req.app.randomId(16),
+            workflow:build_workflow(req.originalUrl,study.forms),
+            layout:'../layout'
+        });
+    });
 }
 
-exports.form=function(req,res,rerror)
+exports.form=function(req,res,next)
 {
     var app=req.app;
     var db=app.db;
@@ -137,38 +147,38 @@ exports.form=function(req,res,rerror)
     var study=null;
     var form=null;
 
-    step(
-        function query()
+    async.waterfall([
+        function findStudy(next2)
         {
-            dbGetStudy(db,study_id,this.parallel());
-            dbGetForm(db,form_id,this.parallel());
+            dbGetStudy(db,study_id,next2);
         },
 
-        function db_result(err,study_result,form_result)
+        function findForm(result,next2)
         {
-            if (err) throw err;
+            if (!result)
+                return next2(Error('Study '+study_id+'not found.'));
 
-            if (!study_result)
+            study=result;
+
+            var form=null;
+
+            for (var i in result.forms)
             {
-                res.send('Study not found: '+study_id,404);
-                return;
+                if (result.forms[i].id===form_id)
+                {
+                    form=result.forms[i];
+                    break;
+                }
             }
 
-            if (!form_result)
-            {
-                res.send('Form not found: '+form_id,404);
-            }
+            if (!form)
+                return next2(Error('Form '+form_id+' not found.'));
 
-            study=study_result;
-            form=form_result;
-
-            return form;
+            next2(null,form);
         },
 
-        function response(err)
+        function toHTML(form,next2)
         {
-            if (err) throw err;
-
             var adapter=null;
 
             //load appropriate adapter, from module root
@@ -182,19 +192,151 @@ exports.form=function(req,res,rerror)
             //translate dependencies to javascript
             var dep_js=depend.translate(dep);
             var rules=validate.get(form['data']);
+            var bindings=bind.get(form['data']);
 
-            console.log('rules',rules);
+            console.log('bindings',bindings);
 
-            res.render(req.views+'study/form',{
+            var html=adapter.toHTML(form,config.theme);
+
+            var opt={
                 study:study,
                 form:form,
                 mobile:req.mobile,
                 dep:dep,
                 dep_js:dep_js,
                 validation_rules:rules,
-                html:adapter.toHTML(form,config.theme),
+                bindings:bindings,
+                html:html,
                 layout:'../form'
-            });
+            };
+
+            next2(null,opt);
         }
-    );
+    ],
+    function processResult(err,opt)
+    {
+        if (err)
+            return next(err);
+
+        res.render(req.views+'study/form',opt);
+    });
+}
+
+exports.create=function(req,res,next)
+{
+    var app=req.app;
+    var config=app.config;
+    var db=app.db;
+    var data=req.body;
+    var admins=config.admins;
+
+    if (!data['study'] || !data['signature'] || !data['keyID'])
+        next(Error('Invalid request'));
+
+    //define some convenient shortcuts
+    var study=data.study;
+    var signature=data.signature;
+    var keyID=data.keyID;
+
+    //perform as many actions in parallel as possible
+    async.auto({
+
+        'admin':function(next2)
+        {
+            var admin=null;
+
+            //find the admin that is trying to publish a new survey
+            for (var i in admins)
+            {
+                if (admins[i].keyID===keyID)
+                {
+                    admin=admins[i];
+                    break;
+                }
+            }
+
+            //if admin public key not found
+            if (!admin)
+                return next2(Error('Your Survana Admin is not registered with this Survana Publisher.'));
+
+            next2(null,admin);
+        },
+
+        'sig_valid':['admin',function(next2,result){
+            var admin=result.admin;
+
+            console.log('using signature',signature);
+
+            //var result=admin.key.hashAndVerify('sha256',JSON.stringify(study),signature,'hex'); //does not work
+
+            var verifier=ursa.createVerifier('sha256');
+            verifier.update(JSON.stringify(study));
+
+            var result;
+
+            try
+            {
+                result=verifier.verify(admin.key,signature,'hex');
+
+                if (!result)
+                    result='wrong signature. Please check that the correct public key has been registered with the publisher.';
+            }
+            catch (e)
+            {
+                result=e.message;
+            }
+
+            //N.B.: because of the try block above, 'result' will always be true when it has a boolean type
+            if ((typeof(result)=="boolean") && result)
+                return next2(null,result);
+
+            return next2(Error('Could not verify request signature: '+result));
+        }],
+
+        'col':function(next2)
+        {
+            db.collection('study',next2);
+        },
+
+        'studyID':['col',function(next2,result)
+        {
+            //return only the _id if a study is found
+            result.col.findOne({
+                'id':study.id,
+            },{
+                '_id':1
+            },next2);
+        }],
+
+        'studyExists':['studyID',function(next2,result)
+        {
+            if (result.studyID)
+                return next2(Error('Study '+study.id+' has already been published on this server.'));
+
+            next2(null,false); //study does not exist
+        }],
+
+        'insertStudy':['col','studyExists','sig_valid',function(next2,result)
+        {
+            //delete the _id, just in case
+            delete study['_id'];
+
+            //mark the time when this study was published
+            study['published_on']=(new Date()).valueOf();
+
+            result.col.insert(study,{'safe':true,'fsync':true},next2);
+        }]
+    },
+
+    function processResult(err,steps)
+    {
+        if (err)
+            return next(err);
+
+        res.send({
+            'success':1,
+            'message':'Study '+study.id+' has been published successfully',
+            'url':steps.admin.url.replace('%ID%',study.id)
+        });
+    });
 }

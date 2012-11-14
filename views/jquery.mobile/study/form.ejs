@@ -21,12 +21,24 @@
                     ],
             function(Survana)
             {
-                Survana.Depend.register("{{=form.id}}",function(data,changed,all)
-                {
-                    {{- dep_js }}
-                });
+                //dependencies
+                {{ if (dep_js) { }}
+                    Survana.Depend.register("{{=form.id}}",function(data,changed,all)
+                    {
+                        {{- dep_js }}
+                    });
+                {{ } }}
 
-                Survana.Validate.register("{{=form.id}}",{{-JSON.stringify(validation_rules)}});
+                //validation rules
+                {{ if (validation_rules) { }}
+                    Survana.Validate.register("{{=form.id}}",{{-JSON.stringify(validation_rules)}});
+                {{ } }}
+
+                //bindings
+                {{ if (bindings) { }}
+                    Survana.Bind.register("{{=form.id}}",{{-JSON.stringify(bindings)}});
+                {{ } }}
+
             });
 
         </script>

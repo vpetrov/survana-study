@@ -1,15 +1,26 @@
+/** config.js
+ *
+ * @author Victor Petrov <victor.petrov@gmail.com>
+ * @copyright (c) 2012, The Neuroinformatics Research Group at Harvard University.
+ * @copyright (c) 2012, The President and Fellows of Harvard College.
+ * @license New BSD License (see LICENSE file for details).
+ */
+
 exports.title='Survana Study';
 
 exports.routes={
     'GET':{
         '/': 			'index',
         '/(([\\w]+))':  'study',
-        '/(([\\w]+))/(([\\w]+))':   {'study':'form'},
-        '/(([\\w]+))/(([\\w]+))/((mini))': {'study':'form'}
+        '/(([\\w]+))/(([\\w]+))':           {'study':'form'}
     },
 
     'POST':{
+        '/':            {'study':'create'}
     }
+};
+
+exports.admins={
 };
 
 exports.theme={
@@ -53,7 +64,7 @@ exports.lib={
 };
 /* default database config */
 exports.db={
-	name:'admin',
+	name:'study',
 	host:'localhost',
 	port:27017,
 	//see https://github.com/christkv/node-mongodb-native/blob/master/docs/database.md

@@ -1,3 +1,11 @@
+/** index.js
+ *
+ * @author Victor Petrov <victor.petrov@gmail.com>
+ * @copyright (c) 2012, The Neuroinformatics Research Group at Harvard University.
+ * @copyright (c) 2012, The President and Fellows of Harvard College.
+ * @license New BSD License (see LICENSE file for details).
+ */
+
 /** app must have 'log' and 'dirname' properties */
 
 var name=require("./package.json").name;
@@ -75,6 +83,9 @@ exports.server=function(survana,express)
     //make properties easily accessible from the 'app' object
 	app.config=mconfig;
 	app.dbserver=new survana.db(this.config.db);
+
+    //load keys for all known admins
+    app.config.admins=survana.readKeys(app.config.admins);
 
 	//open a database connection
 	app.dbserver.connect(function(db){
