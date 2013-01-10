@@ -10,13 +10,14 @@ exports.title='Survana Study';
 
 exports.routes={
     'GET':{
-        '/': 			'index',
-        '/(([\\w]+))':  'study',
-        '/(([\\w]+))/(([\\w]+))':           {'study':'form'}
+        '/': 			                    'index',
+        '/(([\\w]+))':                      'study',
+        '/(([\\w]+))/(([\\w]+))':           {'study':'form'},
     },
 
     'POST':{
-        '/':            {'study':'create'}
+        '/':                                {'study':'create'},
+        '/form/(([\\w]+))':                 {'form':'preview'}
     }
 };
 
@@ -47,7 +48,7 @@ exports.adapters={
 
 exports.views={
     'mobile':'jquery.mobile',
-    'desktop':'jquery.mobile',
+    'desktop':'jquery.mobile'
     //'desktop':'bootstrap'
 }
 

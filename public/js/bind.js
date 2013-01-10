@@ -18,7 +18,7 @@ function($)
     {
         bindings[id]=b;
 
-        console.log('bidnings for',id,b);
+        console.log('bindings for',id,b);
     }
 
     function field(form_id,f)

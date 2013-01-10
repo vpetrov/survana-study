@@ -98,6 +98,12 @@ fieldset:not(.os-ui-maximize) .ui-controlgroup-controls
 	width:65px !important;
 }
 
+/* maximized sliders */
+.os-ui-maximize .ui-controlgroup-controls .ui-slider
+{
+    width:70% !important;
+}
+
 .os-ui-container
 {
     width:100% !important;
@@ -149,6 +155,24 @@ fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-c
 {
     width:100% !important;
 }*/
+
+/* some rules for containers */
+@media all and (min-width:450px)
+{
+    /* because of the embedded <li> (which has its right padding removed), the select box expands all the way to the
+       edge of the page (for non-iphone styles). The default is 78%, so decreasing it to 76% compensates visually for
+       the missing padding */
+    .os-ui-container-container div .os-ui-field-container li fieldset:not(.os-ui-maximize) .ui-controlgroup-controls
+    {
+        width:76% !important;
+    }
+
+    /* same as above, only calibrated using maximized sliders */
+    .os-ui-container-container div .os-ui-field-container li fieldset.os-ui-maximiz .ui-controlgroup-controls
+    {
+        width:98% !important;
+    }
+}
 
 .os-ui-suffix
 {
@@ -261,17 +285,6 @@ div.os-ui-container .os-ui-error-label
     top:1px !important;
     right:-13px !important; /* check os-ui-button-mini */
 
-}
-
-@media all and (min-width:450px)
-{
-    /* because of the embedded <li> (which has its right padding removed), the select box expands all the way to the
-       edge of the page (for non-iphone styles). The default is 78%, so decreasing it to 76% compensates visually for
-       the missing padding */
-    .os-ui-container-container div .os-ui-field-container li fieldset .ui-controlgroup-controls
-    {
-        width:76% !important;
-    }
 }
 
 /* this is so number inputs can be displayed inline. os-ui-inline is not enough. */

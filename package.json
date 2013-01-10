@@ -1,6 +1,6 @@
 {
     "name":		"survana-study",
-    "version":	"0.0.1f",
+    "version":	"0.1.1",
     "author":	"Victor Petrov <victor_petrov@harvard.edu>",
     "private":  false,
     "description":"Survana study module",

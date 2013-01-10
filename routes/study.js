@@ -8,6 +8,7 @@
 
 var async=require('async');
 var path=require('path');
+var dbutil=require('../lib/db.util');
 var depend=require('../lib/depend');
 var validate=require('../lib/validate');
 var bind=require('../lib/bind');
@@ -31,69 +32,6 @@ function build_workflow(url_prefix,forms)
     return workflow;
 }
 
-function dbGetStudy(db,study_id,next)
-{
-    async.waterfall([
-        function getCollection(next2) {
-            db.collection('study',next2);
-        },
-
-        function findStudy(collection,next2){
-            collection.findOne({'id':study_id},next2);
-        }
-    ],
-    function processResult(err,result)
-    {
-        if (err)
-            return next(err);
-
-        next(null,result);
-    });
-}
-
-function dbGetForm(db,form_id,next)
-{
-    async.waterfall([
-        function getCollection(next2) {
-            db.collection('form',next2);
-        },
-
-        function getForm(collection,next2)
-        {
-            collection.findOne({'id':form_id},next2);
-        }
-    ],
-    function processResult(err,result){
-        if (err)
-            next(err);
-
-        next(null,result);
-    });
-}
-
-function dbGetForms(db,forms,next)
-{
-    async.waterfall([
-        function getCollection(next2) {
-            db.collection('form',next2);
-        },
-
-        function getForms(collection,next2)
-        {
-            collection.find({'id':{
-                '$in':forms
-            }}).toArray(next2);
-        }
-    ],
-    function processResult(err,result)
-    {
-        if (err)
-            next(err);
-
-        next(null,result);
-    });
-};
-
 exports.index=function(req,res,next)
 {
     var db=req.app.db;
@@ -103,7 +41,7 @@ exports.index=function(req,res,next)
 
         function getStudy(next2)
         {
-            dbGetStudy(db,study_id,next2);
+            dbutil.getStudy(db,study_id,next2);
         },
 
         function prepareResult(study,next2)
@@ -150,7 +88,7 @@ exports.form=function(req,res,next)
     async.waterfall([
         function findStudy(next2)
         {
-            dbGetStudy(db,study_id,next2);
+            dbutil.getStudy(db,study_id,next2);
         },
 
         function findForm(result,next2)

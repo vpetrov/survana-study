@@ -32,6 +32,7 @@ exports.input=function(obj)
     return jqm.input.apply(this,arguments);
 }
 exports.number=jqm.number;
+exports.slider=jqm.slider;
 exports.radio=function(obj)
 {
     this.minify(obj);

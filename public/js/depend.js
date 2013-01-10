@@ -38,8 +38,8 @@ function($,$m)
 
         for (var i in haystack)
         {
-            if (typeof(i)==='number')
-                haystack[i]=String(typeof(haystack[i]));
+            if (typeof(haystack[i])==='number')
+                haystack[i]=String(haystack[i]);
         }
 
         var result=(haystack.indexOf(needle)>-1);

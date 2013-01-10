@@ -12,37 +12,41 @@ var name=require("./package.json").name;
 
 exports.config=require('./config');
 
+
+function detectBrowser(req, res, next)
+{
+    var user_agent=req.header('user-agent').toLowerCase();
+
+    if ((user_agent.indexOf('mobile')>-1) ||
+        //RIM,Nokia,SonyEricsson,etc:
+        (user_agent.indexOf('tablet')>-1) ||
+        (user_agent.indexOf('symbian')>-1)||
+        (user_agent.indexOf('fennec')>-1) ||
+        (user_agent.indexOf('gobrowser')>-1) ||
+        (user_agent.indexOf('maemo')>-1) ||
+        (user_agent.indexOf('opera mini')>-1) ||
+        (user_agent.indexOf('opera mobi')>-1) ||
+        (user_agent.indexOf('semc-browser')>-1)
+        )
+    {
+        req.mobile=true;
+        req.views=req.app.config.views.mobile+'/';
+    }
+    else
+    {
+        req.mobile=false;
+        req.views=req.app.config.views.desktop+'/';
+    }
+
+    next();
+}
+
 //request helpers
-function routing(app,config)
+function routing(app)
 {
     //detect mobile browsers
-    app.get('*',function(req,res,next)
-    {
-        var user_agent=req.header('user-agent').toLowerCase();
-
-        if ((user_agent.indexOf('mobile')>-1) ||
-            //RIM,Nokia,SonyEricsson,etc:
-            (user_agent.indexOf('tablet')>-1) ||
-            (user_agent.indexOf('symbian')>-1)||
-            (user_agent.indexOf('fennec')>-1) ||
-            (user_agent.indexOf('gobrowser')>-1) ||
-            (user_agent.indexOf('maemo')>-1) ||
-            (user_agent.indexOf('opera mini')>-1) ||
-            (user_agent.indexOf('opera mobi')>-1) ||
-            (user_agent.indexOf('semc-browser')>-1)
-           )
-        {
-            req.mobile=true;
-            req.views=config.views.mobile+'/';
-        }
-        else
-        {
-            req.mobile=false;
-            req.views=config.views.desktop+'/';
-        }
-
-        next();
-    });
+    app.get('*',detectBrowser);
+    app.post('*',detectBrowser);
 }
 
 exports.server=function(survana,express)
@@ -73,15 +77,17 @@ exports.server=function(survana,express)
         app.dirname=__dirname;
     });
 
-    routing(app,mconfig);
+    //make properties easily accessible from the 'app' object
+    app.config=mconfig;
+
+    routing(app);
 
     //set up routes
     survana.routing(app,this.config.routes);
 
 	app.log.info('reporting in!');
 
-    //make properties easily accessible from the 'app' object
-	app.config=mconfig;
+
 	app.dbserver=new survana.db(this.config.db);
 
     //load keys for all known admins

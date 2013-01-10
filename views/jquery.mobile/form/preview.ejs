@@ -1,0 +1,59 @@
+<div id='Page_{{=form.id}}' data-form='{{=form.id}}' data-role='page' data-theme='{{=config.theme.global}}' style='visibility:hidden'
+     data-preview='true'>
+    {{ if (!mobile) { }}
+    <div class='os-ui-header-top'>
+        <div data-role='header' data-theme='{{=config.theme.nav}}' class='ui-corner-bottom'>
+    {{ } else { }}
+        <div data-role='header' data-theme='{{=config.theme.nav}}'>
+    {{ } }}
+            <h1>{{=form.title}}</h1>
+            <!--<a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
+               class='ui-btn-left btn-back'>Back</a>-->
+            <a href="#" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
+               class='ui-btn-right btn-next'>Next</a>
+        </div>
+    {{ if (!mobile) { }}
+    </div>
+    {{ } }}
+    <div data-role='content'>
+        <script>
+            require([
+                        'survana'
+                    ],
+            function(Survana)
+            {
+                //dependencies
+                {{ if (dep_js) { }}
+                    Survana.Depend.register("{{=form.id}}",function(data,changed,all)
+                    {
+                        {{- dep_js }}
+                    });
+                {{ } }}
+
+                //validation rules
+                {{ if (validation_rules) { }}
+                    Survana.Validate.register("{{=form.id}}",{{-JSON.stringify(validation_rules)}});
+                {{ } }}
+
+                //bindings
+                {{ if (bindings) { }}
+                    Survana.Bind.register("{{=form.id}}",{{-JSON.stringify(bindings)}});
+                {{ } }}
+
+            });
+
+        </script>
+        {{- html }}
+    </div>
+
+    {{ if (mobile) { }}
+        <div data-role='footer' data-theme='{{=config.theme.nav}}'>
+            <h1>{{=form.title}}</h1>
+            <!--<a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
+               class='ui-btn-left btn-back'>Back</a>-->
+            <a href="#" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
+               class='ui-btn-right btn-next'>Next</a>
+        </div>
+    {{ } }}
+
+</div>

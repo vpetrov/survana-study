@@ -300,13 +300,30 @@ exports.number=function(obj)
     var opt={
         'type':     'number',
         'class':    'os-ui-number',
-        'data-theme':   this.theme.input,
+        'data-theme':   this.theme.input
     };
 
     autil.override(opt,obj);
 
     return this.input(opt);
 }
+
+
+exports.slider=function(obj)
+{
+    var opt={
+        'type':         'range',
+        'class':        'os-ui-number',
+        'data-theme':   this.theme.input,
+        'min':          0,
+        'max':          100
+    };
+
+    autil.override(opt,obj);
+
+    return this.input(opt)
+}
+
 
 exports.radio=function(obj)
 {

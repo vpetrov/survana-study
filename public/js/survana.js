@@ -124,7 +124,7 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
         Validate.clean();
     }
 
-    function clearField(f)
+    function clearField(f,jqmMethod)
     {
         f=$(f);
         var el=f.get(0);
@@ -132,16 +132,28 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
         //note: couldn't get jquery mobile to use .val() to update select values, so this hack uses the raw html
         //select and its 'selectedIndex' property, and then fires a 'change' even on that select, which is then
         //handled by jquery mobile to update the UI.
-        if (el.tagName.toLowerCase()==='select')
+        if (jqmMethod==='select')
         {
             if (!el.disabled && (el.selectedIndex!=0))
-            {
                 el.selectedIndex=0;
-                f.trigger('change');
-            }
+            f[jqmMethod]('refresh');
+        }
+        else if (jqmMethod==='checkboxradio')
+        {
+            f.prop('checked',false);
+            f[jqmMethod]('refresh');
+        }
+        else if (jqmMethod==='slider')
+        {
+            f.val(0);
+            f[jqmMethod]('refresh');
         }
         else
+        {
             $(f).val('');
+        }
+
+        $(f).trigger('change');
     }
 
     function onPageHide(e)
@@ -223,8 +235,11 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
 
     function onNextClick(e)
     {
-        //todo: validate and save page here
-        if (validate())
+        var preview = $.mobile.activePage.attr('data-preview');
+
+        console.log('preview?',preview);
+
+        if (validate() && !preview)
             save(gotoNextPage);
         else
             scrollTo($.mobile.activePage.find('.os-ui-error-button:visible').first(),true);
@@ -335,7 +350,7 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
                     //todo: make sure this works on numeric inputs, on selects, on radiogroups and checkboxgroups
                     if (action_name==='disable')
                     {
-                        clearField(el);
+                        clearField(el,jqm_method);
                         el.trigger('fielddisabled');
                     }
 
@@ -345,14 +360,14 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
 
                 //focus
                 case 'focus':
-                    if (!el.is(':focus'))
-                        el.focus();
+                    if (!el.first().is(':focus'))
+                        el.first().focus();
                     break;
 
                 //blur
                 case 'blur':
-                    if (el.is(':focus'))
-                        el.blur();
+                    if (el.first().is(':focus'))
+                        el.first().blur();
                     break;
 
                 //show
@@ -430,6 +445,8 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
 
     function save(success)
     {
+        var url="http://survana.org";
+
         $.mobile.activePage.find('form').each(function(i,f){
 
             var payload={
@@ -460,7 +477,7 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
 
             console.log('Saving form',packet);
 
-            AppCache.send(packet);
+            AppCache.send(packet,url);
         });
 
         success();
@@ -510,6 +527,9 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
     function scrollTo(el,anim,container)
     {
         el=$(el);
+
+        if (!el.length)
+            return;
 
         if ((typeof(anim)!=="undefined") && anim)
             anim=true;
