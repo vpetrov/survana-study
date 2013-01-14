@@ -62,7 +62,10 @@ function($)
     function checkField(form_id,f)
     {
         if (typeof(cache[form_id])==='undefined')
-            throw Error('Form '+form_id+' has not been registered with the validator');
+        {
+            console.error('Form '+form_id+' has not been registered with the validator');
+            return false;
+        }
 
         var validator=cache[form_id];
         return validator.element(f);

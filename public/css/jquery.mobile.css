@@ -172,6 +172,36 @@ fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-c
     {
         width:98% !important;
     }
+
+    .os-ui-checkbutton
+    {
+        display:inline-block;
+    }
+
+    .os-ui-checkbutton .ui-controlgroup-controls .ui-checkbox label .ui-btn-inner
+    {
+        min-height:24px;
+    }
+
+    .os-ui-checkbutton .ui-controlgroup-controls .ui-checkbox label .ui-btn-inner .ui-btn-text
+    {
+        display:none;
+
+    }
+}
+
+@media all and (max-width:450px)
+{
+    /* Prevents */
+    .os-ui-checkbutton
+    {
+        display:inline-block;
+    }
+
+    td .ui-field-contain
+    {
+        display:inline-block;
+    }
 }
 
 .os-ui-suffix

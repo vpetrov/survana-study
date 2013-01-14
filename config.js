@@ -57,7 +57,7 @@ exports.lib={
     //'jquery.mobile':'lib/jquery/mobile/1.1.0',
     //'jquery.mobile':'lib/jquery/mobile/1.1.1',
     //'jquery.mobile':'lib/jquery/mobile/1.2.0-alpha.1',
-    'jquery.mobile':'lib/jquery/mobile/latest',
+    'jquery.mobile':'lib/jquery/mobile/master-20130113',
     'jquery.plugins':'lib/jquery/plugins',
     'require':'lib/require/2.0.4',
     'bootstrap':'lib/bootstrap/2.0.4',
