@@ -9,8 +9,8 @@
             <h1>{{=form.title}}</h1>
             <!--<a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
                class='ui-btn-left btn-back'>Back</a>-->
-            <a href="#" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
-               class='ui-btn-right btn-next'>Next</a>
+            <a href="#results" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
+               class='ui-btn-right btn-next' data-rel="dialog" onclick="previewResults()">Next</a>
         </div>
     {{ if (!mobile) { }}
     </div>
@@ -42,6 +42,18 @@
 
             });
 
+            function previewResults()
+            {
+                require([
+                            'survana'
+                        ],
+                    function (Survana) {
+                    console.log('form=','#{{=form.id}}',Survana.formToJSON($('#{{=form.id}}')));
+                    var data=Survana.formToJSON($('#{{=form.id}}'));
+                    var text = JSON.stringify(data,null,4);
+                    $('#results').find('pre').html(text);
+                });
+            }
         </script>
         {{- html }}
     </div>
@@ -56,4 +68,14 @@
         </div>
     {{ } }}
 
+</div>
+
+<div id="results" data-role="dialog" data-theme="a">
+    <div data-role="content">
+        <h2>Response Data:</h2>
+        <pre class="ui-btn-up-c ui-corner-all" style="padding:5px;font-family:courier;font-size:smaller">
+
+        </pre>
+        <a href="#" data-role="button" data-rel="back" data-theme="b" data-inline="true" data-icon="back" style="float:right">Close</a>
+    </div>
 </div>

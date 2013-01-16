@@ -647,6 +647,7 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
         'onFieldDisabled':onFieldDisabled,
         'action':action,
         'dependAction':dependAction,
-        'scrollTo':scrollTo
+        'scrollTo':scrollTo,
+        'formToJSON':formToJSON
     };
 });

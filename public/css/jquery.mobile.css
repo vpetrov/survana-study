@@ -380,3 +380,8 @@ li.ui-field-contain .os-ui-radiogroup.ui-controlgroup-vertical .ui-controlgroup-
 {
     max-width:400px;
 }
+
+.ui-dialog .ui-dialog-contain
+{
+    margin-top:0;
+}

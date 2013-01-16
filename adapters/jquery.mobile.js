@@ -519,7 +519,8 @@ Adapter.prototype.container=function(obj)
     var field=this.field(buffer,{
         'fieldset':false,
         'container':{
-            'class':'os-ui-container-container'
+            'class':'os-ui-container-container',
+            'style':obj.style || undefined
         }
     });
 
