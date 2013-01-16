@@ -10,14 +10,14 @@
  * s-inline : can only inline input boxes (todo: double-check this)
  * @type {*}
  */
-var etree=require('elementtree');
-var ElementTree=etree.ElementTree;
-var Element=etree.Element;
-var SubElement=etree.SubElement;
-var util=require('util');
-var autil=require('../lib/util');
-var html=require('./html');
-var store=require('../lib/store');
+var etree       = require('elementtree');
+var ElementTree = etree.ElementTree;
+var Element     = etree.Element;
+var SubElement  = etree.SubElement;
+var util        = require('util');
+var autil       = require('../lib/util');
+var html        = require('./html');
+var store       = require('../lib/store');
 
 /** Generates an HTML element
  * Call type 1: element('div','text value',{'attr1':'value','attr2':value});
@@ -113,6 +113,7 @@ exports.field=function(obj,opt)
     var enable_fieldset=autil.extract(opt,'fieldset',true);
     var inline_fieldset=autil.extract(opt,'s-inline',false);
     var maximize_fieldset=autil.extract(opt,'s-maximize',false);
+    var minimize_fieldset=autil.extract(opt,'s-minimize',false);
 
     var container_opt={
         'tag':          'li',
@@ -134,20 +135,24 @@ exports.field=function(obj,opt)
 
         autil.override(fieldset_opt,opt);
 
-        if (inline_fieldset)
-        {
+        if (inline_fieldset) {
             if (typeof(fieldset_opt['class'])!=='undefined')
                 fieldset_opt['class']+=' os-ui-inline';
             else
                 fieldset_opt['class']='os-ui-inline';
         }
 
-        if (maximize_fieldset)
-        {
+        if (maximize_fieldset) {
             if (typeof(fieldset_opt['class'])!=='undefined')
                 fieldset_opt['class']+=' os-ui-maximize';
             else
                 fieldset_opt['class']='os-ui-maximize';
+        }
+        else if (minimize_fieldset) {
+            if (typeof(fieldset_opt['class'])!=='undefined')
+                fieldset_opt['class']+=' os-ui-minimize';
+            else
+                fieldset_opt['class']='os-ui-minimize';
         }
 
         fieldset=this.element(fieldset_opt);
@@ -225,6 +230,7 @@ exports.input=function(obj)
     var embedded=autil.extract(obj,'s-embedded',false);
     var inline=autil.extract(obj,'s-inline',false);
     var maximize=autil.extract(obj,'s-maximize',false);
+
     var field_opt={
         'label':label,
         's-inline':inline,
@@ -300,7 +306,10 @@ exports.number=function(obj)
     var opt={
         'type':     'number',
         'class':    'os-ui-number',
-        'data-theme':   this.theme.input
+        'data-theme':   this.theme.input,
+        's-field-opt': {
+            'class': 'os-ui-number-container'
+        }
     };
 
     autil.override(opt,obj);
@@ -353,6 +362,7 @@ exports.radiogroup=function(obj)
     });
     var inline=autil.extract(obj,'s-inline',false);
     var maximize=autil.extract(obj,'s-maximize',false);
+    var minimize=autil.extract(obj,'s-minimize',false);
 
     autil.override(opt,obj);
 
@@ -394,11 +404,12 @@ exports.radiogroup=function(obj)
     });
 
     return this.field(fields,{
-        'label':label,
-        'direction':direction,
-        's-inline':inline,
-        's-maximize':maximize,
-        'class':'os-ui-radiogroup'
+        'label':        label,
+        'direction':    direction,
+        's-inline':     inline,
+        's-maximize':   maximize,
+        's-minimize':   minimize,
+        'class':        'os-ui-radiogroup os-ui-'+direction
     });
 }
 
@@ -549,6 +560,8 @@ exports.select=function(obj)
     var empty=autil.extract(obj,'s-empty',false);
     var inline=autil.extract(obj,'s-inline',false);
     var maximize=autil.extract(obj,'s-maximize',false);
+    var minimize=autil.extract(obj,'s-minimize',false);
+
     var opt={
         'tag':'select',
         'data-theme':this.theme.select,
@@ -557,10 +570,7 @@ exports.select=function(obj)
 
     autil.override(opt,obj);
 
-    console.log('select id',opt);
     autil.tryset(opt,'id','name');
-
-    console.log('select id',opt);
 
     var select=this.element(opt);
 
@@ -572,15 +582,12 @@ exports.select=function(obj)
         });
     }
 
-    console.log('select pre',items);
     this.append(select,items,function(obj){
         if (typeof(obj['s-type'])!=='undefined')
         {
             this.append(select,obj);
             return;
         }
-
-        console.log('select dealing with ',obj);
 
         var options=[];
 
@@ -604,6 +611,7 @@ exports.select=function(obj)
     return this.field(select,{
         'label':label,
         's-maximize':maximize,
+        's-minimize':minimize,
         's-inline':inline
     });
 }
@@ -631,6 +639,8 @@ exports.checkboxgroup=function(obj)
     var cbg_id=autil.extract(obj,'id');
     var inline=autil.extract(obj,'s-inline',false);
     var maximize=autil.extract(obj,'s-maximize',false);
+    var minimize=autil.extract(obj,'s-minimize',false);
+    var direction=autil.extract(obj,'direction','vertical');
 
     var elements=[];
     var i=0;
@@ -690,9 +700,11 @@ exports.checkboxgroup=function(obj)
 
 
     return this.field(elements,{
-        'label':label,
-        's-inline':inline,
-        's-maximize':maximize
+        'label':        label,
+        's-inline':     inline,
+        's-maximize':   maximize,
+        's-minimize':   minimize,
+        'class':        'os-ui-'+direction
     });
 }
 
@@ -763,7 +775,7 @@ exports.form=function(obj)
     return form;
 }
 
-exports.toHTML=function(obj,theme)
+exports.toHTML = function (obj,theme)
 {
     this.tabindex=1;
     this.theme=theme;
@@ -776,3 +788,4 @@ exports.toHTML=function(obj,theme)
        'xml_declaration':false
     });
 };
+

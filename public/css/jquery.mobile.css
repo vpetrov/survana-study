@@ -58,7 +58,7 @@
 }
 
 /* desktop: keeps radio/checkbox groups from extending indefinitely to the right */
-fieldset:not(.os-ui-maximize) .ui-controlgroup-controls
+fieldset:not(.os-ui-maximize):not(.os-ui-horizontal) .ui-controlgroup-controls
 {
     max-width:400px !important;
 }
@@ -69,14 +69,29 @@ fieldset:not(.os-ui-maximize) .ui-controlgroup-controls
     margin-left:5px;
 }
 
-.os-ui-inline .ui-controlgroup-controls .ui-radio
+/* set all inline horizontal maximized radio/checkbox-groups to have a 5px margin top */
+fieldset.os-ui-inline.os-ui-horizontal.os-ui-maximize .ui-controlgroup-controls
 {
     margin-top:5px !important;
 }
 
-.os-ui-inline .ui-controlgroup-controls .ui-checkbox:first-child
+/* make sure that all horizontal inline radio/checkbox-groups take as little space as possible (to fit more options
+horizontally, unless s-maximize was asserted */
+fieldset.os-ui-horizontal:not(.os-ui-maximize) .ui-controlgroup-controls
 {
-    margin-top:5px !important;
+    width:auto;
+}
+
+/* minimize all fieldsets that can be minimized */
+fieldset.os-ui-minimize .ui-controlgroup-controls
+{
+    width:auto;
+}
+
+/* radios and checkboxes need some padding when they're minimized */
+fieldset.os-ui-minimize .ui-controlgroup-controls .ui-radio,.ui-checkbox label
+{
+    padding-right:5px;
 }
 
 .ui-controlgroup-label
@@ -86,16 +101,19 @@ fieldset:not(.os-ui-maximize) .ui-controlgroup-controls
     top:2px !important;
 }
 
+/* for radio/checkbox-groups that are inline, add some padding to the label, in case the buttons wrap and
+are rendered directly below the label */
 .ui-controlgroup.os-ui-inline .ui-controlgroup-label
 {
     width:inherit;
     display:inline;
+    float:left;
+    margin-bottom:5px;
 }
 
-/* limits the width of number inputs. some formatting for suffixes */
-.os-ui-number
+.os-ui-number-container .ui-controlgroup-controls div.ui-input-text
 {
-	width:65px !important;
+    width:65px;
 }
 
 /* maximized sliders */
@@ -144,10 +162,10 @@ fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-c
     margin-top:3px !important;
 }
 
-/* make text inputs have the same width as the radio/checkbox groups (in embedded fields) */
-.os-ui-text
+/* jqm > 1.2 sets padding-right to 30px. remove it */
+div.ui-input-text
 {
-    width:95% !important;
+    padding-right:5px !important;
 }
 
 /* make embedded fields extend to 100%. NOTE: not sure we need this anymore (jqm 1.2.0) */
@@ -156,7 +174,7 @@ fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-c
     width:100% !important;
 }*/
 
-/* some rules for containers */
+/* desktop-specific rules */
 @media all and (min-width:450px)
 {
     /* because of the embedded <li> (which has its right padding removed), the select box expands all the way to the
@@ -168,7 +186,7 @@ fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-c
     }
 
     /* same as above, only calibrated using maximized sliders */
-    .os-ui-container-container div .os-ui-field-container li fieldset.os-ui-maximiz .ui-controlgroup-controls
+    .os-ui-container-container div .os-ui-field-container li fieldset.os-ui-maximize .ui-controlgroup-controls
     {
         width:98% !important;
     }
@@ -190,6 +208,7 @@ fieldset .ui-controlgroup-controls .ui-field-contain fieldset .ui-controlgroup-c
     }
 }
 
+/* mobile-specific rules */
 @media all and (max-width:450px)
 {
     /* Prevents */
@@ -350,13 +369,14 @@ li.ui-field-contain .os-ui-radiogroup.ui-controlgroup-vertical .ui-controlgroup-
     width:95% !important;
 } */
 
-/* these 2 rules make sure that inline textboxes don't resize to 100% due to some weird css rules in jquery mobile */
+/* make sure inline textboxes are displayed inline */
 .os-ui-inline .ui-controlgroup-controls .os-ui-container-text
 {
     display:inline !important;
 }
-.os-ui-inline .ui-controlgroup-controls .os-ui-container-text .os-ui-text
+
+/* inline textboxes should not exceed 400px, unless s-maximized was specified */
+.os-ui-inline:not(.os-ui-maximize) .ui-controlgroup-controls .os-ui-container-text div.ui-input-text
 {
-    width:78% !important;
-    max-width:400px !important;
+    max-width:400px;
 }
