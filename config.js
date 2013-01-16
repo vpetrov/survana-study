@@ -42,7 +42,7 @@ exports.theme={
 
 exports.adapters={
     'mobile':'adapters/jquery.mobile',
-    'desktop':'adapters/jquery.mobile.mini'
+    'desktop':'adapters/jquery.mobile'
     //'desktop':'adapters/bootstrap'
 };
 

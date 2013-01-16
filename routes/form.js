@@ -41,10 +41,17 @@ exports.preview = function(req, res, next)
     var adapter=null;
 
     //load appropriate adapter, from module root
-    if (req.mobile)
-        adapter=require(path.join(app.dirname,config.adapters.mobile));
-    else
-        adapter=require(path.join(app.dirname,config.adapters.desktop));
+    if (req.mobile) {
+        adapter=require(path.join(app.dirname,config.adapters.mobile))({
+            'theme': config.theme,
+            'mobile':true
+        });
+    } else {
+        adapter=require(path.join(app.dirname,config.adapters.desktop))({
+            'theme': config.theme,
+            'mobile':false
+        });
+    }
 
     //compute field dependencies
     var dep=depend.get(form.data);
@@ -53,7 +60,7 @@ exports.preview = function(req, res, next)
     var rules=validate.get(form.data);
     var bindings=bind.get(form.data);
 
-    var html=adapter.toHTML(form,config.theme);
+    var html=adapter.toHTML(form);
 
     var opt={
         form:form,

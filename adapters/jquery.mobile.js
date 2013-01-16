@@ -6,10 +6,6 @@
  * @license New BSD License (see LICENSE file for details).
  */
 
-/** Notes:
- * s-inline : can only inline input boxes (todo: double-check this)
- * @type {*}
- */
 var etree       = require('elementtree');
 var ElementTree = etree.ElementTree;
 var Element     = etree.Element;
@@ -19,6 +15,51 @@ var autil       = require('../lib/util');
 var html        = require('./html');
 var store       = require('../lib/store');
 
+var defaults    = {
+    mobile:   false,
+    theme:  {
+        input:      'b',
+        radio:      'b',
+        check:      'b',
+        select:     'b',
+        form:       'b',
+        question:   'b'
+    }
+};
+
+/**
+ * The Adapter class.
+ * @param options
+ * @constructor
+ * @see toHTML()
+ */
+function Adapter (options) {
+    this.options = autil.override(defaults,options);
+}
+
+module.exports=function(opt) {
+    return new Adapter(opt);
+}
+
+/**
+ * Takes a form defined as JSON and renders it as (X)HTML (actually XML, since there is no HTML generator atm)
+ * @param obj
+ * @param theme
+ * @return {String} The (X)HTML representation of the JSON form
+ */
+Adapter.prototype.toHTML = function (obj)
+{
+    this.tabindex=1;
+
+    var form=this.form(obj);
+    var html=new ElementTree(form);
+
+    //return 'xhtml'
+    return html.write({
+        'xml_declaration':false
+    });
+};
+
 /** Generates an HTML element
  * Call type 1: element('div','text value',{'attr1':'value','attr2':value});
  * Call type 2: element({'tag':'div','html':'text value','attr1':'value','attr2':'value'});
@@ -27,7 +68,7 @@ var store       = require('../lib/store');
  * @param extra2
  * @return {*}
  */
-exports.element=function(obj,extra,extra2)
+Adapter.prototype.element = function (obj,extra,extra2)
 {
     var result=html.element(obj,extra,extra2);
 
@@ -53,7 +94,7 @@ function store_item(data,tpl)
         return result;
 }
 
-exports.store=function(obj)
+Adapter.prototype.store = function (obj)
 {
     var store_name=autil.extract(obj,'s-store');
     var sort=autil.extract(obj,'s-sort');
@@ -79,7 +120,7 @@ exports.store=function(obj)
     return result;
 }
 
-exports.label=function(obj,for_element)
+Adapter.prototype.label=function(obj,for_element)
 {
     //make sure that the for element has an id
     if ((typeof(for_element)!=='undefined') && (!for_element.get('id')))
@@ -105,7 +146,7 @@ exports.label=function(obj,for_element)
 /** direction: horizontal or vertical (default)*
  *  cel: container element: div or li (default)
  */
-exports.field=function(obj,opt)
+Adapter.prototype.field=function(obj,opt)
 {
     var label=autil.extract(opt,'label',null);
     var direction=autil.extract(opt,'direction','vertical');
@@ -131,6 +172,7 @@ exports.field=function(obj,opt)
             'tag':          'fieldset',
             'data-role':    'controlgroup',
             'data-type':    direction,
+            'data-mini':    !this.options.mobile
         };
 
         autil.override(fieldset_opt,opt);
@@ -169,7 +211,7 @@ exports.field=function(obj,opt)
     return container;
 }
 
-exports.append=function(container,obj,createCallback)
+Adapter.prototype.append=function(container,obj,createCallback)
 {
     if (typeof(obj)==='undefined')
         return;
@@ -213,7 +255,7 @@ exports.append=function(container,obj,createCallback)
     }
 }
 
-exports.hfield=function(obj,label)
+Adapter.prototype.hfield=function(obj,label)
 {
     return this.field(obj,{
         'label':label,
@@ -221,7 +263,7 @@ exports.hfield=function(obj,label)
     });
 }
 
-exports.input=function(obj)
+Adapter.prototype.input=function(obj)
 {
     //extract all extra properties, before creating the input element
     var inner=autil.extract(obj,'inner');
@@ -241,7 +283,9 @@ exports.input=function(obj)
     var opt={
         'tag':      'input',
         'type':     'text',
-        'tabindex': this.tabindex++
+        'data-theme':this.options.theme.input,
+        'data-mini': !this.options.mobile,
+        'tabindex':  this.tabindex++
     };
 
     autil.override(opt,obj);
@@ -297,7 +341,7 @@ exports.input=function(obj)
         return this.field(elements,field_opt);
 }
 
-exports.number=function(obj)
+Adapter.prototype.number=function(obj)
 {
     //the controlgroup 'div' element is created by jqm in the browser, and we need to make the element be displayed
     //inline. the only way I found to do that, is to attach a class to the parent, which happens to be a fieldset,
@@ -306,7 +350,6 @@ exports.number=function(obj)
     var opt={
         'type':     'number',
         'class':    'os-ui-number',
-        'data-theme':   this.theme.input,
         's-field-opt': {
             'class': 'os-ui-number-container'
         }
@@ -318,12 +361,12 @@ exports.number=function(obj)
 }
 
 
-exports.slider=function(obj)
+Adapter.prototype.slider=function(obj)
 {
     var opt={
         'type':         'range',
         'class':        'os-ui-number',
-        'data-theme':   this.theme.input,
+        'data-mini':    !this.options.mobile,
         'min':          0,
         'max':          100
     };
@@ -334,12 +377,13 @@ exports.slider=function(obj)
 }
 
 
-exports.radio=function(obj)
+Adapter.prototype.radio=function(obj)
 {
     var opt={
         'tag':          'input',
         'type':         'radio',
-        'data-theme':   this.theme.radio,
+        'data-theme':   this.options.theme.radio,
+        'data-mini':    !this.options.mobile,
         'tabindex':     this.tabindex++
     };
 
@@ -348,7 +392,7 @@ exports.radio=function(obj)
     return this.element(opt);
 }
 
-exports.radiogroup=function(obj)
+Adapter.prototype.radiogroup=function(obj)
 {
     var opt={
         'name':autil.uniqId('radio')
@@ -413,7 +457,7 @@ exports.radiogroup=function(obj)
     });
 }
 
-exports.question=function(obj)
+Adapter.prototype.question=function(obj)
 {
     var opt={
         'tag':  'li',
@@ -429,13 +473,12 @@ exports.question=function(obj)
     return this.element(opt);
 }
 
-exports.text=function(obj)
+Adapter.prototype.text=function(obj)
 {
     var opt={
         'type':         'text',
         'value':        undefined,
         'label':        ' ',
-        'data-theme':   this.theme.input,
         'class':        'os-ui-text',
         'inner':        {
             'tag':  'div',
@@ -448,7 +491,7 @@ exports.text=function(obj)
     return this.input(opt);
 }
 
-exports.container=function(obj)
+Adapter.prototype.container=function(obj)
 {
     var items=autil.extract(obj,'items',[]);
 
@@ -494,7 +537,7 @@ exports.container=function(obj)
     return field;
 }
 
-exports.option=function(obj)
+Adapter.prototype.option=function(obj)
 {
     var label=autil.extract(obj,'s-label','');
     var value=autil.extract(obj,'s-value','');
@@ -509,7 +552,7 @@ exports.option=function(obj)
     return this.element(opt);
 }
 
-exports.optgroup=function(obj)
+Adapter.prototype.optgroup=function(obj)
 {
     var label=autil.extract(obj,'s-label','');
     var items=autil.extract(obj,'items',[]);
@@ -552,7 +595,7 @@ exports.optgroup=function(obj)
     return result;
 }
 
-exports.select=function(obj)
+Adapter.prototype.select=function(obj)
 {
 
     var items=autil.extract(obj,'items',[]);
@@ -563,9 +606,10 @@ exports.select=function(obj)
     var minimize=autil.extract(obj,'s-minimize',false);
 
     var opt={
-        'tag':'select',
-        'data-theme':this.theme.select,
-        'tabindex': this.tabindex++
+        'tag':          'select',
+        'data-theme':   this.options.theme.select,
+        'data-mini':    !this.options.mobile,
+        'tabindex':     this.tabindex++
     };
 
     autil.override(opt,obj);
@@ -616,13 +660,14 @@ exports.select=function(obj)
     });
 }
 
-exports.checkbox=function(obj)
+Adapter.prototype.checkbox=function(obj)
 {
     var opt={
-        'tag':  'input',
-        'type': 'checkbox',
-        'data-theme':   this.theme.check,
-        'tabindex': this.tabindex++
+        'tag':          'input',
+        'type':         'checkbox',
+        'data-theme':   this.options.theme.check,
+        'tabindex':     this.tabindex++,
+        'data-mini':    !this.options.mobile
     };
 
     autil.override(opt,obj);
@@ -630,7 +675,7 @@ exports.checkbox=function(obj)
     return this.element(opt);
 }
 
-exports.checkboxgroup=function(obj)
+Adapter.prototype.checkboxgroup=function(obj)
 {
     var items=autil.extract(obj,'items',[]);
     var id_prefix=autil.extract(obj,'id_prefix');
@@ -708,7 +753,7 @@ exports.checkboxgroup=function(obj)
     });
 }
 
-exports.stype=function(obj)
+Adapter.prototype.stype=function(obj)
 {
     //does this object have an s-type property?
     if (typeof obj['s-type'] === 'undefined')
@@ -737,7 +782,7 @@ exports.stype=function(obj)
     return this[stype](obj);
 };
 
-exports.form=function(obj)
+Adapter.prototype.form=function(obj)
 {
     var opt={
         'tag':          'form',
@@ -752,8 +797,8 @@ exports.form=function(obj)
         'tag':'ul',
         'data-role':'listview',
         'data-inset':'true',
-        'data-theme':this.theme.form,
-        'data-divider-theme':this.theme.question
+        'data-theme':this.options.theme.form,
+        'data-divider-theme':this.options.theme.question
     };
 
     var form=this.element(opt);
@@ -774,18 +819,3 @@ exports.form=function(obj)
 
     return form;
 }
-
-exports.toHTML = function (obj,theme)
-{
-    this.tabindex=1;
-    this.theme=theme;
-
-    var form=this.form(obj);
-    var html=new ElementTree(form);
-
-    //return 'xhtml'
-    return html.write({
-       'xml_declaration':false
-    });
-};
-
