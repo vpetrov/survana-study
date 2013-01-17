@@ -348,20 +348,28 @@ fieldset.os-ui-inline-controlgroup .ui-controlgroup-controls
     display:inline !important;
 }
 
-li.ui-field-contain .os-ui-radiogroup.ui-controlgroup-vertical .ui-controlgroup-controls li.ui-field-contain
+/* fields embedded in radiogroups should be aligned to the right */
+.os-ui-radiogroup.ui-controlgroup-vertical .ui-controlgroup-controls li.ui-field-contain
 {
     margin-top:3px;
     margin-bottom:5px;
     text-align:right;
 }
 
-.os-ui-radiogroup.ui-controlgroup-vertical .ui-controlgroup-controls .ui-field-contain .ui-controlgroup .ui-controlgroup-controls
+/* fields embedded in checkboxgroups should be aligned to the right */
+.os-ui-checkboxgroup.ui-controlgroup-vertical .ui-controlgroup-controls li.ui-field-contain
 {
-    max-width:none !important;
-    width:95% !important;
+    margin-top:3px;
+    margin-bottom:5px;
+    text-align:right;
 }
 
 
+.ui-controlgroup-vertical .ui-controlgroup-controls .ui-field-contain .ui-controlgroup .ui-controlgroup-controls
+{
+    max-width:none !important;
+    width:93% !important;
+}
 
 /*
 .ui-field-contain .ui-controlgroup-vertical .ui-controlgroup-controls .ui-field-contain .ui-controlgroup-vertical .ui-controlgroup-controls
@@ -381,6 +389,7 @@ li.ui-field-contain .os-ui-radiogroup.ui-controlgroup-vertical .ui-controlgroup-
     max-width:400px;
 }
 
+/* make all dialogs pinned to the top */
 .ui-dialog .ui-dialog-contain
 {
     margin-top:0;

@@ -21,9 +21,11 @@ var defaults    = {
         input:      'b',
         radio:      'b',
         check:      'b',
-        select:     'b',
+        select:     'c',
         form:       'b',
-        question:   'b'
+        question:   'b',
+        toggle:     'c',
+        track:      'c'
     }
 };
 
@@ -34,7 +36,7 @@ var defaults    = {
  * @see toHTML()
  */
 function Adapter (options) {
-    this.options = autil.override(defaults,options);
+    this.options = autil.merge(defaults,options);
 }
 
 module.exports=function(opt) {
@@ -137,8 +139,11 @@ Adapter.prototype.label=function(obj,for_element)
     else
         autil.override(opt,{
             'html': obj,
-            'for':  (for_element)?for_element.get('id'):undefined
         });
+
+    if (opt.for === undefined ){
+        opt.for =  (for_element)?for_element.get('id'):undefined;
+    }
 
     return this.element(opt);
 }
@@ -266,6 +271,7 @@ Adapter.prototype.hfield=function(obj,label)
 Adapter.prototype.input=function(obj)
 {
     //extract all extra properties, before creating the input element
+    var id=autil.extract(obj,'s-id',null);
     var inner=autil.extract(obj,'inner');
     var label=autil.extract(obj,'label');
     var suffix=autil.extract(obj,'suffix');
@@ -278,10 +284,18 @@ Adapter.prototype.input=function(obj)
         's-inline':inline,
         's-maximize':maximize
     };
+
     autil.override(field_opt,autil.extract(obj,'s-field-opt',{}));
+
+    //make sure there's an id
+    if (!id) {
+        id = autil.randomId('input');
+    }
 
     var opt={
         'tag':      'input',
+        'id':       id,
+        'name':     id,
         'type':     'text',
         'data-theme':this.options.theme.input,
         'data-mini': !this.options.mobile,
@@ -289,8 +303,6 @@ Adapter.prototype.input=function(obj)
     };
 
     autil.override(opt,obj);
-
-    autil.tryset(opt,'id','name');
 
     var input=this.element(opt);
 
@@ -376,7 +388,6 @@ Adapter.prototype.slider=function(obj)
     return this.input(opt)
 }
 
-
 Adapter.prototype.radio=function(obj)
 {
     var opt={
@@ -394,24 +405,33 @@ Adapter.prototype.radio=function(obj)
 
 Adapter.prototype.radiogroup=function(obj)
 {
-    var opt={
-        'name':autil.uniqId('radio')
-    };
+    var id          =autil.extract(obj, 's-id',    null);
+    var items       =autil.extract(obj, 'items',    []);
+    var label       =autil.extract(obj, 'label');
+    var direction   =autil.extract(obj,
+                                   'direction',
+                                   'horizontal',
+                                   function (d) {
+                                       return d.toLowerCase();
+                                   });
+    var inline      =autil.extract(obj, 's-inline',false);
+    var maximize    =autil.extract(obj, 's-maximize',false);
+    var minimize    =autil.extract(obj, 's-minimize',false);
+    var width       =autil.extract(obj, 's-width',false);
 
-    var items=autil.extract(obj,'items',[]);
-    var label=autil.extract(obj,'label');
-    var id=autil.extract(obj,'id');
-    var direction=autil.extract(obj,'direction','horizontal',function(d){
-        return d.toLowerCase();
-    });
-    var inline=autil.extract(obj,'s-inline',false);
-    var maximize=autil.extract(obj,'s-maximize',false);
-    var minimize=autil.extract(obj,'s-minimize',false);
+    //make sure there's an id
+    if (!id) {
+        id = autil.uniqId('radio');
+    }
+
+    var opt = {
+        'name': id
+    };
 
     autil.override(opt,obj);
 
     var fields=[];
-    var i=0;
+    var i=1;
 
     this.append(fields,items,function(obj){
         var result=[];
@@ -431,14 +451,24 @@ Adapter.prototype.radiogroup=function(obj)
 
                 //create radio elements
                 var ropt={
-                    'id':   opt['name']+(i++),
+                    'id':   id + (i++),
                     'value':obj
                 };
+
                 var rgopt=opt;
                 autil.override(rgopt,ropt);
 
+                var rlabelopt = {
+                    'html': rlabel
+                };
+
+                //allow the user to specify an explicit width (to make all buttons the same size)
+                if (width) {
+                    rlabelopt.style = 'width:'+width+'px';
+                }
+
                 var radio=this.radio(rgopt);
-                var radiolabel=this.label(rlabel,radio);
+                var radiolabel=this.label(rlabelopt,radio);
 
                 return [radiolabel,radio];
             });
@@ -598,15 +628,22 @@ Adapter.prototype.optgroup=function(obj)
 
 Adapter.prototype.select=function(obj)
 {
+    var id          = autil.extract(obj, 's-id',        null);
+    var items       = autil.extract(obj, 'items',       []);
+    var label       = autil.extract(obj, 'label');
+    var empty       = autil.extract(obj, 's-empty',     false);
+    var inline      = autil.extract(obj, 's-inline',    false);
+    var maximize    = autil.extract(obj, 's-maximize',  false);
+    var minimize    = autil.extract(obj, 's-minimize',  false);
 
-    var items=autil.extract(obj,'items',[]);
-    var label=autil.extract(obj,'label');
-    var empty=autil.extract(obj,'s-empty',false);
-    var inline=autil.extract(obj,'s-inline',false);
-    var maximize=autil.extract(obj,'s-maximize',false);
-    var minimize=autil.extract(obj,'s-minimize',false);
+    //make sure there's an id
+    if (!id) {
+        id = autil.randomId('select');
+    }
 
     var opt={
+        'id':           id,
+        'name':         id,
         'tag':          'select',
         'data-theme':   this.options.theme.select,
         'data-mini':    !this.options.mobile,
@@ -614,8 +651,6 @@ Adapter.prototype.select=function(obj)
     };
 
     autil.override(opt,obj);
-
-    autil.tryset(opt,'id','name');
 
     var select=this.element(opt);
 
@@ -661,6 +696,27 @@ Adapter.prototype.select=function(obj)
     });
 }
 
+
+Adapter.prototype.toggle=function(obj)
+{
+    var opt = {
+        'data-role':'slider',
+        'data-theme': this.options.theme.toggle,
+        'data-track-theme': this.options.theme.track,
+        'items': {
+            'No': 0,
+            'Yes': 1
+        }
+    };
+
+    autil.override(opt,obj);
+
+    var result= this.select(opt);
+
+    console.log(result);
+    return result;
+}
+
 Adapter.prototype.checkbox=function(obj)
 {
     var opt={
@@ -678,18 +734,20 @@ Adapter.prototype.checkbox=function(obj)
 
 Adapter.prototype.checkboxgroup=function(obj)
 {
-    var items=autil.extract(obj,'items',[]);
-    var id_prefix=autil.extract(obj,'id_prefix');
-    var name_prefix=autil.extract(obj,'name_prefix');
-    var label=autil.extract(obj,'label');
-    var cbg_id=autil.extract(obj,'id');
-    var inline=autil.extract(obj,'s-inline',false);
-    var maximize=autil.extract(obj,'s-maximize',false);
-    var minimize=autil.extract(obj,'s-minimize',false);
-    var direction=autil.extract(obj,'direction','vertical');
-
+    var id          = autil.extract(obj,'s-id',         null);
+    var items       = autil.extract(obj,'items',        []);
+    var label       = autil.extract(obj,'label');
+    var inline      = autil.extract(obj,'s-inline',     false);
+    var maximize    = autil.extract(obj,'s-maximize',   false);
+    var minimize    = autil.extract(obj,'s-minimize',   false);
+    var direction   = autil.extract(obj,'direction',    'vertical');
+    var width       = autil.extract(obj,'s-width',      false);
     var elements=[];
     var i=0;
+
+    if (!id) {
+        id = autil.randomId('check');
+    }
 
     this.append(elements,items,function(obj1){
         var result=[];
@@ -699,41 +757,47 @@ Adapter.prototype.checkboxgroup=function(obj)
             var value=obj1[clabel];
 
             this.append(result,value,function(obj2){
-                var id=null;
+                var cid=null;
                 var name=null;
                 var value=obj2;
 
-                if (typeof(obj2)!=='object')
-                {
-                    if (id_prefix)
-                        id=id_prefix+(i+1);
-                    if (name_prefix)
-                        name=name_prefix+(i+1);
-
-                }
                 //custom objects? let this.append handle those
-                else if (typeof(obj2['s-type'])!=='undefined')
+                if (typeof(obj2['s-type'])!=='undefined')
                 {
                     this.append(result,obj2);
                     return;
                 }
-                else
+                else if (typeof(obj2)==="object")
                 {
-                    id=obj2['id'];
+                    cid=obj2['id'];
                     name=obj2['name'];
                     value=obj2['value'];
                 }
 
+                //no id?
+                if (!cid) {
+                    cid = id + (i+1);
+                }
+
                 var opt={
-                    'id':id,
-                    'name':name,
+                    'id':   cid,
+                    'name': name || id,
                     'value':value
                 };
 
                 autil.override(opt,obj);
 
+                var clabelopt = {
+                    'html': clabel
+                };
+
+                //allow the user to specify an explicit width (to make all buttons the same size)
+                if (width) {
+                    clabelopt.style = 'width:'+width+'px';
+                }
+
                 var check=this.checkbox(opt);
-                var checklabel=this.label(clabel,check);
+                var checklabel=this.label(clabelopt,check);
 
                 ++i;
 
@@ -747,10 +811,11 @@ Adapter.prototype.checkboxgroup=function(obj)
 
     return this.field(elements,{
         'label':        label,
+        'direction':    direction,
         's-inline':     inline,
         's-maximize':   maximize,
         's-minimize':   minimize,
-        'class':        'os-ui-'+direction
+        'class':        'os-ui-checkboxgroup os-ui-'+direction
     });
 }
 
