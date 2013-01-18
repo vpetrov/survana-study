@@ -15,29 +15,35 @@ exports.config=require('./config');
 
 function detectBrowser(req, res, next)
 {
-    var user_agent=req.header('user-agent').toLowerCase();
+    var user_agent=req.header('user-agent');
 
-    if ((user_agent.indexOf('mobile')>-1) ||
-        //RIM,Nokia,SonyEricsson,etc:
-        (user_agent.indexOf('tablet')>-1) ||
-        (user_agent.indexOf('symbian')>-1)||
-        (user_agent.indexOf('fennec')>-1) ||
-        (user_agent.indexOf('gobrowser')>-1) ||
-        (user_agent.indexOf('maemo')>-1) ||
-        (user_agent.indexOf('opera mini')>-1) ||
-        (user_agent.indexOf('opera mobi')>-1) ||
-        (user_agent.indexOf('semc-browser')>-1)
-        )
-    {
-        req.mobile=true;
-        req.views=req.app.config.views.mobile+'/';
-    }
-    else
-    {
-        req.mobile=false;
-        req.views=req.app.config.views.desktop+'/';
+    //by default, assume desktop client
+    req.mobile=false;
+    req.views=req.app.config.views.desktop+'/';
+
+    //attempt to detect mobile client
+    if (user_agent) {
+
+        user_agent=user_agent.toLowerCase();
+
+        if ((user_agent.indexOf('mobile')>-1) ||
+            //RIM,Nokia,SonyEricsson,etc:
+            (user_agent.indexOf('tablet')>-1) ||
+            (user_agent.indexOf('symbian')>-1)||
+            (user_agent.indexOf('fennec')>-1) ||
+            (user_agent.indexOf('gobrowser')>-1) ||
+            (user_agent.indexOf('maemo')>-1) ||
+            (user_agent.indexOf('opera mini')>-1) ||
+            (user_agent.indexOf('opera mobi')>-1) ||
+            (user_agent.indexOf('semc-browser')>-1)
+            )
+        {
+            req.mobile=true;
+            req.views=req.app.config.views.mobile+'/';
+        }
     }
 
+    //continue
     next();
 }
 

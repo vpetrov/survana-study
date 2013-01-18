@@ -188,6 +188,7 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
 
     function onPageShow(e)
     {
+
         localStorage['form-timestamp']=(new Date()).valueOf();
         logevent(e);
     }

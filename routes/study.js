@@ -84,6 +84,7 @@ exports.form=function(req,res,next)
     var form_id=req.params[1];
     var study=null;
     var form=null;
+    var overrides=null;
 
     async.waterfall([
         function findStudy(next2)
@@ -105,6 +106,10 @@ exports.form=function(req,res,next)
                 if (result.forms[i].id===form_id)
                 {
                     form=result.forms[i];
+                    if (study.overrides) {
+                        overrides=study.overrides[i];
+                    }
+
                     break;
                 }
             }
@@ -115,15 +120,29 @@ exports.form=function(req,res,next)
             next2(null,form);
         },
 
+        function override(form,next2) {
+            if (form && overrides) {
+                obj.override(form,overrides);
+            }
+            next2(null,form);
+        },
+
         function toHTML(form,next2)
         {
             var adapter=null;
 
             //load appropriate adapter, from module root
-            if (req.mobile)
-                adapter=require(path.join(app.dirname,config.adapters.mobile));
-            else
-                adapter=require(path.join(app.dirname,config.adapters.desktop));
+            if (req.mobile) {
+                adapter=require(path.join(app.dirname,config.adapters.mobile))({
+                    'theme': config.theme,
+                    'mobile':true
+                });
+            } else {
+                adapter=require(path.join(app.dirname,config.adapters.desktop))({
+                    'theme': config.theme,
+                    'mobile':false
+                });
+            }
 
             //compute field dependencies
             var dep=depend.get(form['data']);
@@ -134,7 +153,7 @@ exports.form=function(req,res,next)
 
             console.log('bindings',bindings);
 
-            var html=adapter.toHTML(form,config.theme);
+            var html=adapter.toHTML(form);
 
             var opt={
                 study:study,

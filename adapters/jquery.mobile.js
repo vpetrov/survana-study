@@ -54,7 +54,13 @@ Adapter.prototype.toHTML = function (obj)
     this.tabindex=1;
 
     var form=this.form(obj);
+
+    console.log(form);
     var html=new ElementTree(form);
+
+    console.log(html.write({
+        'xml_declaration':false
+    }));
 
     //return 'xhtml'
     return html.write({
@@ -268,6 +274,110 @@ Adapter.prototype.hfield=function(obj,label)
     });
 }
 
+/* fieldset is not supported because on small screens, the range sliders are broken. */
+Adapter.prototype.range = function (obj)
+{
+    var id              =   autil.extract(obj, 's-id',      null);
+    var label           =   autil.extract(obj, 'label'," ");
+    var enable_fieldset =   false; /*autil.extract(obj, 's-fieldset',false);*/
+    var width           =   autil.extract(obj, 's-width',   null);
+/*  var embedded        =   autil.extract(obj,'s-embedded',false);
+    var maximize        =   autil.extract(obj,'s-maximize',false); */
+
+
+    if (!id) {
+        id = autil.randomId('range');
+    }
+
+    var leftopt = {
+        'tag':  'input',
+        'type': 'range',
+        'min':  0,
+        'max':  100,
+        'step': 1,
+        'value': 0,
+        'data-theme':this.options.theme.range,
+        'data-mini': !this.options.mobile,
+        'tabindex':  this.tabindex++,
+        'id':   id + '-start',
+        'name': id + '-start'
+    };
+
+    var rightopt = {
+        'tag':  'input',
+        'type': 'range',
+        'min':  0,
+        'max':  100,
+        'step': 1,
+        'value': 100,
+        'data-theme':this.options.theme.range,
+        'data-mini': !this.options.mobile,
+        'tabindex':  this.tabindex++,
+        'id':   id + '-end',
+        'name': id + '-end'
+    };
+
+    //now override properties with values supplied by the user
+    autil.override(leftopt,obj);
+    autil.override(rightopt,obj);
+
+    var labelhtml = (enable_fieldset)?" ":label;
+    //label options
+    var leftlabelopt = {
+        'html':labelhtml,
+        'for':leftopt.id,
+        'style':'min-height:1px'
+    };
+
+    var rightlabelopt={
+        'html':labelhtml,
+        'for':rightopt.id
+    };
+
+    //create the input elements
+    var left=this.element(leftopt);
+    var right = this.element(rightopt);
+
+    //create the labels
+    var leftlabel=this.label(leftlabelopt);
+    var rightlabel=this.label(rightlabelopt);
+
+    //create a container
+    var containeropt = {
+        'tag':          'div',
+        'data-role':    'rangeslider',
+        'data-mini':    !this.options.mobile
+    };
+
+    if (width) {
+        if (typeof width === 'string') {
+            width = parseInt(width)
+        }
+
+        if (width<50)
+            width=50;
+
+        if (width>100)
+            width=100;
+
+        containeropt.style="width:"+width+"%"
+    }
+
+    var container = this.element(containeropt);
+
+    //append all elements to the container
+    this.append(container,[leftlabel,left,rightlabel,right]);
+
+    //return a new field
+    return this.field(container,{
+        'fieldset':     enable_fieldset,
+        'label':        label,
+        'direction':    'horizontal',
+        /*'s-maximize':   maximize, */
+        'class':        'os-ui-range'
+    });
+}
+
 Adapter.prototype.input=function(obj)
 {
     //extract all extra properties, before creating the input element
@@ -278,11 +388,13 @@ Adapter.prototype.input=function(obj)
     var embedded=autil.extract(obj,'s-embedded',false);
     var inline=autil.extract(obj,'s-inline',false);
     var maximize=autil.extract(obj,'s-maximize',false);
+    var enable_fieldset=autil.extract(obj,'s-fieldset',true);
 
     var field_opt={
         'label':label,
         's-inline':inline,
-        's-maximize':maximize
+        's-maximize':maximize,
+        'fieldset':enable_fieldset
     };
 
     autil.override(field_opt,autil.extract(obj,'s-field-opt',{}));
@@ -305,6 +417,11 @@ Adapter.prototype.input=function(obj)
     autil.override(opt,obj);
 
     var input=this.element(opt);
+    var ilabel=this.label({
+        'html':label
+    },input);
+
+    console.log(ilabel);
 
     //custom container?
     if (inner)
@@ -316,7 +433,7 @@ Adapter.prototype.input=function(obj)
         input=inner;
     }
 
-    var elements=[input];
+    var elements=[ilabel,input];
 
     //create or append one or more elements after the input
     if (typeof(suffix)!=='undefined')
@@ -380,7 +497,8 @@ Adapter.prototype.slider=function(obj)
         'class':        'os-ui-number',
         'data-mini':    !this.options.mobile,
         'min':          0,
-        'max':          100
+        'max':          100,
+        's-fieldset':   false
     };
 
     autil.override(opt,obj);

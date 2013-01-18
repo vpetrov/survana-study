@@ -55,6 +55,9 @@ exports.preview = function(req, res, next)
 
     //compute field dependencies
     var dep=depend.get(form.data);
+
+    console.log('dependencies',dep);
+
     //translate dependencies to javascript
     var dep_js=depend.translate(dep);
     var rules=validate.get(form.data);

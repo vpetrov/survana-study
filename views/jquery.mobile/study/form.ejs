@@ -5,7 +5,11 @@
     {{ } else { }}
         <div data-role='header' data-theme='{{=config.theme.nav}}'>
     {{ } }}
-            <h1>{{=form.title}}</h1>
+            {{ if (!form.display_title || parseInt(form.display_title)) { }}
+                <h1>{{= form.title }}</h1>
+            {{ } else { }}
+                <h1></h1>
+            {{ } }}
             <!--<a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
                class='ui-btn-left btn-back'>Back</a>-->
             <a href="#" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
