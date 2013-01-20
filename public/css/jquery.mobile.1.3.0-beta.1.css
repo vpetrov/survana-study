@@ -1,0 +1,119 @@
+/* all devices */
+
+
+.ui-header,.ui-footer
+{
+    max-width:64em !important; /* 1024px / 16px ( default font size) */
+    margin:0 auto;
+}
+
+div.ui-input-text {
+    padding-right: 0.5em;
+}
+
+label.ui-input-text {
+    display:inline-block;
+}
+
+label.ui-input-text.s-inline {
+    display:inline;
+}
+
+label.ui-input-text.s-block {
+    display:block;
+    width:auto;
+    margin-bottom:0.25em;
+}
+
+.ui-header+.ui-content
+{
+    padding: 0.5em !important;
+    max-width: 50em !important;
+    min-height: 18em; /* 300px */
+    margin:0 auto;
+}
+
+.ui-content
+{
+    padding:0.5em !important;
+    max-width: 50em !important; /* 800px */
+    margin:0 auto;
+}
+
+.s-input-container {
+    display:inline-block;
+}
+
+.s-range-container {
+    min-width: 12em; /* 192px */
+}
+
+.s-number-container {
+    min-width:4em; /* 64px */
+}
+
+.s-range-container.s-align.s-maximize .ui-slider,
+.s-range-container.s-width .ui-slider
+{
+    width:100%;
+}
+
+/* desktop */
+@media all and (min-width:28em) {
+
+    /* input */
+    div.ui-input-text {
+        max-width: 28em;
+    }
+
+    /* slider */
+    .s-range-container:not(.s-width) .ui-slider {
+        max-width: 29em;
+    }
+
+    .s-input-container {
+        width:100%;
+        display:inline;
+    }
+
+    .s-input-container.s-align {
+        width:auto;
+        display:inline-block;
+    }
+
+    .s-input-container.s-maximize .ui-input-text,
+    .s-input-container.s-width .ui-input-text {
+        max-width: none;
+    }
+
+    .s-input-container.s-align.s-maximize .ui-input-text:not(.s-slider) {
+        width:100%;
+    }
+
+    .s-input-container.s-width {
+        display:inline-block;
+    }
+
+    .s-input-container.s-width .ui-input-text:not(.s-slider) {
+        width: 100%;
+    }
+}
+
+@media all and (max-width:28em) {
+    label {
+        width:auto;
+    }
+
+    .s-input-container {
+        display:inline;
+    }
+
+    .s-number-container:not(.s-maximize):not(.s-align):not(.s-inline) {
+        display:block;
+    }
+
+    .s-number-container.s-inline {
+        display:inline-block;
+        margin-left:0.5em;
+    }
+}
