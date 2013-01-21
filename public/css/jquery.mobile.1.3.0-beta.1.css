@@ -15,16 +15,6 @@ label.ui-input-text {
     display:inline-block;
 }
 
-label.ui-input-text.s-inline {
-    display:inline;
-}
-
-label.ui-input-text.s-block {
-    display:block;
-    width:auto;
-    margin-bottom:0.25em;
-}
-
 .ui-header+.ui-content
 {
     padding: 0.5em !important;
@@ -52,8 +42,13 @@ label.ui-input-text.s-block {
     min-width:4em; /* 64px */
 }
 
+.s-select-container {
+    min-width: 6em; /* 96px */
+}
+
 .s-range-container.s-align.s-maximize .ui-slider,
-.s-range-container.s-width .ui-slider
+.s-range-container.s-width .ui-slider,
+.s-select-container.s-width .ui-select
 {
     width:100%;
 }
@@ -61,9 +56,24 @@ label.ui-input-text.s-block {
 /* desktop */
 @media all and (min-width:28em) {
 
+    /* this overrides the default setting of inline-block, but may not work for embedded s-type container */
+    .ui-field-contain label.s-inline {
+        display:inline;
+    }
+
+    .ui-field-contain label.s-block {
+        display:block;
+        width:auto;
+        margin-bottom:0.25em;
+    }
+
     /* input */
     div.ui-input-text {
-        max-width: 28em;
+        max-width:28em;
+    }
+
+    div.ui-select:not(.s-width) {
+        max-width:20em;
     }
 
     /* slider */
@@ -81,8 +91,8 @@ label.ui-input-text.s-block {
         display:inline-block;
     }
 
-    .s-input-container.s-maximize .ui-input-text,
-    .s-input-container.s-width .ui-input-text {
+    .s-input-container.s-maximize div,
+    .s-input-container.s-width div {
         max-width: none;
     }
 
@@ -95,7 +105,11 @@ label.ui-input-text.s-block {
     }
 
     .s-input-container.s-width .ui-input-text:not(.s-slider) {
-        width: 100%;
+        width:100%;
+    }
+
+    .s-input-container.s-minimize div {
+        width:auto;
     }
 }
 

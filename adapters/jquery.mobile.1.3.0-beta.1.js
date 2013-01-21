@@ -313,15 +313,24 @@ Adapter.prototype.label = function (obj, for_element) {
     return this.element(opt);
 };
 
+/**
+ * Generates a container for a component, implementing options such as s-inline, s-block, s-align, s-maximize, s-width
+ * @param opt
+ * @return {Object}
+ * @private
+ * @note Changes s-object and s-label
+ */
 Adapter.prototype._container = function (opt) {
     "use strict";
 
     var obj         =   autil.extract(opt,  's-object', {}),
         labelopt    =   autil.extract(opt,  's-label',  {}),
+        ctype       =   autil.extract(opt,  's-container-type', obj.type),
         inline      =   autil.extract(obj,  's-inline'),
         block       =   autil.extract(obj,  's-block'),
         align       =   autil.extract(obj,  's-align'),
         maximize    =   autil.extract(obj,  's-maximize'),
+        minimize    =   autil.extract(obj,  's-minimize'),
         width       =   autil.extract(obj,  's-width'),
         exact_width =   autil.extract(obj,  's-exact-width',    false),
         container_opt,
@@ -330,42 +339,43 @@ Adapter.prototype._container = function (opt) {
     //<input> container options
     container_opt = {
         'tag':      'div',
-        'class':    's-input-container s-' + obj.type + '-container',
+        'class':    's-input-container s-' + ctype + '-container',
         'style':    ''
     };
 
     if (inline) {
-        labelopt['class'] = 's-inline';
-        container_opt['class'] += ' s-inline';
-
+        autil.addClass(labelopt, 's-inline');
+        autil.addClass(container_opt, 's-inline');
     } else if (block) {
-        labelopt['class'] = 's-block';
+        autil.addClass(labelopt, 's-block');
         if (align) {
-            container_opt.style += 'padding-left: ' + (align + this.options.width.padding) + '%;';
+            autil.addStyle(container_opt, 'padding-left: ' + (align + this.options.width.padding) + '%');
         }
     }
 
     //left align by decreasing/increasing the default widths of the <label> and <input> elements
     if (align) {
-        labelopt.style = 'min-width:' + align + '%;';
-        container_opt['class'] += ' s-align';
+        autil.addStyle(labelopt, 'min-width:' + align + '%');
+        autil.addClass(container_opt, 's-align');
 
         //the implementation of s-width conflicts with s-align, because s-width sets css rules for 'width', while
         //align sets 'min-width'.
         if (!width) {
-            container_opt.style += ';min-width:' +
-                ((this.options.width.label + this.options.width.input) - align) +  '%;';
+            autil.addStyle(container_opt, 'min-width:' +
+                           ((this.options.width.label + this.options.width.input) - align) +  '%');
         }
     }
 
     if (maximize) {
-        container_opt['class'] += ' s-maximize';
+        autil.addClass(container_opt, 's-maximize');
+    } else if (minimize) {
+        autil.addClass(container_opt, 's-minimize');
     }
 
     if (width) {
         if (exact_width) {
             //use the width directly
-            container_opt.style += ";width:" + width + ';';
+            autil.addStyle(container_opt, "width:" + width);
         } else {
             //map the user's width range 0..100 to an acceptable css range
             ceiling = this.options.width.input;
@@ -392,10 +402,10 @@ Adapter.prototype._container = function (opt) {
             //reuse 'ceiling' for the new adjusted value of 'width'
             ceiling = (width * ceiling) / 100;
 
-            container_opt.style += ";width:" + ceiling + '%;';
+            autil.addStyle(container_opt, "width:" + ceiling + '%');
         }
 
-        container_opt['class'] += ' s-width';
+        autil.addClass(container_opt, 's-width');
     }
 
     return this.element(container_opt);
@@ -456,7 +466,6 @@ Adapter.prototype.input = function (obj) {
     label_el = this.label(labelopt);
     input_el = this.element(opt);
 
-    //this element enables us to control the width of the int);
     container_el.append(input_el);
 
     //return [label_el, input_el];
@@ -557,14 +566,11 @@ Adapter.prototype.select = function (obj) {
         items       = autil.extract(obj, 's-items',     []),
         label       = autil.extract(obj, 's-label'),
         empty       = autil.extract(obj, 's-empty',     false),
-        inline      = autil.extract(obj, 's-inline',    false),
-        maximize    = autil.extract(obj, 's-maximize',  false),
-        minimize    = autil.extract(obj, 's-minimize',  false),
-        align       = autil.extract(obj, 's-align'),
-        width       = autil.extract(obj, 's-width'),
         select,
         select_opt,
-        label_el;
+        label_opt,
+        label_el,
+        container;
 
     //make sure there's an id
     if (!id) {
@@ -585,16 +591,31 @@ Adapter.prototype.select = function (obj) {
         'tabindex':     this.tabindex++
     };
 
+    label_opt = {
+        'html': label,
+        'for':  id
+    };
+
     autil.override(select_opt, obj);
+
+    console.log('before container',select_opt);
+
+    //create the container (changes select_opt and label_opt)
+    container = this._container({
+        's-object': select_opt,
+        's-label':  label_opt,
+        's-container-type': 'select'
+    });
+
+    console.log('after container',select_opt);
 
     //create <select>
     select = this.element(select_opt);
 
     //create <label>
-    label_el = this.label({
-        'html': label,
-        'for':  id
-    });
+    label_el = this.label(label_opt);
+
+    container.append(select);
 
     //add an empty option as the first item
     if (empty) {
@@ -630,7 +651,7 @@ Adapter.prototype.select = function (obj) {
         return options;
     });
 
-    return [label_el, select];
+    return [label_el, container];
 };
 
 Adapter.prototype.option = function (obj) {
