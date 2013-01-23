@@ -34,6 +34,16 @@ label.ui-input-text {
     display:inline-block;
 }
 
+.s-input-container:not(.s-width) fieldset {
+    display:inline-block;
+    width:100%;
+}
+
+/* allow horizontal groups to stretch all the way to the right, since they need the extra horizontal space */
+.s-input-container:not(.s-width):not(.s-horizontal) fieldset {
+    width:78%;
+}
+
 .s-range-container {
     min-width: 12em; /* 192px */
 }
@@ -43,14 +53,27 @@ label.ui-input-text {
 }
 
 .s-select-container {
-    min-width: 6em; /* 96px */
+    min-width:6em; /* 96px */
+}
+
+.s-toggle-container {
+    min-width:5em /* 80px */
 }
 
 .s-range-container.s-align.s-maximize .ui-slider,
 .s-range-container.s-width .ui-slider,
-.s-select-container.s-width .ui-select
+.s-select-container.s-width .ui-select,
 {
     width:100%;
+}
+
+/* properties transferred from a regular <label> style */
+.fieldset-label {
+    vertical-align: top;
+    display:inline-block;
+    width:20%;
+    margin:0 2% 0 0;
+    font-weight:normal;
 }
 
 /* desktop */
@@ -61,10 +84,46 @@ label.ui-input-text {
         display:inline;
     }
 
-    .ui-field-contain label.s-block {
+    .ui-field-contain.s-no-border:not(.ui-first-child) {
+        border-top-style: none;
+    }
+
+    .ui-field-contain label.s-block,
+    .fieldset-label.s-block {
         display:block;
         width:auto;
         margin-bottom:0.25em;
+    }
+
+    .ui-field-contain .s-input-container.s-width .ui-slider-switch
+    {
+        width:100%;
+    }
+
+    /* this overrides the default setting of inline-block, but may not work for embedded s-type container */
+    /*fieldset.s-inline .ui-controlgroup-label {
+        display:inline-block;
+        width:auto;
+    }
+
+    fieldset.s-inline .ui-controlgroup-controls,
+    fieldset.s-minimize .ui-controlgroup-controls {
+        width:auto;
+    }
+
+    fieldset.s-block .ui-controlgroup-label {
+        display:block;
+        width:auto;
+        margin-bottom:0.25em;
+    }*/
+
+    .s-input-container fieldset .ui-controlgroup-controls {
+        width:100%;
+    }
+
+    .s-input-container.s-maximize fieldset {
+        width:100%;
+        max-width:78%;
     }
 
     /* input */
@@ -72,7 +131,10 @@ label.ui-input-text {
         max-width:28em;
     }
 
-    div.ui-select:not(.s-width) {
+    div.ui-select:not(.s-width),
+    div.ui-radio:not(.s-width),
+    div.ui-checkbox:not(.s-width)
+    {
         max-width:20em;
     }
 
@@ -111,11 +173,31 @@ label.ui-input-text {
     .s-input-container.s-minimize div {
         width:auto;
     }
+
+    .s-input-container.s-horizontal.s-width {
+        width:100%;
+    }
+
+    .s-input-container.s-horizontal.s-equal-5 fieldset .ui-controlgroup-controls div { min-width:5%; }
+    .s-input-container.s-horizontal.s-equal-10 fieldset .ui-controlgroup-controls div { min-width:10%; }
+    .s-input-container.s-horizontal.s-equal-15 fieldset .ui-controlgroup-controls div { min-width:15%; }
+    .s-input-container.s-horizontal.s-equal-20 fieldset .ui-controlgroup-controls div { min-width:20%; }
+    .s-input-container.s-horizontal.s-equal-25 fieldset .ui-controlgroup-controls div { min-width:25%; }
+    .s-input-container.s-horizontal.s-equal-30 fieldset .ui-controlgroup-controls div { min-width:30%; }
+    .s-input-container.s-horizontal.s-equal-35 fieldset .ui-controlgroup-controls div { min-width:35%; }
+    .s-input-container.s-horizontal.s-equal-40 fieldset .ui-controlgroup-controls div { min-width:40%; }
+    .s-input-container.s-horizontal.s-equal-45 fieldset .ui-controlgroup-controls div { min-width:45%; }
+    .s-input-container.s-horizontal.s-equal-50 fieldset .ui-controlgroup-controls div { min-width:50%; }
 }
 
 @media all and (max-width:28em) {
-    label {
+    label,
+    .fieldset-label {
         width:auto;
+    }
+
+    fieldset {
+        width:100% !important;
     }
 
     .s-input-container {
@@ -129,5 +211,13 @@ label.ui-input-text {
     .s-number-container.s-inline {
         display:inline-block;
         margin-left:0.5em;
+    }
+
+    /* TODO: works for .ui-select, must check other type of controlgroup-controls. Replace 'div' with .ui-select if
+       nothing else workse */
+    .ui-controlgroup-controls div {
+        display:block;
+        width:100%;
+        max-width:none
     }
 }

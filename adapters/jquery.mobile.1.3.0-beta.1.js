@@ -142,12 +142,13 @@ Adapter.prototype.form = function (obj) {
     //recursively convert all questions
     for (i = 0; i < obj.data.length; i += 1) {
         if (obj.data[i]) {
+            //create a field container passing the element in case it defines 's-field'
+            field = this.field(obj.data[i]);
+            //create the actual element
             el = this._stype(obj.data[i]);
             if (el) {
-                //create a field container passing the element in case it defines 's-field'
                 if (el.tag !== 'li') {
                     //but only if the element is not already a <li> field
-                    field = this.field(el);
                     this._append(field, el);
                     list.append(field);
                 } else {
@@ -179,8 +180,11 @@ Adapter.prototype._stype = function (obj) {
             return this.element(obj);
         }
 
-        //if the object has an 'items' property, then we can assume it is a container
-        if (obj['s-items'] !== undefined) {
+        //if the object has an 's-group' property, it's an 's-type:group'
+        if (obj['s-group'] !== undefined) {
+            obj['s-type'] = 'group';
+        } else if (obj['s-items'] !== undefined) {
+            //if the object has an 'items' property, then we can assume it is a container
             obj['s-type'] = 'container';
         } else if (obj['s-store'] !== undefined) {
             //if the object has an 's-store' property, then its stype should be 'store'
@@ -278,6 +282,10 @@ Adapter.prototype.field = function (obj) {
 
     autil.override(opt, custom);
 
+    if ((obj['s-border'] === false) || (obj['s-boder'] === 'false')) {
+        autil.addClass(opt, 's-no-border');
+    }
+
     return this.element(opt);
 };
 
@@ -315,33 +323,51 @@ Adapter.prototype.label = function (obj, for_element) {
 
 /**
  * Generates a container for a component, implementing options such as s-inline, s-block, s-align, s-maximize, s-width
- * @param opt
+ * @param obj
+ * @param labelopt
  * @return {Object}
  * @private
  * @note Changes s-object and s-label
  */
-Adapter.prototype._container = function (opt) {
+Adapter.prototype._container = function (obj, labelopt) {
     "use strict";
 
-    var obj         =   autil.extract(opt,  's-object', {}),
-        labelopt    =   autil.extract(opt,  's-label',  {}),
-        ctype       =   autil.extract(opt,  's-container-type', obj.type),
-        inline      =   autil.extract(obj,  's-inline'),
+    var inline      =   autil.extract(obj,  's-inline'),
         block       =   autil.extract(obj,  's-block'),
         align       =   autil.extract(obj,  's-align'),
         maximize    =   autil.extract(obj,  's-maximize'),
         minimize    =   autil.extract(obj,  's-minimize'),
         width       =   autil.extract(obj,  's-width'),
         exact_width =   autil.extract(obj,  's-exact-width',    false),
+        item_width  =   autil.extract(obj,  's-item-width'),
+        ctype,
         container_opt,
         ceiling;
 
-    //<input> container options
+    //container options
     container_opt = {
-        'tag':      'div',
-        'class':    's-input-container s-' + ctype + '-container',
-        'style':    ''
+        'tag':              'div'
     };
+
+    //was s-container an object or a string?
+    if (obj['s-container'] === 'string') {
+        //if it's a string, it must be the type of the container
+        ctype = autil.extract(obj, 's-container');
+    } else if (typeof obj['s-container'] === 'object') {
+        //apply user options for the container
+        autil.override(container_opt, autil.extract(obj,  's-container'));
+
+        //extract the container type, to set as an addition class
+        ctype = autil.extract(container_opt,  's-container-type');
+    }
+
+    //ensure it's marked as an input container
+    autil.addClass(container_opt, 's-input-container');
+
+    //set the specialized s-container class
+    if (ctype) {
+        autil.addClass(container_opt, 's-' + ctype + '-container');
+    }
 
     if (inline) {
         autil.addClass(labelopt, 's-inline');
@@ -408,7 +434,15 @@ Adapter.prototype._container = function (opt) {
         autil.addClass(container_opt, 's-width');
     }
 
-    return this.element(container_opt);
+    if (item_width) {
+        item_width = parseInt(item_width, 10);
+
+        if (item_width > 0) {
+            autil.addClass(container_opt, 's-equal-' + item_width);
+        }
+    }
+
+    return container_opt;
 };
 
 /**
@@ -423,7 +457,8 @@ Adapter.prototype.input = function (obj) {
     var id          =   autil.extract(obj,  's-id'),
         label       =   autil.extract(obj,  's-label'),
         opt,
-        labelopt,
+        label_opt,
+        container_opt,
         input_el,
         label_el,
         container_el;
@@ -442,34 +477,42 @@ Adapter.prototype.input = function (obj) {
         'class':        '',
         'data-theme':   this.options.theme.input,
         'data-mini':    !this.options.mobile,
-        'tabindex':     this.tabindex++
+        'tabindex':     this.tabindex++,
+        's-container':  'input'
     };
 
     autil.override(opt, obj);
 
     //add css mark
-    opt['class'] += ' s-input';
+    autil.addClass(opt, 's-input');
 
     //<label> options
-    labelopt = {
+    label_opt = {
         'html': label,
         'for':  id
     };
 
+    //if no container was defined, set a reasonable default based on the 'type' attribute
+    if ((obj['s-container'] === undefined) && (opt.type)) {
+        opt['s-container'] = opt.type;
+    }
+
     //create container
-    container_el  = this._container({
-        's-object': opt,
-        's-label': labelopt
-    });
+    if (opt['s-container']) {
+        container_opt  = this._container(opt, label_opt);
+        container_el   = this.element(container_opt);
+    }
 
     //create the elements
-    label_el = this.label(labelopt);
+    label_el = this.label(label_opt);
     input_el = this.element(opt);
 
-    container_el.append(input_el);
+    if (container_el) {
+        container_el.append(input_el);
+        return [label_el, container_el];
+    }
 
-    //return [label_el, input_el];
-    return [label_el, container_el];
+    return [label_el, input_el];
 };
 
 Adapter.prototype.question = function (obj) {
@@ -545,6 +588,7 @@ Adapter.prototype.slider = function (obj) {
     var opt = {
         'type':         'range',
         'class':        's-slider',
+        'data-highlight': true,
         'min':          0,
         'max':          100
     };
@@ -566,10 +610,15 @@ Adapter.prototype.select = function (obj) {
         items       = autil.extract(obj, 's-items',     []),
         label       = autil.extract(obj, 's-label'),
         empty       = autil.extract(obj, 's-empty',     false),
+        placeholder = autil.extract(obj, 'placeholder'),
+        menu        = autil.extract(obj, 's-menu',      false),
+        multiple    = autil.extract(obj, 's-multiple',  false),
+        item_width,
         select,
         select_opt,
         label_opt,
         label_el,
+        container_opt,
         container;
 
     //make sure there's an id
@@ -588,7 +637,8 @@ Adapter.prototype.select = function (obj) {
         'tag':          'select',
         'data-theme':   this.options.theme.select,
         'data-mini':    !this.options.mobile,
-        'tabindex':     this.tabindex++
+        'tabindex':     this.tabindex++,
+        's-container':  'select'
     };
 
     label_opt = {
@@ -598,16 +648,29 @@ Adapter.prototype.select = function (obj) {
 
     autil.override(select_opt, obj);
 
-    console.log('before container',select_opt);
+    //was s-multiple specified?
+    if (multiple) {
+        select_opt.multiple = 'multiple';
+    }
 
-    //create the container (changes select_opt and label_opt)
-    container = this._container({
-        's-object': select_opt,
-        's-label':  label_opt,
-        's-container-type': 'select'
-    });
+    //was s-menu or s-multiple specified?
+    if (menu || multiple) {
+        select_opt['data-native-menu'] = 'false';
+    }
 
-    console.log('after container',select_opt);
+    if (obj['s-item-width']) {
+        item_width = parseInt(obj['s-item-width'], 10);
+        if (item_width < 0) {
+            item_width = 0;
+        }
+
+        obj['s-item-width'] = item_width;
+    }
+
+    if (select_opt['s-container']) {
+        //create the container (changes select_opt and label_opt)
+        container_opt = this._container(select_opt, label_opt);
+    }
 
     //create <select>
     select = this.element(select_opt);
@@ -615,13 +678,11 @@ Adapter.prototype.select = function (obj) {
     //create <label>
     label_el = this.label(label_opt);
 
-    container.append(select);
-
     //add an empty option as the first item
-    if (empty) {
+    if (empty || placeholder) {
         items.unshift({
             's-type':   'option',
-            's-label':  ''
+            's-label':  placeholder || ''
         });
     }
 
@@ -641,7 +702,7 @@ Adapter.prototype.select = function (obj) {
                 option_opt = {
                     's-type':   'option',
                     's-label':  option_label,
-                    "s-value":  obj[option_label]
+                    's-value':  obj[option_label]
                 };
 
                 this._append(options, option_opt);
@@ -651,7 +712,14 @@ Adapter.prototype.select = function (obj) {
         return options;
     });
 
-    return [label_el, container];
+    if (select_opt['s-container']) {
+        container = this.element(container_opt);
+        container.append(select);
+        return [label_el, container];
+    }
+
+    return [label_el, select];
+
 };
 
 Adapter.prototype.option = function (obj) {
@@ -789,8 +857,6 @@ Adapter.prototype.store = function (obj) {
     return result;
 };
 
-
-/*
 Adapter.prototype.toggle = function (obj) {
     "use strict";
 
@@ -801,10 +867,156 @@ Adapter.prototype.toggle = function (obj) {
         's-items': {
             'No': 0,
             'Yes': 1
-        }
+        },
+        's-container-type': 'toggle'
     };
 
     autil.override(opt, obj);
 
+    //remove options available for 'select', but not for 'toggle'
+    delete opt['s-empty'];
+    delete opt['s-minimize'];
+
     return this.select(opt);
-}; */
+};
+
+Adapter.prototype.group = function (obj) {
+    "use strict";
+
+    var id          =   autil.extract(obj,  's-id'),
+        gtype       =   autil.extract(obj,  's-group'),
+        items       =   autil.extract(obj,  's-items'),
+        label       =   autil.extract(obj,  's-label'),
+        direction   =   autil.extract(obj,  's-direction',  'vertical'),
+        fieldset,
+        container,
+        container_opt,
+        opt,
+        label_opt,
+        legend,
+        idc = 0;
+
+    if (!id) {
+        //generate an id based on the gtype or the string 'group'
+        id = this._id(gtype || 'group');
+    }
+
+    opt = {
+        'tag':          'fieldset',
+        'data-role':    'controlgroup',
+        'data-type':    direction,
+        's-container':  'group'
+    };
+
+    label_opt = {
+        'tag':  'label',
+        'html': label,
+        'class': 'fieldset-label'
+    };
+
+    autil.override(opt, obj);
+
+    //note opt was passed as the label opt, initially
+    container_opt = this._container(opt, label_opt);
+
+    autil.addClass(container_opt, 's-' + direction);
+
+    fieldset = this.element(opt);
+    legend   = this.element(label_opt);
+
+    if (!util.isArray(items)) {
+        items = [items];
+    }
+
+    //make sure no item will have a container
+    this._append(fieldset, items, function (obj) {
+        var item,
+            ilabel,
+            cid,
+            i;
+
+        //skip non-objects
+        if (typeof obj !== 'object') {
+            return;
+        }
+
+        //loop through arrays
+        if (util.isArray(obj)) {
+            this._append(fieldset, obj);
+        }
+
+        //if it is not a generic object, let _append() handle it
+        if ((obj['s-type']  !== undefined) || (obj['s-items'] !== undefined) || (obj['s-group'] !== undefined)) {
+            //create an object id if necessary
+            if (!obj['s-id']) {
+                obj['s-id'] = id + (++idc);
+            }
+            //make sure the object is not wrapped in a container
+            obj['s-container'] = false;
+            this._append(fieldset, obj);
+            return;
+        }
+
+        //otherwise, it is a collection of key:values
+        for (i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                cid = id + (++idc);
+                item = {
+                    'id': cid,
+                    'name': id,
+                    's-type': gtype,
+                    'value': obj[i],
+                    's-container': false
+                };
+
+                ilabel = this.label({
+                    "html": i,
+                    "for": cid
+                });
+
+
+
+                this._append(fieldset, [ilabel,item]);
+            }
+        }
+    });
+
+    //create a container and append the <fieldset> to it
+    //the hope is that all the positioning/aligning options will work
+    container = this.element(container_opt);
+    container.append(fieldset);
+
+    return [legend, container];
+};
+
+Adapter.prototype.radio = function (obj) {
+    "use strict";
+    var opt = {
+        'tag':          'input',
+        'type':         'radio',
+        'data-theme':   this.options.theme.radio,
+        'data-mini':    !this.options.mobile,
+        'tabindex':     this.tabindex++,
+        's-container':  'radio'
+    };
+
+    autil.override(opt, obj);
+
+    return this.input(opt);
+};
+
+Adapter.prototype.checkbox = function (obj) {
+    "use strict";
+    var opt = {
+        'tag':          'input',
+        'type':         'checkbox',
+        'data-theme':   this.options.theme.check,
+        'data-mini':    !this.options.mobile,
+        'tabindex':     this.tabindex++,
+        's-container':  'checkbox'
+    };
+
+    autil.override(opt, obj);
+
+    return this.input(opt);
+};
