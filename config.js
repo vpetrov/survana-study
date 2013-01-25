@@ -41,8 +41,8 @@ exports.theme={
 }
 
 exports.adapters={
-    'mobile':'adapters/jquery.mobile',
-    'desktop':'adapters/jquery.mobile'
+    'mobile':'adapters/jquery.mobile.1.3.0-beta.1',
+    'desktop':'adapters/jquery.mobile.1.3.0-beta.1'
     //'desktop':'adapters/bootstrap'
 };
 

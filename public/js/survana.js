@@ -513,12 +513,15 @@ function ($,$m,Workflow,AppCache,Depend,Validate,Bind,Crypto)
                     result[name]=value;
             }
             else
-            if ($.isArray(result[name]))
+            {
+                if (!$.isArray(result[name])) {
+                    //convert the value to an array
+                    var original_value=result[name];
+                    result[name]=[original_value];
+                }
+
+                //store new value
                 result[name].push(value);
-            else
-            {	//convert the value to an array
-                var original_value=result[name];
-                result[name]=[original_value];
             }
         });
 

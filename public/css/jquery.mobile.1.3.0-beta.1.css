@@ -76,6 +76,11 @@ label.ui-input-text {
     font-weight:normal;
 }
 
+/* override the font weight of simple <label> elements */
+label:not([for]) {
+    font-weight: normal;
+}
+
 /* desktop */
 @media all and (min-width:28em) {
 
@@ -89,10 +94,16 @@ label.ui-input-text {
     }
 
     .ui-field-contain label.s-block,
-    .fieldset-label.s-block {
+    .fieldset-label.s-block,
+    .ui-field-contain .fieldset-label.s-block {
         display:block;
         width:auto;
         margin-bottom:0.25em;
+    }
+
+    .ui-field-contain .fieldset-label.s-align:not(.s-block) {
+        display:inline-block;
+        width:auto;
     }
 
     .ui-field-contain .s-input-container.s-width .ui-slider-switch
@@ -138,6 +149,18 @@ label.ui-input-text {
         max-width:20em;
     }
 
+    .s-embedded.s-input-container {
+        padding-left:2em; /* 32px */
+    }
+
+    .s-embedded fieldset .ui-controlgroup-controls div:not(.s-width) {
+        max-width:18em; /* subtract 2em (padding) from default max width of 20em */
+    }
+
+    .s-embedded .ui-input-text {
+        max-width: 18em;
+    }
+
     /* slider */
     .s-range-container:not(.s-width) .ui-slider {
         max-width: 29em;
@@ -148,7 +171,12 @@ label.ui-input-text {
         display:inline;
     }
 
-    .s-input-container.s-align {
+    .s-group-container.s-horizontal:not(.s-maximize) {
+        width:auto;
+        display:inline-block;
+    }
+
+    .s-input-container.s-align.s-horizontal {
         width:auto;
         display:inline-block;
     }

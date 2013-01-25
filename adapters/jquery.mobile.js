@@ -52,6 +52,7 @@ module.exports=function(opt) {
 Adapter.prototype.toHTML = function (obj)
 {
     this.tabindex=1;
+    this.nextId=1;
 
     var form=this.form(obj);
 
@@ -59,7 +60,8 @@ Adapter.prototype.toHTML = function (obj)
     var html=new ElementTree(form);
 
     console.log(html.write({
-        'xml_declaration':false
+        'xml_declaration':false,
+        'indent':true
     }));
 
     //return 'xhtml'
@@ -409,7 +411,7 @@ Adapter.prototype.input=function(obj)
         'id':       id,
         'name':     id,
         'type':     'text',
-        'data-theme':this.options.theme.input,
+        'data-theme':this.options.theme,
         'data-mini': !this.options.mobile,
         'tabindex':  this.tabindex++
     };
@@ -489,12 +491,11 @@ Adapter.prototype.number=function(obj)
     return this.input(opt);
 }
 
-
 Adapter.prototype.slider=function(obj)
 {
     var opt={
         'type':         'range',
-        'class':        'os-ui-number',
+        'class':        'os-ui-slider',
         'data-mini':    !this.options.mobile,
         'min':          0,
         'max':          100,
@@ -506,20 +507,7 @@ Adapter.prototype.slider=function(obj)
     return this.input(opt)
 }
 
-Adapter.prototype.radio=function(obj)
-{
-    var opt={
-        'tag':          'input',
-        'type':         'radio',
-        'data-theme':   this.options.theme.radio,
-        'data-mini':    !this.options.mobile,
-        'tabindex':     this.tabindex++
-    };
 
-    autil.override(opt,obj);
-
-    return this.element(opt);
-}
 
 Adapter.prototype.radiogroup=function(obj)
 {

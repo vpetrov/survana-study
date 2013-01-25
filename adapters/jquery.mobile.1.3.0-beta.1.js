@@ -340,6 +340,7 @@ Adapter.prototype._container = function (obj, labelopt) {
         width       =   autil.extract(obj,  's-width'),
         exact_width =   autil.extract(obj,  's-exact-width',    false),
         item_width  =   autil.extract(obj,  's-item-width'),
+        embedded    =   autil.extract(obj,  's-embedded',       false),
         ctype,
         container_opt,
         ceiling;
@@ -350,7 +351,7 @@ Adapter.prototype._container = function (obj, labelopt) {
     };
 
     //was s-container an object or a string?
-    if (obj['s-container'] === 'string') {
+    if (typeof obj['s-container'] === 'string') {
         //if it's a string, it must be the type of the container
         ctype = autil.extract(obj, 's-container');
     } else if (typeof obj['s-container'] === 'object') {
@@ -383,6 +384,7 @@ Adapter.prototype._container = function (obj, labelopt) {
     if (align) {
         autil.addStyle(labelopt, 'min-width:' + align + '%');
         autil.addClass(container_opt, 's-align');
+        autil.addClass(labelopt, 's-align');
 
         //the implementation of s-width conflicts with s-align, because s-width sets css rules for 'width', while
         //align sets 'min-width'.
@@ -440,6 +442,15 @@ Adapter.prototype._container = function (obj, labelopt) {
         if (item_width > 0) {
             autil.addClass(container_opt, 's-equal-' + item_width);
         }
+    }
+
+    //make sure the label has html content, otherwise it will not be rendered properly
+    if (!labelopt.html && (align || block)) {
+        labelopt.html = ' ';
+    }
+
+    if (embedded) {
+        autil.addClass(container_opt, 's-embedded');
     }
 
     return container_opt;
@@ -504,7 +515,10 @@ Adapter.prototype.input = function (obj) {
     }
 
     //create the elements
-    label_el = this.label(label_opt);
+    if (label_opt.html) {
+        label_el = this.label(label_opt);
+    }
+
     input_el = this.element(opt);
 
     if (container_el) {
@@ -712,7 +726,7 @@ Adapter.prototype.select = function (obj) {
         return options;
     });
 
-    if (select_opt['s-container']) {
+    if (container_opt) {
         container = this.element(container_opt);
         container.append(select);
         return [label_el, container];
@@ -908,13 +922,22 @@ Adapter.prototype.group = function (obj) {
         's-container':  'group'
     };
 
+    autil.override(opt, obj);
+
+    //need at least a space inside the label, in order to align the component
+    if (opt['s-align'] && !label) {
+        label = ' ';
+    }
+
     label_opt = {
         'tag':  'label',
         'html': label,
         'class': 'fieldset-label'
     };
 
-    autil.override(opt, obj);
+    if (opt['s-embedded']) {
+        opt['data-corners'] = false;
+    }
 
     //note opt was passed as the label opt, initially
     container_opt = this._container(opt, label_opt);
@@ -922,7 +945,10 @@ Adapter.prototype.group = function (obj) {
     autil.addClass(container_opt, 's-' + direction);
 
     fieldset = this.element(opt);
-    legend   = this.element(label_opt);
+
+    if (label_opt.html) {
+        legend   = this.element(label_opt);
+    }
 
     if (!util.isArray(items)) {
         items = [items];
@@ -960,23 +986,26 @@ Adapter.prototype.group = function (obj) {
         //otherwise, it is a collection of key:values
         for (i in obj) {
             if (obj.hasOwnProperty(i)) {
-                cid = id + (++idc);
-                item = {
-                    'id': cid,
-                    'name': id,
-                    's-type': gtype,
-                    'value': obj[i],
-                    's-container': false
-                };
+                if (typeof (obj[i]) === 'object') {
+                    obj[i]['s-embedded'] = true;
+                    this._append(fieldset, obj[i]);
+                } else {
+                    cid = id + (++idc);
+                    item = {
+                        'id': cid,
+                        'name': id,
+                        's-type': gtype,
+                        'value': obj[i],
+                        's-container': false
+                    };
 
-                ilabel = this.label({
-                    "html": i,
-                    "for": cid
-                });
+                    ilabel = this.label({
+                        "html": i,
+                        "for": cid
+                    });
 
-
-
-                this._append(fieldset, [ilabel,item]);
+                    this._append(fieldset, [ilabel, item]);
+                }
             }
         }
     });
@@ -986,7 +1015,11 @@ Adapter.prototype.group = function (obj) {
     container = this.element(container_opt);
     container.append(fieldset);
 
-    return [legend, container];
+    if (legend) {
+        return [legend, container];
+    }
+
+    return container;
 };
 
 Adapter.prototype.radio = function (obj) {
