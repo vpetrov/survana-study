@@ -81,6 +81,18 @@ label:not([for]) {
     font-weight: normal;
 }
 
+.s-right {
+    text-align: right !important;
+}
+
+.s-center {
+    text-align: center !important;
+}
+
+.s-left {
+    text-align: left !important;
+}
+
 /* desktop */
 @media all and (min-width:28em) {
 

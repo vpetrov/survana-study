@@ -274,16 +274,25 @@ Adapter.prototype.element = html.element;
 Adapter.prototype.field = function (obj) {
     "use strict";
 
-    var opt     = {
+    var pos         =   ['left', 'center', 'right'],
+        border      =   autil.extract(obj, 's-border',  true),
+        position    =   autil.extract(obj, 's-position'),
+        custom      =   autil.extract(obj, 's-field'),
+        opt         =   {
             'tag':          'li',
             'data-role':    'fieldcontain'
-        },
-        custom  =   autil.extract(obj, 's-field');
+        };
 
     autil.override(opt, custom);
 
-    if ((obj['s-border'] === false) || (obj['s-boder'] === 'false')) {
+    //border
+    if ((border === false) || (border === 'false')) {
         autil.addClass(opt, 's-no-border');
+    }
+
+    //position has to be one of the ones specified by 'pos'
+    if (pos.indexOf(position) > -1) {
+        autil.addClass(opt, 's-' + position);
     }
 
     return this.element(opt);
@@ -445,7 +454,7 @@ Adapter.prototype._container = function (obj, labelopt) {
     }
 
     //make sure the label has html content, otherwise it will not be rendered properly
-    if (!labelopt.html && (align || block)) {
+    if (labelopt && !labelopt.html && (align || block)) {
         labelopt.html = ' ';
     }
 
@@ -1052,4 +1061,28 @@ Adapter.prototype.checkbox = function (obj) {
     autil.override(opt, obj);
 
     return this.input(opt);
+};
+
+Adapter.prototype.link = function (obj) {
+    "use strict";
+
+    var opt,
+        link,
+        container_opt,
+        container;
+
+    opt = {
+        'tag':          'a'
+    };
+
+    autil.override(opt, obj);
+
+    container_opt = this._container(opt);
+
+    link = this.element(opt);
+    container = this.element(container_opt);
+
+    container.append(link);
+
+    return container;
 };
