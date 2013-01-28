@@ -93,6 +93,24 @@ label:not([for]) {
     text-align: left !important;
 }
 
+.s-box-container {
+    margin:0.5em;
+}
+
+.s-box-item {
+    font-weight:normal;
+    padding:0.25em 0.35em 0.25em 0.35em;
+}
+
+.s-box-item strong {
+    margin-left:0.5em;
+}
+
+
+.s-input-container ul[data-box] {
+    margin-top:0.5em;
+}
+
 /* desktop */
 @media all and (min-width:28em) {
 
@@ -159,6 +177,10 @@ label:not([for]) {
     div.ui-checkbox:not(.s-width)
     {
         max-width:20em;
+    }
+
+    .s-input-container:not(.s-maximize) textarea {
+        max-width: 33em;
     }
 
     .s-embedded.s-input-container {
@@ -260,4 +282,43 @@ label:not([for]) {
         width:100%;
         max-width:none
     }
+}
+
+/* errors */
+.s-error-button
+{
+    position:absolute !important;
+    z-index:99;
+    font-size:11px;
+    right:0.5em;
+    margin-top:3px;
+}
+
+.s-error-button:not(.s-button-mini) span.ui-btn-inner
+{
+    font-size:11px !important;
+    padding:5px 6px 5px 6px !important;
+}
+
+.s-error-label
+{
+    position:absolute;
+    z-index:98; /* error mini button -1 */
+    right:0.25em;
+    font-weight:normal;
+}
+
+.s-error-label-far
+{
+    padding-right:55px !important;
+}
+
+.s-error-label-near
+{
+    padding-right:35px !important;
+}
+
+.s-hidden
+{
+    display:none !important;
 }

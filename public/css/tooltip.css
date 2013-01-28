@@ -1,4 +1,4 @@
-.os-ui-error-label
+.s-error-label
 {
     position:relative;
     z-index:99;
@@ -9,7 +9,7 @@
     display:none;
 }
 
-.os-ui-bubble
+.s-bubble
 {
     float:right;
     font-size:11px;

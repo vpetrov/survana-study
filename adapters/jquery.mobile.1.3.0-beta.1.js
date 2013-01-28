@@ -31,7 +31,9 @@ var defaults    = {
         form:       'b',
         question:   'b',
         toggle:     'c',
-        track:      'c'
+        track:      'c',
+        box:        'd',
+        split:      'c'
     }
 };
 
@@ -380,10 +382,14 @@ Adapter.prototype._container = function (obj, labelopt) {
     }
 
     if (inline) {
-        autil.addClass(labelopt, 's-inline');
         autil.addClass(container_opt, 's-inline');
+        if (labelopt) {
+            autil.addClass(labelopt, 's-inline');
+        }
     } else if (block) {
-        autil.addClass(labelopt, 's-block');
+        if (labelopt) {
+            autil.addClass(labelopt, 's-block');
+        }
         if (align) {
             autil.addStyle(container_opt, 'padding-left: ' + (align + this.options.width.padding) + '%');
         }
@@ -391,9 +397,12 @@ Adapter.prototype._container = function (obj, labelopt) {
 
     //left align by decreasing/increasing the default widths of the <label> and <input> elements
     if (align) {
-        autil.addStyle(labelopt, 'min-width:' + align + '%');
+        if (labelopt) {
+            autil.addStyle(labelopt, 'min-width:' + align + '%');
+            autil.addClass(labelopt, 's-align');
+        }
+
         autil.addClass(container_opt, 's-align');
-        autil.addClass(labelopt, 's-align');
 
         //the implementation of s-width conflicts with s-align, because s-width sets css rules for 'width', while
         //align sets 'min-width'.
@@ -421,7 +430,7 @@ Adapter.prototype._container = function (obj, labelopt) {
             if (inline || (block && !align)) {
                 //when inline or in block mode, use 100 percent of total width available (100% of <li>)
                 ceiling = 100;
-            } else if (!labelopt.html) {
+            } else if (labelopt && !labelopt.html) {
                 //if no label exists, then there is more room for the input box
                 ceiling += this.options.width.label + this.options.width.padding;
             } else if (align) {
@@ -476,6 +485,7 @@ Adapter.prototype.input = function (obj) {
     //extract all extra properties, before creating the input element
     var id          =   autil.extract(obj,  's-id'),
         label       =   autil.extract(obj,  's-label'),
+        box         =   autil.extract(obj,  's-box'),
         opt,
         label_opt,
         container_opt,
@@ -511,6 +521,13 @@ Adapter.prototype.input = function (obj) {
         'html': label,
         'for':  id
     };
+
+
+    //was s-box specified?
+    if (box) {
+        opt['data-box'] = box;
+        label_opt['data-box'] = box;
+    }
 
     //if no container was defined, set a reasonable default based on the 'type' attribute
     if ((obj['s-container'] === undefined) && (opt.type)) {
@@ -636,6 +653,7 @@ Adapter.prototype.select = function (obj) {
         placeholder = autil.extract(obj, 'placeholder'),
         menu        = autil.extract(obj, 's-menu',      false),
         multiple    = autil.extract(obj, 's-multiple',  false),
+        box         = autil.extract(obj, 's-box'),
         item_width,
         select,
         select_opt,
@@ -679,6 +697,12 @@ Adapter.prototype.select = function (obj) {
     //was s-menu or s-multiple specified?
     if (menu || multiple) {
         select_opt['data-native-menu'] = 'false';
+    }
+
+    //was s-box specified?
+    if (box) {
+        select_opt['data-box'] = box;
+        label_opt['data-box'] = box;
     }
 
     if (obj['s-item-width']) {
@@ -1085,4 +1109,111 @@ Adapter.prototype.link = function (obj) {
     container.append(link);
 
     return container;
+};
+
+Adapter.prototype.box = function (obj) {
+    "use strict";
+
+    var id              =   autil.extract(obj,  's-id'),
+        label           =   autil.extract(obj,  's-label'),
+        items           =   autil.extract(obj,  's-items'),
+        button_custom   =   autil.extract(obj,  's-button'),
+        opt,
+        box,
+        title_opt,
+        title,
+        container_opt,
+        container,
+        button_opt,
+        button;
+
+    if (!id) {
+        id = this._id('box');
+    }
+
+    opt = {
+        'tag':              'ul',
+        'data-box':         id,
+        'data-role':        'listview',
+        'data-inset':       true,
+        'data-split-icon':  'delete',
+        'data-mini':        !this.options.mobile,
+        'data-theme':       this.options.theme.box,
+        'data-divider-theme': this.options.theme.box,
+        'data-split-theme': this.options.theme.split,
+    };
+
+    autil.override(opt, obj);
+    box = this.element(opt);
+
+
+    title_opt = {
+        'tag':              'li',
+        'data-role':        'list-divider',
+        'html':             label
+    };
+
+    title = this.element(title_opt);
+
+    box.append(title);
+
+    container_opt = this._container(opt);
+    container = this.element(container_opt);
+
+    container.append(box);
+
+    this._append(container, items, function (obj) {
+        var item_container_opt = {
+                'tag':      'div',
+                'class':    's-box-container'
+            },
+            item_container = this.element(item_container_opt);
+
+        obj['s-box'] = id;
+        this._append(item_container, obj);
+
+        container.append(item_container);
+    });
+
+    button_opt = {
+        'tag':          'button',
+        'type':         'button',
+        'data-box':     id,
+        'data-mini':    !this.options.mobile,
+        'data-inline':  true,
+        'data-icon':    'plus',
+        'data-theme':   this.options.theme.split,
+        'html':         'Add'
+    };
+
+    if (typeof button_custom === 'string') {
+        button_custom = {
+            'html': button_custom
+        };
+    }
+
+    autil.override(button_opt, button_custom);
+
+    button = this.element(button_opt);
+
+    container.append(button);
+
+    return container;
+};
+
+Adapter.prototype.textbox = function (obj) {
+    "use strict";
+
+    var opt = {
+        'tag':          'textarea',
+        'data-theme':   this.options.theme.input,
+        'data-mini':    !this.options.mobile,
+        'tabindex':     this.tabindex++,
+        's-container':  'textbox',
+        "html": " "
+    };
+
+    autil.override(opt, obj);
+
+    return this.input(opt);
 };

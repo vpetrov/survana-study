@@ -11,12 +11,12 @@
         </h1>
         <form>
             <ul data-inset="true" data-role="listview" data-theme="c">
-                <li class="os-ui-question" data-role="heading" data-theme="b">Please enter your Study ID to continue:</li>
+                <li class="s-question" data-role="heading" data-theme="b">Please enter your Study ID to continue:</li>
                 <li data-role="fieldcontain">
                     <fieldset data-role="controlgroup">
                         <legend>Study ID:</legend>
-                        <div class="os-ui-container-text">
-                            <input class="os-ui-text" data-mini="true" data-theme="c" id="study_id" tabindex="1"
+                        <div class="s-text-container">
+                            <input class="s-text" data-mini="true" data-theme="c" id="study_id" tabindex="1"
                                    type="text" autocomplete="off" autofocus="autofocus"/>
                         </div>
                     </fieldset>
@@ -43,5 +43,21 @@
                 $('#next').click(go);
             });
         </script>
+
+        <ul data-role="listview" data-inset="true">
+            <li role="fieldcontain">
+                <div>
+                    <ul data-role="listview" data-split-icon="delete" data-split-theme="e" data-inset="true" data-theme="c" style="min-height:100px;min-width:200px">
+                        <li>
+                            <a>asd</a>
+                            <a>asd</a>
+                        </li>                        <li>
+                        <a>asd</a>
+                        <a>asd</a>
+                    </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
     </div>
 </div>

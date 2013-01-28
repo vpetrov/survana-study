@@ -32,13 +32,13 @@ function($)
 
         cache[id]=$(el).validate({
             "rules":all_rules[id],
-            "ignore":"os-error-ignore",
+            "ignore":"s-error-ignore",
             "onsubmit":false,
             "onfocusout":false,
             "onkeyup":false,
             "onclick":false,
             "focusInvalid":false,
-            "errorClass":"os-ui-error",
+            "errorClass":"s-error",
             "wrapper":'div',
             "errorPlacement":errorPlacement
         });
@@ -81,11 +81,11 @@ function($)
         error.css('display','inline'); //keeps inline inputs from being pushed down one row
 
         var rules=el.rules(); //per-element option to allow user to ignore errors
-        var controls=el.closest('.os-ui-container,.ui-controlgroup-controls').first();
+        var controls=el.closest('.s-input-container');
 
-        var btn=$('<a class="os-ui-button-mini os-ui-error os-ui-error-button" href="#" data-role="button" data-mini="true" data-inline="true" data-icon="alert" data-iconpos="notext" data-theme="'+error_btn_theme+'"></a>');
+        var btn=$('<a class="s-button-mini s-error s-error-button" href="#" data-role="button" data-mini="true" data-inline="true" data-icon="alert" data-iconpos="notext" data-theme="'+error_btn_theme+'"></a>');
         var label=error.children('label').first();
-        label.addClass('ui-content ui-body ui-btn-up-'+error_theme+' os-ui-tooltip os-ui-error os-ui-error-label ui-overlay-shadow ui-corner-all');
+        label.addClass('ui-content ui-body ui-btn-up-'+error_theme+' s-tooltip s-error s-error-label ui-overlay-shadow ui-corner-all');
 
         error.append(btn);
 
@@ -93,11 +93,11 @@ function($)
         if (rules['can-ignore'])
         {
             //ignore button is larger than the warning button, so the label needs more padding on the right
-            label.addClass('os-ui-error-label-far');
+            label.addClass('s-error-label-far');
             //the warning button should be hidden by default (will be displayed again when the label is hidden)
-            btn.addClass('os-ui-hidden');
+            btn.addClass('s-hidden');
             //create an ignore button
-            var btnIgnore=$('<a class="os-ui-error os-ui-error-button" href="#" data-role="button" data-mini="true" data-inline="true" data-theme="'+ignore_btn_theme+'">Ignore</a>');
+            var btnIgnore=$('<a class="s-error s-error-button" href="#" data-role="button" data-mini="true" data-inline="true" data-theme="'+ignore_btn_theme+'">Ignore</a>');
             //append button to the error container
             error.append(btnIgnore);
             //create jqm button object
@@ -109,7 +109,7 @@ function($)
         }
         else
             //if not, then just set enough padding on the label to make room for the warning button
-            label.addClass('os-ui-error-label-near');
+            label.addClass('s-error-label-near');
 
         //errors are positioned absolute-ly, but they tend to be the first item in their container (at least visually)
         controls.prepend(error);
@@ -123,14 +123,14 @@ function($)
     {
         var wrapper=$(e.currentTarget);
         var label=wrapper.children('label')
-        var buttons=wrapper.children('a.os-ui-error-button');
+        var buttons=wrapper.children('a.s-error-button');
 
         //show
-        label.toggleClass('os-ui-hidden');
+        label.toggleClass('s-hidden');
 
         //more than 1 button? assume the hidden/visible classes are set up for toggling
         if (buttons.length>1)
-            buttons.toggleClass('os-ui-hidden');
+            buttons.toggleClass('s-hidden');
     }
 
     function onIgnoreClick(e)
@@ -139,10 +139,10 @@ function($)
         var element=$(btn.ignoreEl);
         var rules=element.rules("remove","required");
 
-        element.addClass('os-error-ignore');
+        element.addClass('s-error-ignore');
 
         //hide the message (and the warning button).
-        $(btn).parent().addClass('os-ui-hidden');
+        $(btn).parent().addClass('s-hidden');
     }
 
     function clean()

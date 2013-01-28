@@ -1,17 +1,14 @@
 <div id='Page_{{=form.id}}' data-form='{{=form.id}}' data-role='page' data-theme='{{=config.theme.global}}' style='visibility:hidden'
      data-preview='true'>
     {{ if (!mobile) { }}
-    <div class='os-ui-header-top'>
+    <div class='s-header-top'>
         <div data-role='header' data-theme='{{=config.theme.nav}}' class='ui-corner-bottom'>
     {{ } else { }}
         <div data-role='header' data-theme='{{=config.theme.nav}}'>
     {{ } }}
             <h1>{{=form.title}}</h1>
-            <!--<a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
-               class='ui-btn-left btn-back'>Back</a>-->
-            <a href="#results" class='ui-btn-right btn-next' data-role='button' data-theme='{{=config.theme.active}}'
-               data-icon='check' data-rel="dialog" data-transition="slidedown"
-               onclick="previewResults()">Verify</a>
+            <a href="#results" class='ui-btn-right btn-preview' data-role='button' data-theme='{{=config.theme.active}}'
+               data-icon='check' data-rel="dialog" data-transition="slidedown">Verify</a>
         </div>
     {{ if (!mobile) { }}
     </div>
@@ -41,20 +38,19 @@
                     Survana.Bind.register("{{=form.id}}",{{-JSON.stringify(bindings)}});
                 {{ } }}
 
-            });
+                $('a.btn-preview').click(function(e) {
+                    if (Survana.validate()) {
+                        var data=Survana.formToJSON($('#{{=form.id}}'));
+                        var text = JSON.stringify(data,null,4);
+                        $('#results').find('pre').html(text);
+                    } else {
+                        e.preventDefault();
+                        return false;
+                    }
 
-            function previewResults()
-            {
-                require([
-                            'survana'
-                        ],
-                    function (Survana) {
-                    console.log('form=','#{{=form.id}}',Survana.formToJSON($('#{{=form.id}}')));
-                    var data=Survana.formToJSON($('#{{=form.id}}'));
-                    var text = JSON.stringify(data,null,4);
-                    $('#results').find('pre').html(text);
+                    return true;
                 });
-            }
+            });
         </script>
         {{- html }}
     </div>
