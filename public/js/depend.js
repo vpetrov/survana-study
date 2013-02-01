@@ -11,53 +11,53 @@ define(
         'jquery',
         'jquery.mobile'
     ],
-function($,$m)
-{
-    var callbacks={};
+    function ($, $m) {
+        "use strict";
 
-    function register(id,callback)
-    {
-        callbacks[id]=callback;
-    }
+        var callbacks = {};
 
-    function check(id,context,changed)
-    {
-        if (typeof(callbacks[id])!=='function')
-            return null;
-
-        //call the callback
-        return callbacks[id].apply(this,[context,changed]);
-    }
-
-    function has(haystack,needle)
-    {
-        if ((typeof(haystack)==='undefined') ||
-            (typeof(needle))==='undefined')
-            return false;
-
-        //convert numbers to string
-        needle=String(needle);
-
-        for (var i in haystack)
-        {
-            if (typeof(haystack[i])==='number')
-                haystack[i]=String(haystack[i]);
+        function register(id, callback) {
+            callbacks[id] = callback;
         }
 
-        var result=(haystack.indexOf(needle)>-1);
+        function check(id, context, changed) {
+            if (typeof (callbacks[id]) !== 'function') {
+                return null;
+            }
 
-        return result;
-    }
+            //call the callback
+            return callbacks[id].apply(this, [context, changed]); //todo: figure out if 'this' needs to be used here
+        }
 
-    function is_in(needle,haystack)
-    {
-        return has(haystack,needle);
-    }
+        function has(haystack, needle) {
+            var i;
 
-    return {
-        'register':register,
-        'check':check,
-        'has':has,
-        'is_in':is_in
-    }
-});
+            if ((haystack === undefined) || (needle) === undefined) {
+                return false;
+            }
+
+            //convert numbers to string
+            needle = String(needle);
+
+            for (i in haystack) {
+                if (haystack.hasOwnProperty(i)) {
+                    if (typeof (haystack[i]) === 'number') {
+                        haystack[i] = String(haystack[i]);
+                    }
+                }
+            }
+
+            return (haystack.indexOf(needle) > -1);
+        }
+
+        function is_in(needle, haystack) {
+            return has(haystack, needle);
+        }
+
+        return {
+            'register': register,
+            'check': check,
+            'has': has,
+            'is_in': is_in
+        }
+    });

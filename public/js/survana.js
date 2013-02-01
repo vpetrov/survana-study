@@ -111,7 +111,7 @@ define([
                     //focus
                     case 'focus':
                         if (!el.first().is(':focus')) {
-                            el.first().focus();
+                            el.first().not(':radio').not(':checkbox').focus();
                         }
                         break;
 
