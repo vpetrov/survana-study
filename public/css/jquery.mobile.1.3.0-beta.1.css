@@ -7,6 +7,19 @@
     margin:0 auto;
 }
 
+.s-header-top
+{
+    position:fixed;
+    top:0;
+    width:100%;
+    z-index: 100;
+}
+
+.s-header-top+.ui-content
+{
+    margin-top:2em;
+}
+
 div.ui-input-text {
     padding-right: 0.5em;
 }
@@ -109,6 +122,18 @@ label:not([for]) {
 
 .s-input-container ul[data-box] {
     margin-top:0.5em;
+}
+
+.s-skip {
+    position:absolute;
+    right:0.2em;
+    top:0.6em;
+    z-index:199;
+}
+
+.s-skip .ui-btn-inner {
+    padding-top:5px;
+    padding-bottom:5px;
 }
 
 /* desktop */
@@ -250,6 +275,10 @@ label:not([for]) {
     .s-input-container.s-horizontal.s-equal-40 fieldset .ui-controlgroup-controls div { min-width:40%; }
     .s-input-container.s-horizontal.s-equal-45 fieldset .ui-controlgroup-controls div { min-width:45%; }
     .s-input-container.s-horizontal.s-equal-50 fieldset .ui-controlgroup-controls div { min-width:50%; }
+
+    .s-skip {
+        float:right;
+    }
 }
 
 @media all and (max-width:28em) {
@@ -289,15 +318,12 @@ label:not([for]) {
 {
     position:absolute !important;
     z-index:99;
-    font-size:11px;
-    right:0.5em;
-    margin-top:3px;
+    right:0.25em;
+    margin-top:0.25em;
 }
 
-.s-error-button:not(.s-button-mini) span.ui-btn-inner
-{
-    font-size:11px !important;
-    padding:5px 6px 5px 6px !important;
+.s-error-button.s-skip {
+    right:0.1em;
 }
 
 .s-error-label
@@ -310,12 +336,12 @@ label:not([for]) {
 
 .s-error-label-far
 {
-    padding-right:55px !important;
+    padding-right:5em !important;
 }
 
 .s-error-label-near
 {
-    padding-right:35px !important;
+    padding-right:3em !important;
 }
 
 .s-hidden

@@ -77,7 +77,6 @@ define([
 
         function action(el, actions) {
             var action_name,
-                jqm_method,
                 elements,
                 i;
 
@@ -99,24 +98,14 @@ define([
                     switch (action_name) {
                     //enable
                     case 'enable':
+                        JQM.clearField(el, false);
+                        JQM.enableField(el);
+                        break;
 
                     //disable
                     case 'disable':
-                        jqm_method = JQM.getType(el);
-                        if (typeof (el[jqm_method]) !== 'function') {
-                            console.error('Survana Error: element ', el, ' does not have jQuery Mobile method:',
-                                          jqm_method);
-                            return false;
-                        }
-
-                        //todo: make sure this works on numeric inputs, on selects, on radiogroups and checkboxgroups
-                        if (action_name === 'disable') {
-                            JQM.clearField(el, true, jqm_method);
-                            el.trigger('fielddisabled');
-                        }
-
-                        //perform the jquery mobile action
-                        el[jqm_method](action_name);
+                        JQM.clearField(el, false);
+                        JQM.disableField(el);
                         break;
 
                     //focus
@@ -266,26 +255,6 @@ define([
             dependCheck(target.attr('name'));
             Validate.checkField(form_id, target);
             Bind.field(form_id, target);
-        }
-
-        function onFieldDisabled(e) {
-            logevent(e);
-
-            var field = $(e.target),
-                container;
-
-            //if the field has an error attached to it
-            if (field.hasClass('s-error')) {
-                //find the first container element (since errors will be attached to parent container)
-                //then find all warning buttons (because one could have embedded errors) and remove the wrapper
-                //element
-                container = field.closest('.ui-controlgroup-controls,li[data-role=fieldcontain]')
-                    .first()
-                    .find('a.s-error').each(function (i, error) {
-                        $(error).parent().remove();
-                    });
-                field.removeClass('s-error');
-            }
         }
 
         function validate() {
@@ -531,38 +500,37 @@ define([
         }
 
         return {
-            'Depend': Depend,
-            'Validate': Validate,
-            'Bind': Bind,
-            'Box': Box,
-            'checkPrerequisites': checkPrerequisites,
-            'reset': reset,
-            'resume': resume,
-            'gotoNextPage': gotoNextPage,
-            'onPageSave': onPageSave,
-            'onPageBeforeLoad': onPageBeforeLoad,
-            'onPageLoad': onPageLoad,
-            'onPageLoadFailed': onPageLoadFailed,
-            'onPageBeforeChange': onPageBeforeChange,
-            'onPageChange': onPageChange,
-            'onPageChangeFailed': onPageChangeFailed,
-            'onPageBeforeShow': onPageBeforeShow,
-            'onPageBeforeHide': onPageBeforeHide,
-            'onPageHide': onPageHide,
-            'onPageBeforeCreate': onPageBeforeCreate,
-            'onPageCreate': onPageCreate,
-            'onPageInit': onPageInit,
-            'onPageShow': onPageShow,
-            'onPageRemove': onPageRemove,
-            'onPageUpdateLayout': onPageUpdateLayout,
-            'onFieldChanged': onFieldChanged,
-            'onFieldDisabled': onFieldDisabled,
-            'onNextClick':onNextClick,
-            'action': action,
-            'dependAction': dependAction,
-            'scrollTo': scrollTo,
-            'formToJSON': formToJSON,
-            'validate': validate
+            'Depend':               Depend,
+            'Validate':             Validate,
+            'Bind':                 Bind,
+            'Box':                  Box,
+            'checkPrerequisites':   checkPrerequisites,
+            'reset':                reset,
+            'resume':               resume,
+            'gotoNextPage':         gotoNextPage,
+            'onPageSave':           onPageSave,
+            'onPageBeforeLoad':     onPageBeforeLoad,
+            'onPageLoad':           onPageLoad,
+            'onPageLoadFailed':     onPageLoadFailed,
+            'onPageBeforeChange':   onPageBeforeChange,
+            'onPageChange':         onPageChange,
+            'onPageChangeFailed':   onPageChangeFailed,
+            'onPageBeforeShow':     onPageBeforeShow,
+            'onPageBeforeHide':     onPageBeforeHide,
+            'onPageHide':           onPageHide,
+            'onPageBeforeCreate':   onPageBeforeCreate,
+            'onPageCreate':         onPageCreate,
+            'onPageInit':           onPageInit,
+            'onPageShow':           onPageShow,
+            'onPageRemove':         onPageRemove,
+            'onPageUpdateLayout':   onPageUpdateLayout,
+            'onFieldChanged':       onFieldChanged,
+            'onNextClick':          onNextClick,
+            'action':               action,
+            'dependAction':         dependAction,
+            'scrollTo':             scrollTo,
+            'formToJSON':           formToJSON,
+            'validate':             validate
         };
     }
     );

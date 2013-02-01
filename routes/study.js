@@ -56,6 +56,11 @@ exports.index=function(req,res,next)
             return;
         }
 
+        if (!study) {
+            next(new Error('Study "' + study_id + '" could not be found.'));
+            return;
+        }
+
         if (!study.keys) {
             next(new Error("No public keys could be found for this study."));
             return;
@@ -259,7 +264,7 @@ exports.create=function(req,res,next)
         {
             //return only the _id if a study is found
             result.col.findOne({
-                'id':study.id,
+                'id':study.id
             },{
                 '_id':1
             },next2);

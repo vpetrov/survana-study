@@ -126,35 +126,89 @@ define(
         }
 
         function toContext(form_data) {
-            var result = {};
+            var result = {},
+                field,
+                id,
+                i;
 
-            for (var i in form_data) {
-                var field = form_data[i];
-                var id = field['name'] || field['id'];
+            for (i in form_data) {
+                if (form_data.hasOwnProperty(i)) {
+                    field = form_data[i];
+                    id = field.name || field.id;
 
-                //no name or id? skip field.
-                if (typeof(id) === 'undefined')
-                    continue;
+                    //no name or id? skip field.
+                    if (id === undefined) {
+                        continue;
+                    }
 
-                if (typeof(result[id]) === 'undefined')
-                    result[id] = field['value'];
-                else if ($.isArray(result[id]))
-                    result[id].push(field['value']);
-                else {
-                    //transform value to array
-                    result[id] = [result[id]];
-                    //append new value
-                    result[id].push(field['value']);
+                    if (result[id] === undefined) {
+                        result[id] = field.value;
+                    } else if ($.isArray(result[id])) {
+                        result[id].push(field.value);
+                    } else {
+                        //transform value to array
+                        result[id] = [result[id]];
+                        //append new value
+                        result[id].push(field.value);
+                    }
                 }
             }
 
             return result;
         }
 
+        function enableField(el) {
+            var field = $(el.target),
+                jqm_method;
+
+            el = $(el);
+            jqm_method = getType(el);
+
+            if (jqm_method) {
+                el[jqm_method]('enable');
+            }
+
+            if (el.is('input')) {
+                el.removeAttr('disabled');
+            }
+        }
+
+        function disableField(el) {
+            var field = $(el.target),
+                jqm_method;
+
+            el = $(el);
+            jqm_method = getType(el);
+
+            clearField(el,false,jqm_method);
+
+            if (jqm_method) {
+                el[jqm_method]('disable');
+            }
+
+            if (el.is('input')) {
+                el.attr('disabled', 'disabled');
+            }
+
+            //if the field has an error attached to it
+            if (field.hasClass('s-error')) {
+                //find the first container element (since errors will be attached to parent container)
+                //then find all warning buttons (because one could have embedded errors) and remove the wrapper
+                //element
+                field.closest('.ui-controlgroup-controls,li[data-role=fieldcontain]')
+                    .first()
+                    .find('a.s-error').each(function (i, error) {
+                        $(error).parent().remove();
+                    });
+                field.removeClass('s-error');
+            }
+        }
 
         return {
             'clear':        clear,
             'clearField':   clearField,
+            'enableField':  enableField,
+            'disableField': disableField,
             'getType':      getType,
             'toContext':    toContext
         };

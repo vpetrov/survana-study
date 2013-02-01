@@ -89,7 +89,7 @@ exports.server=function(survana,express)
     routing(app);
 
     //set up routes
-    survana.routing(app,this.config.routes);
+    survana.routing(app,this.config);
 
 	app.log.info('reporting in!');
 

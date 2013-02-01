@@ -44,6 +44,7 @@
                         var text = JSON.stringify(data,null,4);
                         $('#results').find('pre').html(text);
                     } else {
+                        Survana.scrollTo($.mobile.activePage.find('.s-error-button:visible').first(), true);
                         e.preventDefault();
                         return false;
                     }
