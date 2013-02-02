@@ -15,7 +15,7 @@ define(
 
         /**
          * Returns the jQuery Mobile UI function for changing the 'el' object
-         * @param el {jQuery Object}
+         * @param el {Object} A jQuery Object
          * @return {String}
          */
         function getType(el) {
@@ -61,7 +61,7 @@ define(
 
         /**
          * Clears a specific jqm field
-         * @param f {jQuery Object}
+         * @param f {Object} A jQuery Object
          * @param trigger {Boolean} Whether a 'change' event should be triggered or not (default: true)
          * @param jqmMethod {String} The name of the jQuery Mobile function to use. (default: call getType())
          */
@@ -137,19 +137,17 @@ define(
                     id = field.name || field.id;
 
                     //no name or id? skip field.
-                    if (id === undefined) {
-                        continue;
-                    }
-
-                    if (result[id] === undefined) {
-                        result[id] = field.value;
-                    } else if ($.isArray(result[id])) {
-                        result[id].push(field.value);
-                    } else {
-                        //transform value to array
-                        result[id] = [result[id]];
-                        //append new value
-                        result[id].push(field.value);
+                    if (id !== undefined) {
+                        if (result[id] === undefined) {
+                            result[id] = field.value;
+                        } else if ($.isArray(result[id])) {
+                            result[id].push(field.value);
+                        } else {
+                            //transform value to array
+                            result[id] = [result[id]];
+                            //append new value
+                            result[id].push(field.value);
+                        }
                     }
                 }
             }
@@ -158,8 +156,7 @@ define(
         }
 
         function enableField(el) {
-            var field = $(el.target),
-                jqm_method;
+            var jqm_method;
 
             el = $(el);
             jqm_method = getType(el);
@@ -180,7 +177,7 @@ define(
             el = $(el);
             jqm_method = getType(el);
 
-            clearField(el,false,jqm_method);
+            clearField(el, false, jqm_method);
 
             if (jqm_method) {
                 el[jqm_method]('disable');
