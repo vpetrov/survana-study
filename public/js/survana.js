@@ -98,7 +98,6 @@ define([
                     switch (action_name) {
                     //enable
                     case 'enable':
-                        JQM.clearField(el, false);
                         JQM.enableField(el);
                         break;
 
