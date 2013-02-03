@@ -16,9 +16,10 @@ define([
     'bind',
     'crypto',
     'box',
-    'jqm'
+    'jqm',
+    'storage'
 ],
-    function ($, $m, Workflow, AppCache, Depend, Validate, Bind, Crypto, Box, JQM) {
+    function ($, $m, Workflow, AppCache, Depend, Validate, Bind, Crypto, Box, JQM, Store) {
         "use strict";
 
         function checkPrerequisites() {
@@ -235,7 +236,7 @@ define([
                 return;
             }
 
-            localStorage['form-timestamp'] = (new Date()).valueOf();
+            Store.put('form-timestamp', (new Date()).valueOf());
             logevent(e);
         }
 
@@ -342,31 +343,31 @@ define([
             }
 
             //decide whether the public key needs to be decoded
-            if ((localStorage['key-data'] === undefined) || !localStorage['key-data'].length) {
-                key = Crypto.decodeKey(localStorage['key-pem']);
-
-                if (!key) {
-                    console.error('failed to decode public key', localStorage['key-pem']);
-                    return false;
-                }
-
-                //store the decoded key
-                localStorage['key-data'] = JSON.stringify(key);
-            } else {
+            if (Store.has('key-data')) {
                 //read the key data from localStorage
                 try {
-                    key = JSON.parse(localStorage['key-data']);
+                    key = JSON.parse(Store.get('key-data'));
                 } catch (key_err) {
                     console.error('Failed to read key data', key_err.message);
                     return false;
                 }
+            } else {
+                key = Crypto.decodeKey(Store.get('key-pem'));
+
+                if (!key) {
+                    console.error('failed to decode public key', Store.get('key-pem'));
+                    return false;
+                }
+
+                //store the decoded key
+                Store.put('key-data', JSON.stringify(key));
             }
 
             return Crypto.encrypt(data, key, password);
         }
 
         function save(success) {
-            var url = "http://survana.org",
+            var url = ($.mobile.activePage.attr('data-store') || Store.get('store-url')),
                 payload,
                 packet;
 
@@ -374,26 +375,26 @@ define([
 
                 payload = {
                     'id': {
-                        'survana': localStorage['survana-id'],
-                        'study': localStorage['study-id'],
-                        'form': f.id,
-                        'session': localStorage['session-id'] + ":" + localStorage.session,
-                        'key': localStorage['key-id']
+                        'survana':  Store.get('survana-id'),
+                        'study':    window['study-id'],
+                        'form':     f.id,
+                        'session':  Store.get('session-id') + ":" + Store.get('session'),
+                        'key':      Store.get('key-id')
                     },
                     'timestamp': {
-                        'server_session': localStorage['session-timestamp'],
-                        'client_session': localStorage['session-timestamp-client'],
-                        'form_start': localStorage['form-timestamp'],
-                        'form_end': (new Date()).valueOf().toString()
+                        'server_session':   Store.get('session-timestamp'),
+                        'client_session':   Store.get('session-timestamp-client'),
+                        'form_start':       Store.get('form-timestamp'),
+                        'form_end':         (new Date()).valueOf().toString()
                     },
                     'data': formToJSON(f)
                 };
 
                 packet = {
                     'key': {
-                        'id': localStorage['key-id'],
-                        'pem': localStorage['key-pem'],
-                        'bits': localStorage['key-bits']
+                        'id':   Store.get('key-id'),
+                        'pem':  Store.get('key-pem'),
+                        'bits': Store.get('key-bits')
                     },
                     'payload': encrypt(payload)
                 };

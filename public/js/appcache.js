@@ -62,27 +62,47 @@ function()
 
     function send(data,url)
     {
-        add(data);
-        var batch=queue();
+        var batch,
+            i;
 
-        //attempt to send the entire queue
-        $.ajax({
-            type:'POST',
-            url:url,
-            data:batch,
-            dataType:'jsonp',
-            cache:false,
-            success:function(data,status,xhr){
-                if (typeof(data['successful'])!=='undefined')
-                    remove(data['successful']);
-
-                if ((typeof(data['failed'])!=='undefined') && data['failed'].length)
-                    console.error('Failed:',data['failed']);
-            },
-            error:function(xhr,status,e){
-                console.log('failed to send data:',batch);
-            }
+        //append data to the queue
+        //make sure the data is a string to save time on parsing it back
+        add({
+            'data': JSON.stringify(data),
+            'url':  url
         });
+
+        //fetch the entire queue
+        batch=queue();
+
+        /* We can't send the entire queue with 1 request because we use JSONP for cross domain requests, which works
+           with GET only (and we don't necessarily know if the URL is in the same domain). For now, fallback on using
+           1 request per appcache-item and hope that no proxy will truncate the Host: parameter.
+         */
+        for (i in batch) {
+            if (batch.hasOwnProperty(i)) {
+                $.ajax({
+                    url:    batch[i].url,
+                    data:{
+                        'id':   i,
+                        'data': batch[i].data
+                    },
+                    dataType:'jsonp',
+                    cache:false,
+                    success:function(data,status,xhr){
+                        if (typeof(data['successful'])!=='undefined') {
+                            remove(data['successful']);
+                        }
+
+                        if ((typeof(data['failed'])!=='undefined') && data['failed'].length)
+                            console.error('Failed:',data['failed']);
+                    },
+                    error:function(xhr,status,e){
+                        console.log('failed to send data:',batch[i]);
+                    }
+                });
+            }
+        }
     }
 
     function remove(ids)
@@ -97,11 +117,11 @@ function()
             var id=ids[i];
             if (typeof(window.localStorage[id])!=='undefined')
             {
-                console.log('AppCache: removing',id);
+                console.log('appcache: removing',id);
                 delete window.localStorage[id];
             }
             else
-                console.log('AppCache: couldn\'t remove',id,': not found');
+                console.log('appcache: couldn\'t remove',id,': not found');
         }
     }
 
@@ -112,8 +132,15 @@ function()
         //search for all keys that contain 'appcache-item-'
         for (var k in window.localStorage)
         {
-            if (k.indexOf('appcache-item-')===0)
-                q[k]=window.localStorage[k];
+            if (k.indexOf('appcache-item-')===0) {
+                try {
+                    q[k]=JSON.parse(window.localStorage[k]);
+                } catch (err) {
+                    console.error('appcache: failed to parse item',k,err);
+                }
+
+            }
+
         }
 
         return q;
@@ -145,7 +172,7 @@ function()
         //make sure we're not overwriting an already added item
         if (typeof(window.localStorage[queue_id])!=='undefined')
         {
-            console.error('AppCache ID '+appcache_id+' already exists.');
+            console.error('appcache: ID '+appcache_id+' already exists.');
 
             //The uniqueness of items is based on the timestamp and a random number, but it looks like a collision has
             //happened. Instead of returning 'false', we can avoid overwriting an existing item by recursively calling

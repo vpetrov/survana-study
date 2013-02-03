@@ -2,32 +2,33 @@
     <div data-role="content">
         <script type='text/javascript'>
 
-            //server
-            window.localStorage['survana-id']="{{= server_id }}";
 
-            //key
-            window.localStorage['key-id']="{{= key.keyID }}";
-            window.localStorage['key-pem']={{- JSON.stringify(key.publicKey) }};
-            window.localStorage['key-data']=''; //clear cached key data
-            window.localStorage['key-bits']="{{= key.bits }}";
-
-            //todo: this is broken
-            window.localStorage['study-id']="{{= study.id }}";
-            window.localStorage['save-url']="{{- 'id/save' }}";
-            window.localStorage['workflow']='{{- JSON.stringify(workflow) }}';
-            window.localStorage['workflow-current']=-1;
+            window['study-id'] = "{{= study.id }}";
 
             //Start the Survey when this page loads
 
-            require(['jquery','survana'],function($,Survana){
+            require(['jquery', 'storage', 'survana'],function($, Store, Survana){
+
+                //server
+                Store.put({
+                    'survana-id':           "{{= server_id }}",
+                    'key-id':               "{{= key.keyID }}",
+                    'key-pem':              {{- JSON.stringify(key.publicKey) }},
+                    'key-data':             '', //clear cached key data
+                    'key-bits':             "{{= key.bits }}",
+                    'store-url':            "{{- store }}",
+                    'workflow':             '{{- JSON.stringify(workflow) }}',
+                    'workflow-current':    -1
+                });
 
                 //make sure not to overwrite any existing session information
-                if ((typeof(localStorage['session-id'])==="undefined") || !localStorage['session-id'].length)
-                {
-                    window.localStorage['session-id']='{{=session_id}}';
-                    window.localStorage['session']=0;
-                    window.localStorage['session-timestamp']='{{= (new Date()).valueOf() }}';
-                    window.localStorage['session-timestamp-client']=(new Date()).valueOf();
+                if (!Store.has('session-id')) {
+                    Store.put({
+                        'session-id':               '{{= session_id }}',
+                        'session':                  0,
+                        'session-timestamp':        '{{= (new Date()).valueOf() }}',
+                        'session-timestamp-client': (new Date()).valueOf()
+                    });
                 }
 
                 $('#pageIndex').on('pageshow',function(){

@@ -8,33 +8,34 @@
 
 define(
     [
-        'jquery'
+        'jquery',
+        'storage'
     ],
-function($)
-{
-    var bindings={};
+    function ($, Store) {
+        "use strict";
 
-    function register(id,b)
-    {
-        bindings[id]=b;
+        var bindings = {};
 
-        console.log('bindings for',id,b);
-    }
+        function register(id, b) {
+            bindings[id] = b;
 
-    function field(form_id,f)
-    {
-        if (bindings[form_id])
-        {
-            var id=f.attr('name')|| f.attr('id');
-            var target=bindings[form_id][id];
-
-            if (target)
-                window.localStorage['s-'+target]=f.val();
+            console.log('bindings for', id, b);
         }
-    }
 
-    return {
-        'register':register,
-        'field':field
+        function field(form_id, f) {
+            if (bindings[form_id]) {
+                var id = f.attr('name') || f.attr('id'),
+                    target = bindings[form_id][id];
+
+                if (target) {
+                    Store.put('s-' + target, f.val());
+                }
+            }
+        }
+
+        return {
+            'register': register,
+            'field': field
+        };
     }
-});
+);

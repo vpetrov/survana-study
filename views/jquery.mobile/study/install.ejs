@@ -53,23 +53,42 @@
     </div>
 
     <script type='text/javascript'>
+
+        var study_id = "{{= study_id }}";
+
+        //server
+        window.localStorage[study_id + '-survana-id']="{{= server_id }}";
+
         //key
-        window.localStorage['key_id']="key.id";
-        window.localStorage['key_pem']="addslashes(str_replace(Array(\"\\r\",\"\\n\"),'',$key->publicPEM))";
-        window.localStorage['key_data']=''; //clear cached key data
-        window.localStorage['key_bits']="key->bits";
+        window.localStorage[study_id + '-key-id']="{{= key.keyID }}";
+        window.localStorage[study_id + '-key-pem']={{- JSON.stringify(key.publicKey) }};
+        window.localStorage[study_id + '-key-data']=''; //clear cached key data
+        window.localStorage[study_id + '-key-bits']="{{= key.bits }}";
 
-        //FIXME
-        window.localStorage['subject']='';
-        window.localStorage['save-url']="config.save-url')/$id/save"
-        window.localStorage['workflow']='{{- JSON.stringify(workflow) }}';
-        window.localStorage['workflow_current']=-1;
+        //todo: this is broken
+        window.localStorage[study_id + '-store-url']="{{- store }}";
+        window.localStorage[study_id + '-workflow']='{{- JSON.stringify(workflow) }}';
+        window.localStorage[study_id + '-workflow-current']=-1;
 
-        $('#start').click(function(){
-            Workflow_next();
-        })
+        //Start the Survey when this page loads
+
+        require(['jquery','survana'],function($,Survana){
+
+            //make sure not to overwrite any existing session information
+            if ((typeof(localStorage[study_id + '-session-id'])==="undefined") || !localStorage[study_id + '-session-id'].length)
+            {
+                window.localStorage[study_id + '-session-id']='{{= session_id }}';
+                window.localStorage[study_id + '-session']=0;
+                window.localStorage[study_id + '-session-timestamp']='{{= (new Date()).valueOf() }}';
+                window.localStorage[study_id + '-session-timestamp-client']=(new Date()).valueOf();
+            }
+
+            $('#start').click(function(){
+                Survana.resume();
+            });
+        });
+
     </script>
-
 </div>
 </body>
 </html>

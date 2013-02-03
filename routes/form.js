@@ -8,73 +8,73 @@
 
 var async = require('async');
 var path = require('path');
-var depend=require('../lib/depend');
-var validate=require('../lib/validate');
-var bind=require('../lib/bind');
+var depend = require('../lib/depend');
+var validate = require('../lib/validate');
+var bind = require('../lib/bind');
 
-/*
+/**
  * GET form preview
  */
-exports.preview = function(req, res, next)
-{
-    var app=req.app;
-    var db=app.db;
-    var config=app.config;
+exports.preview = function (req, res, next) {
+    "use strict";
 
-    if (!req.body || !req.body['form'])
+    var app     = req.app,
+        db      = app.db,
+        config  = app.config,
+        form,
+        adapter,
+        dep,
+        dep_js,
+        rules,
+        bindings,
+        html,
+        opt;
+
+    if (!req.body || !req.body.form) {
         return next(new Error('Invalid request'));
-
-    var form;
-
-    try
-    {
-        form = JSON.parse(req.body['form']);
     }
-    catch (err)
-    {
+
+    try {
+        form = JSON.parse(req.body.form);
+    } catch (err) {
         return next(err);
     }
 
-    if (!form.id)
+    if (!form.id) {
         return next(new Error('Invalid form data'));
-
-    var adapter=null;
+    }
 
     //load appropriate adapter, from module root
     if (req.mobile) {
-        adapter=require(path.join(app.dirname,config.adapters.mobile))({
+        adapter = require(path.join(app.dirname, config.adapters.mobile))({
             'theme': config.theme,
-            'mobile':true
+            'mobile': true
         });
     } else {
-        adapter=require(path.join(app.dirname,config.adapters.desktop))({
+        adapter = require(path.join(app.dirname, config.adapters.desktop))({
             'theme': config.theme,
-            'mobile':false
+            'mobile': false
         });
     }
 
     //compute field dependencies
-    var dep=depend.get(form.data);
-
-    console.log('dependencies',dep);
-
+    dep = depend.get(form.data);
     //translate dependencies to javascript
-    var dep_js=depend.translate(dep);
-    var rules=validate.get(form.data);
-    var bindings=bind.get(form.data);
+    dep_js = depend.translate(dep);
+    rules = validate.get(form.data);
+    bindings = bind.get(form.data);
+    html = adapter.toHTML(form);
 
-    var html=adapter.toHTML(form);
-
-    var opt={
-        form:form,
-        mobile:req.mobile,
-        dep:dep,
-        dep_js:dep_js,
-        validation_rules:rules,
-        bindings:bindings,
-        html:html,
-        layout:'../form'
+    opt = {
+        form:               form,
+        mobile:             req.mobile,
+        dep:                dep,
+        dep_js:             dep_js,
+        validation_rules:   rules,
+        bindings:           bindings,
+        html:               html,
+        layout:             '../form'
     };
 
-    res.render(req.views+'form/preview',opt);
+    res.render(req.views + 'form/preview', opt);
 };

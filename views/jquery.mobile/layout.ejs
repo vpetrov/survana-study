@@ -12,6 +12,7 @@
 
     <script type="text/javascript" data-main="{{=config.prefix}}js/app" src='{{=config.prefix}}js/{{=config.lib.require}}/require.js'></script>
     <script type="text/javascript">
+
         requirejs.config({
             baseUrl:"{{=config.prefix}}js",
             paths:{{- JSON.stringify(config.to_requirejs())}}

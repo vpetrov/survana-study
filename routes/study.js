@@ -6,299 +6,309 @@
  * @license New BSD License (see LICENSE file for details).
  */
 
-var async=require('async');
-var path=require('path');
-var dbutil=require('../lib/db.util');
-var depend=require('../lib/depend');
-var validate=require('../lib/validate');
-var bind=require('../lib/bind');
-var ursa=require('ursa');
+var async       =   require('async'),
+    path        =   require('path'),
+    dbutil      =   require('../lib/db.util'),
+    depend      =   require('../lib/depend'),
+    validate    =   require('../lib/validate'),
+    bind        =   require('../lib/bind'),
+    ursa        =   require('ursa');
 
 //returns an array of objects, of the form {'id':str,'url':str}
-function build_workflow(url_prefix,forms)
-{
-    //Build the workflow
-    var workflow=[];
+function build_workflow(url_prefix, forms) {
+    "use strict";
 
-    for (var f in forms)
-    {
-        var form=forms[f];
-        workflow.push({
-            id:form.id,
-            url:path.join(url_prefix,form.id)
-        });
+    //Build the workflow
+    var workflow = [],
+        f;
+
+    for (f in forms) {
+        if (forms.hasOwnProperty(f)) {
+
+            workflow.push({
+                id: forms[f].id,
+                url: path.join(url_prefix, forms[f].id)
+            });
+        }
     }
 
     return workflow;
 }
 
-exports.index=function(req,res,next)
-{
-    var db=req.app.db;
-    var study_id=req.params[0];
+exports.index = function (req, res, next) {
+    "use strict";
+
+    var db = req.app.db,
+        config = req.app.config,
+        study_id = req.params[0];
 
     async.waterfall([
 
-        function getStudy(next2)
-        {
-            dbutil.getStudy(db,study_id,next2);
+        function getStudy(next2) {
+            dbutil.getStudy(db, study_id, next2);
         },
 
-        function prepareResult(study,next2)
-        {
-            console.log('found study',study);
-            next2(null,study);
+        function prepareResult(study, next2) {
+            next2(null, study);
         }
     ],
-    function processResult(err,study){
-        if (err) {
-            next(err);
-            return;
-        }
+        function processResult(err, study) {
+            if (err) {
+                next(err);
+                return;
+            }
 
-        if (!study) {
-            next(new Error('Study "' + study_id + '" could not be found.'));
-            return;
-        }
+            if (!study) {
+                next(new Error('Study "' + study_id + '" could not be found.'));
+                return;
+            }
 
-        if (!study.keys) {
-            next(new Error("No public keys could be found for this study."));
-            return;
-        }
+            if (!study.keys) {
+                next(new Error("No public keys could be found for this study."));
+                return;
+            }
 
-        var key=study.keys[parseInt(Math.random()*1000)%study.keys.length]; //random key
+            var key = study.keys[parseInt(Math.random() * 1000, 10) % study.keys.length]; //random key
 
-        res.render(req.views+'study/index',{
-            key:key,
-            study:study,
-            server_id:req.app.keyID,
-            session_id:req.app.randomId(16),
-            workflow:build_workflow(req.originalUrl,study.forms),
-            layout:'../layout'
+            console.log(build_workflow(req.originalUrl, study.forms));
+
+            res.render(req.views + 'study/index', {
+                store:      study['store-url'] || config.store,
+                key:        key,
+                study:      study,
+                server_id:  req.app.keyID,
+                session_id: req.app.randomId(16),
+                workflow:   build_workflow(req.originalUrl, study.forms),
+                layout:     '../layout'
+            });
         });
-    });
-}
+};
 
-exports.form=function(req,res,next)
-{
-    var app=req.app;
-    var db=app.db;
-    var config=app.config;
+exports.form = function (req, res, next) {
+    "use strict";
 
-    var study_id=req.params[0];
-    var form_id=req.params[1];
-    var study=null;
-    var form=null;
-    var overrides=null;
+    var app         = req.app,
+        db          = app.db,
+        config      = app.config,
+        study_id    = req.params[0],
+        form_id     = req.params[1],
+        study,
+        form,
+        overrides;
 
     async.waterfall([
-        function findStudy(next2)
-        {
-            dbutil.getStudy(db,study_id,next2);
+        function findStudy(next2) {
+            dbutil.getStudy(db, study_id, next2);
         },
 
-        function findForm(result,next2)
-        {
-            if (!result)
-                return next2(Error('Study '+study_id+'not found.'));
+        function findForm(result, next2) {
+            var form,
+                i;
 
-            study=result;
+            if (!result) {
+                return next2(new Error('Study ' + study_id + 'not found.'));
+            }
 
-            var form=null;
+            study = result;
 
-            for (var i in result.forms)
-            {
-                if (result.forms[i].id===form_id)
-                {
-                    form=result.forms[i];
-                    if (study.overrides) {
-                        overrides=study.overrides[i];
+            for (i in result.forms) {
+                if (result.forms.hasOwnProperty(i)) {
+                    if (result.forms[i].id === form_id) {
+                        form = result.forms[i];
+                        if (study.overrides) {
+                            overrides = study.overrides[i];
+                        }
+                        break;
                     }
-
-                    break;
                 }
             }
 
-            if (!form)
-                return next2(Error('Form '+form_id+' not found.'));
-
-            next2(null,form);
-        },
-
-        function override(form,next2) {
-            if (form && overrides) {
-                obj.override(form,overrides);
+            if (!form) {
+                return next2(new Error('Form ' + form_id + ' not found.'));
             }
-            next2(null,form);
+
+            next2(null, form);
         },
 
-        function toHTML(form,next2)
-        {
-            var adapter=null;
+        function override(form, next2) {
+            if (form && overrides) {
+                obj.override(form, overrides);
+            }
+            next2(null, form);
+        },
+
+        function toHTML(form, next2) {
+            var adapter,
+                dep,
+                dep_js,
+                rules,
+                bindings,
+                html,
+                opt;
 
             //load appropriate adapter, from module root
             if (req.mobile) {
-                adapter=require(path.join(app.dirname,config.adapters.mobile))({
+                adapter = require(path.join(app.dirname, config.adapters.mobile))({
                     'theme': config.theme,
-                    'mobile':true
+                    'mobile': true
                 });
             } else {
-                adapter=require(path.join(app.dirname,config.adapters.desktop))({
+                adapter = require(path.join(app.dirname, config.adapters.desktop))({
                     'theme': config.theme,
-                    'mobile':false
+                    'mobile': false
                 });
             }
 
             //compute field dependencies
-            var dep=depend.get(form['data']);
+            dep         = depend.get(form.data);
             //translate dependencies to javascript
-            var dep_js=depend.translate(dep);
-            var rules=validate.get(form['data']);
-            var bindings=bind.get(form['data']);
+            dep_js      = depend.translate(dep);
+            rules       = validate.get(form.data);
+            bindings    = bind.get(form.data);
+            html        = adapter.toHTML(form);
 
-            console.log('bindings',bindings);
-
-            var html=adapter.toHTML(form);
-
-            var opt={
-                study:study,
-                form:form,
-                mobile:req.mobile,
-                dep:dep,
-                dep_js:dep_js,
-                validation_rules:rules,
-                bindings:bindings,
-                html:html,
-                layout:'../form'
+            opt = {
+                study:              study,
+                store:              (form['store-url'] || study['store-url']),
+                form:               form,
+                mobile:             req.mobile,
+                dep:                dep,
+                dep_js:             dep_js,
+                validation_rules:   rules,
+                bindings:           bindings,
+                html:               html,
+                layout:             '../form'
             };
 
-            next2(null,opt);
+            next2(null, opt);
         }
     ],
-    function processResult(err,opt)
-    {
-        if (err)
-            return next(err);
+        function processResult(err, opt) {
+            if (err) {
+                return next(err);
+            }
 
-        res.render(req.views+'study/form',opt);
-    });
-}
+            return res.render(req.views + 'study/form', opt);
+        });
+};
 
-exports.create=function(req,res,next)
-{
-    var app=req.app;
-    var config=app.config;
-    var db=app.db;
-    var data=req.body;
-    var admins=config.admins;
+exports.create = function (req, res, next) {
+    "use strict";
 
-    if (!data['study'] || !data['signature'] || !data['keyID'])
-        next(Error('Invalid request'));
+    var app = req.app,
+        config = app.config,
+        db = app.db,
+        data = req.body,
+        admins = config.admins,
+        study,
+        signature,
+        keyID;
+
+    if (!data.study || !data.signature || !data.keyID) {
+        return next(new Error('Invalid request'));
+    }
 
     //define some convenient shortcuts
-    var study=data.study;
-    var signature=data.signature;
-    var keyID=data.keyID;
+    study = data.study;
+    signature = data.signature;
+    keyID = data.keyID;
 
     //perform as many actions in parallel as possible
     async.auto({
 
-        'admin':function(next2)
-        {
-            var admin=null;
+        'admin': function (next2) {
+            var admin,
+                i;
 
             //find the admin that is trying to publish a new survey
-            for (var i in admins)
-            {
-                if (admins[i].keyID===keyID)
-                {
-                    admin=admins[i];
-                    break;
+            for (i in admins) {
+                if (admins.hasOwnProperty(i)) {
+                    if (admins[i].keyID === keyID) {
+                        admin = admins[i];
+                        break;
+                    }
                 }
             }
 
             //if admin public key not found
-            if (!admin)
-                return next2(Error('Your Survana Admin is not registered with this Survana Publisher.'));
+            if (!admin) {
+                return next2(new Error('Your Survana Admin is not registered with this Survana Publisher.'));
+            }
 
-            next2(null,admin);
+            return next2(null, admin);
         },
 
-        'sig_valid':['admin',function(next2,result){
-            var admin=result.admin;
+        'sig_valid': ['admin', function (next2, results) {
+            var admin = results.admin,
+                verifier = ursa.createVerifier('sha256'),
+                result;
 
-            console.log('using signature',signature);
+            console.log('using signature', signature);
 
-            //var result=admin.key.hashAndVerify('sha256',JSON.stringify(study),signature,'hex'); //does not work
-
-            var verifier=ursa.createVerifier('sha256');
             verifier.update(JSON.stringify(study));
 
-            var result;
+            try {
+                result = verifier.verify(admin.key, signature, 'hex');
 
-            try
-            {
-                result=verifier.verify(admin.key,signature,'hex');
-
-                if (!result)
-                    result='wrong signature. Please check that the correct public key has been registered with the publisher.';
-            }
-            catch (e)
-            {
-                result=e.message;
+                if (!result) {
+                    result = 'wrong signature. Please check that the correct public key has been registered with the ' +
+                             'publisher.';
+                }
+            } catch (e) {
+                result = e.message;
             }
 
             //N.B.: because of the try block above, 'result' will always be true when it has a boolean type
-            if ((typeof(result)=="boolean") && result)
-                return next2(null,result);
+            if ((typeof (result) === "boolean") && result) {
+                return next2(null, result);
+            }
 
-            return next2(Error('Could not verify request signature: '+result));
+            return next2(new Error('Could not verify request signature: ' + result));
         }],
 
-        'col':function(next2)
-        {
-            db.collection('study',next2);
+        'col': function (next2) {
+            db.collection('study', next2);
         },
 
-        'studyID':['col',function(next2,result)
-        {
+        'studyID': ['col', function (next2, result) {
             //return only the _id if a study is found
             result.col.findOne({
-                'id':study.id
-            },{
-                '_id':1
-            },next2);
+                'id': study.id
+            }, {
+                '_id': 1
+            }, next2);
         }],
 
-        'studyExists':['studyID',function(next2,result)
-        {
-            if (result.studyID)
-                return next2(Error('Study '+study.id+' has already been published on this server.'));
+        'studyExists': ['studyID', function (next2, result) {
+            if (result.studyID) {
+                return next2(new Error('Study ' + study.id + ' has already been published on this server.'));
+            }
 
-            next2(null,false); //study does not exist
+            return next2(null, false); //study does not exist
         }],
 
-        'insertStudy':['col','studyExists','sig_valid',function(next2,result)
-        {
+        'insertStudy': ['col', 'studyExists', 'sig_valid', function (next2, result) {
             //delete the _id, just in case
-            delete study['_id'];
+            delete study._id;
 
             //mark the time when this study was published
-            study['published_on']=(new Date()).valueOf();
+            study.published_on = (new Date()).valueOf();
 
-            result.col.insert(study,{'safe':true,'fsync':true},next2);
+            result.col.insert(study, {'safe': true, 'fsync': true}, next2);
         }]
     },
 
-    function processResult(err,steps)
-    {
-        if (err)
-            return next(err);
+        function processResult(err, steps) {
+            if (err) {
+                return next(err);
+            }
 
-        res.send({
-            'success':1,
-            'message':'Study '+study.id+' has been published successfully',
-            'url':steps.admin.url.replace('%ID%',study.id)
+            return res.send({
+                'success': 1,
+                'message': 'Study ' + study.id + ' has been published successfully',
+                'url': steps.admin.url.replace('%ID%', study.id)
+            });
         });
-    });
-}
+
+    return true;
+};
