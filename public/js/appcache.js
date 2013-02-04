@@ -125,6 +125,20 @@ function()
         }
     }
 
+    function count() {
+        var i, c = 0;
+
+        for (i in window.localStorage) {
+            if (window.localStorage.hasOwnProperty(i)) {
+                if (i.indexOf('appcache-item-') === 0) {
+                    c++; // ;)
+                }
+            }
+        }
+
+        return c;
+    }
+
     function queue()
     {
         var q={};
@@ -199,6 +213,10 @@ function()
 
     //public API
     return {
-        'send':send
+        'add':      add,
+        'send':     send,
+        'items':    items,
+        'queue':    queue,
+        'count':    count
     };
 });
