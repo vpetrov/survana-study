@@ -19,6 +19,9 @@
             {{ } }}
             <!--<a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
                class='ui-btn-left btn-back'>Back</a>-->
+            <a data-role='button' data-theme='{{=config.theme.active}}' data-icon='check'
+               class='ui-btn-right btn-save' style="display:none">Finish</a>
+
             <a href="#" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
                class='ui-btn-right btn-next'>Next</a>
         </div>
@@ -62,7 +65,7 @@
             <!--<a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
                class='ui-btn-left btn-back'>Back</a>-->
             <a href="#" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
-               class='ui-btn-right btn-next'>Next</a>
+               class='ui-btn-right btn-next' data-transition="none">Next</a>
         </div>
     {{ } }}
 

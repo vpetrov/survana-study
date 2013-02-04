@@ -8,7 +8,7 @@
  * @note Requires elementtree 0.1.5+
  */
 
-var etree       = require('elementtree');
+var etree       = require('elementtree-raw');
 var ElementTree = etree.ElementTree;
 var Element     = etree.Element;
 var util        = require('util');
@@ -271,7 +271,8 @@ Adapter.prototype._append = function (container, obj, createCallback) {
  * @param extra2
  * @return {Object}
  */
-Adapter.prototype.element = html.element;
+Adapter.prototype.element   = html.element;
+Adapter.prototype.rtf       = html.rtf;
 
 Adapter.prototype.field = function (obj) {
     "use strict";
@@ -304,7 +305,8 @@ Adapter.prototype.label = function (obj, for_element) {
     "use strict";
 
     var opt = {
-        'tag':  'label'
+        'tag':  'label',
+        's-raw': true
     };
 
     //make sure that the for element has an id
@@ -561,7 +563,8 @@ Adapter.prototype.question = function (obj) {
     var opt = {
         'tag':          'li',
         'data-role':    'list-divider',
-        'class':        's-question'
+        'class':        's-question',
+        's-raw':         true
     };
 
     if (typeof obj === 'object') {

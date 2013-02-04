@@ -12,7 +12,7 @@
     "dependencies": {
         "step":		    "0.0.x",
         "async":        "0.1.x",
-        "elementtree":  "0.1.x",
+        "elementtree-raw":  "0.1.x",
         "vows":         "0.6.x",
         "ursa":         "0.7.x"
     },

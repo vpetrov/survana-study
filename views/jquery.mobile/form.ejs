@@ -25,7 +25,7 @@
         });
     </script>
 </head>
-<body onbeforeunload="return 'Are you sure you want to leave this page? You will lose all your progress.'">
+<body onbeforeunload="if (!window.canClose) return 'Are you sure you want to leave this page? You will lose all your progress.'">
 {{- body }}
 </body>
 </html>

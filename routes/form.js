@@ -66,6 +66,7 @@ exports.preview = function (req, res, next) {
     html = adapter.toHTML(form);
 
     opt = {
+        study:              'preview',
         form:               form,
         mobile:             req.mobile,
         dep:                dep,

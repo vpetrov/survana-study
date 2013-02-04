@@ -348,3 +348,20 @@ label:not([for]) {
 {
     display:none !important;
 }
+
+.s-msgbox {
+    padding-left:2em;
+    padding-right:2em;
+}
+
+.s-msgbox div {
+    padding:1em;
+}
+
+.s-msgbox a {
+    margin-top:1em;
+}
+
+.s-rtf {
+    font-weight: normal;
+}

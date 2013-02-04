@@ -17,9 +17,10 @@ define([
     'crypto',
     'box',
     'jqm',
-    'storage'
+    'storage',
+    'msgbox'
 ],
-    function ($, $m, Workflow, AppCache, Depend, Validate, Bind, Crypto, Box, JQM, Store) {
+    function ($, $m, Workflow, AppCache, Depend, Validate, Bind, Crypto, Box, JQM, Store, MsgBox) {
         "use strict";
 
         function checkPrerequisites() {
@@ -43,13 +44,21 @@ define([
             }
 
             console.log('Changing page to:', url);
-            $.mobile.changePage(url);
+            $.mobile.changePage(url, {
+                'allowSamePageTransition': true,
+                'transition': 'none'
+            });
 
             return true;
         }
 
         function gotoNextPage() {
             var url = Workflow.nextUrl();
+
+            if (!url) {
+                return false;
+            }
+
             return gotoPage(url);
         }
 
@@ -62,18 +71,24 @@ define([
             var index = Workflow.getCurrentIndex(),
                 url;
 
+            if (index === null) {
+                return false;
+            }
+
             if (index < 0) {
                 reset();
             } else {
                 url = Workflow.getUrl(index);
-                gotoPage(url);
+                if (url) {
+                    gotoPage(url);
+                }
             }
         }
 
         function logevent(e) {
             var page = e.target;
 
-            console.log(e, e.type, page.id);
+            console.log(e.type, page.id, arguments);
         }
 
         function action(el, actions) {
@@ -171,6 +186,8 @@ define([
             Depend.check(form_id, JQM.toContext(data), changed);
         }
 
+
+
         function onPageSave(e) {
             logevent(e);
         }
@@ -200,13 +217,22 @@ define([
         }
 
         function onPageBeforeShow(e) {
+            var buttons;
+
             logevent(e);
+
+            if (!Workflow.willWrap() && Workflow.isLast()) {
+                buttons = $.mobile.activePage.find('a.btn-next,a.btn-save');
+                buttons.filter('a.btn-next').css('display', 'none');
+                buttons.filter('a.btn-save').css('display', '').click(onSaveClick);
+            }
         }
 
         function onPageBeforeHide(e) {
+
             var page = $(e.target);
             logevent(e);
-            /* don't do anything if this is a dialog box */
+
             if (page.attr('data-role') === 'dialog') {
                 return;
             }
@@ -231,12 +257,12 @@ define([
 
             var page = $(e.target);
 
-            /* don't do anything if this is a dialog box */
             if (page.attr('data-role') === 'dialog') {
                 return;
             }
 
             Store.put('form-timestamp', (new Date()).valueOf());
+
             logevent(e);
         }
 
@@ -438,6 +464,94 @@ define([
             }
         }
 
+        function hideLoadingMessage() {
+            $.mobile.loading('hide');
+        }
+
+        function showLoadingMessage(message) {
+            $.mobile.loading('show', {
+                theme:  'a',
+                text:   message,
+                textVisible: true
+            });
+        }
+
+        function closeSurvey() {
+            if (Workflow.willWrap()) {
+                gotoNextPage();
+            } else {
+                //since this is a 1 time survey, remove the save button, clear the local storage (except for any
+                //appcache items) and inform the user that his journey is over.
+                $.mobile.activePage.find('.btn-save').remove();
+                Store.clear();
+                window.canClose = 1;
+                MsgBox.show('Your responses have been saved.', 'Success');
+            }
+        }
+
+        function saveFailed() {
+            MsgBox.show('We were unable to store your responses. Please check the network connection and press Finish again.');
+        }
+
+        function finishSurvey() {
+            var nitems = AppCache.count(),
+                timeout = 60,
+                timer,
+                button = $.mobile.activePage.find('button.btn-save');
+
+            button.button('disable');
+
+            JQM.clear();
+            Validate.clean();
+
+            if (!nitems) {
+                button.removeAttr('data-retry');
+                closeSurvey();
+            } else {
+                timer = setInterval(function () {
+
+                    timeout--;
+
+                    //timed out?
+                    if (timeout <= 0) {
+                        clearInterval(timer);
+                        hideLoadingMessage();
+                        button.attr('data-retry', 1);
+                        button.button('enable');
+                        saveFailed();
+                    } else {
+                        nitems = AppCache.count();
+
+                        if (!nitems) {
+                            clearInterval(timer);
+                            button.removeAttr('data-retry');
+                            closeSurvey();
+                        } else {
+                            showLoadingMessage('Please wait ' + timeout + ' seconds while we store your responses (' +
+                                               nitems + ' left)');
+                        }
+
+                    }
+                }, 1000);
+
+            }
+        }
+
+        function onSaveClick(e) {
+            var preview = $.mobile.activePage.attr('data-preview'),
+                button = $(e.currentTarget);
+
+            if (validate() && !preview) {
+                if (button.attr('data-retry')) {
+                    finishSurvey();
+                } else {
+                    save(finishSurvey);
+                }
+            } else {
+                scrollTo($.mobile.activePage.find('.s-error-button:visible').first(), true);
+            }
+        }
+
         /**
          * Takes an unused parameter e:Event
          */
@@ -479,13 +593,13 @@ define([
         }
 
         function onPageInit(e) {
+
             var page = $(e.target);
 
             logevent(e);
 
             page.css('visibility', '');
 
-            /* don't do anything if this is just a dialog box */
             if (page.attr('data-role') === 'dialog') {
                 return;
             }

@@ -1,41 +1,56 @@
 <div id="pageIndex" data-role="page">
     <div data-role="content">
-        <script type='text/javascript'>
+        <script type="text/javascript">
 
+            //call to setup Survana
+            function SurvanaSetup () {
 
-            window['study-id'] = "{{= study.id }}";
+                window['study-id'] = "{{= study.id }}";
 
-            //Start the Survey when this page loads
+                //Start the Survey when this page loads
 
-            require(['jquery', 'storage', 'survana'],function($, Store, Survana){
+                require(['jquery', 'storage', 'survana'],function($, Store, Survana){
 
-                //server
-                Store.put({
-                    'survana-id':           "{{= server_id }}",
-                    'key-id':               "{{= key.keyID }}",
-                    'key-pem':              {{- JSON.stringify(key.publicKey) }},
-                    'key-data':             '', //clear cached key data
-                    'key-bits':             "{{= key.bits }}",
-                    'store-url':            "{{- store }}",
-                    'workflow':             '{{- JSON.stringify(workflow) }}',
-                    'workflow-current':    -1
-                });
-
-                //make sure not to overwrite any existing session information
-                if (!Store.has('session-id')) {
+                    //server
                     Store.put({
-                        'session-id':               '{{= session_id }}',
-                        'session':                  0,
-                        'session-timestamp':        '{{= (new Date()).valueOf() }}',
-                        'session-timestamp-client': (new Date()).valueOf()
+                        'survana-id':           "{{= server_id }}",
+                        'key-id':               "{{= key.keyID }}",
+                        'key-pem':              {{- JSON.stringify(key.publicKey) }},
+                        'key-data':             '', //clear cached key data
+                        'key-bits':             "{{= key.bits }}",
+                        'store-url':            "{{- store }}"
                     });
-                }
 
-                $('#pageIndex').on('pageshow',function(){
-                    Survana.resume();
+                    //make sure not to overwrite any existing session information
+                    if (!Store.has('session-id')) {
+                        Store.put({
+                            'session-id':               '{{= session_id }}',
+                            'session':                  0,
+                            'session-timestamp':        '{{= (new Date()).valueOf() }}',
+                            'session-timestamp-client': (new Date()).valueOf(),
+                            'workflow':                 '{{- JSON.stringify(workflow) }}',
+                            'workflow-current':         -1,
+                            'workflow-wrap':            0
+                        });
+                    }
+
+                    /* This is a hack to get jQuery Mobile to change pages properly. This code waits until the second
+                       'pagechange' event is fired (it has an 'absUrl' property) and then calls Survana.resume() to
+                       change the current page. Otherwise, jQuery Mobile gets very confused and will hide pages or try
+                       to restore the index page. The result is a lot of flickering or nothing on the screen.
+                     */
+                    function resume(e, options) {
+
+                        if (options.absUrl) {
+                            $(document).off('pagechange', resume);
+                            Survana.resume();
+                        }
+                    }
+
+                    $(document).on('pagechange', resume);
                 });
-            });
-
+            }
+            SurvanaSetup();
         </script>
     </div>
 </div>

@@ -81,11 +81,25 @@ define(
             return true;
         }
 
+
+        function clear() {
+            var i = 0;
+
+            for (i in window.localStorage) {
+                if (window.localStorage.hasOwnProperty(i)) {
+                    if (i.indexOf(prefix) === 0) {
+                        delete window.localStorage[i];
+                    }
+                }
+            }
+        }
+
         return {
             'get':      get,
             'put':      put,
             'has':      has,
-            'remove':   remove
+            'remove':   remove,
+            'clear':    clear
         };
     }
 );

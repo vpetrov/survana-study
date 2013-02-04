@@ -6,7 +6,7 @@
  * @license New BSD License (see LICENSE file for details).
  */
 
-var etree=require('elementtree');
+var etree=require('elementtree-raw');
 var ElementTree=etree.ElementTree;
 var Element=etree.Element;
 var SubElement=etree.SubElement;
@@ -20,16 +20,17 @@ var autil=require('../lib/util');
  * @param extra2
  * @return {*}
  */
-exports.element=function(obj,extra,extra2)
+exports.element=function(obj,extra,extra2,extra3)
 {
     //nothing to create?
     if (autil.isElement(obj))
         return obj;
 
-    var tag=null;
-    var html=null;
-    var attr=null;
-    var result=null;
+    var tag,
+        html,
+        attr,
+        result,
+        raw;
 
     //check for type1 call
     if (typeof obj === 'string')
@@ -37,6 +38,7 @@ exports.element=function(obj,extra,extra2)
         tag=obj;
         html=extra;
         attr=extra2;
+        raw=extra3;
     }
     //type 2
     else
@@ -44,6 +46,7 @@ exports.element=function(obj,extra,extra2)
         tag=autil.extract(obj,'tag');
         html=autil.extract(obj,'html');
         attr=obj;
+        raw=autil.extract(obj,'s-raw');
     }
 
     //todo:remove this
@@ -55,6 +58,10 @@ exports.element=function(obj,extra,extra2)
 
     result=new Element(tag);    //create a new HTML element with the specified tag
     result.text=html;           //assign value
+
+    if (raw) {
+        result.set('_raw', true);
+    }
 
     //copy all attributes
     for (var aname in attr)
@@ -71,3 +78,12 @@ exports.element=function(obj,extra,extra2)
     //return the new element
     return result;
 }
+
+exports.rtf = function (obj) {
+    return this.element({
+        'tag':'span',
+        'class': 's-rtf',
+        '_raw':true,
+        'html': obj.html
+    });
+};

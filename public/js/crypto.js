@@ -28,8 +28,6 @@ pidCrypt.ASN1.prototype.decodePEM=function(a){var b=this.b64(a);var c=pidCryptUt
 
     function encrypt(data,key,password)
     {
-        console.log('encrypting some data',data);
-
         //generate a new password
         if (typeof password==='undefined')
             password=generatePassword();

@@ -70,7 +70,7 @@ exports.index = function (req, res, next) {
 
             var key = study.keys[parseInt(Math.random() * 1000, 10) % study.keys.length]; //random key
 
-            console.log(build_workflow(req.originalUrl, study.forms));
+            console.log('study store: ', study['store-url'], 'config.store:',config.store);
 
             res.render(req.views + 'study/index', {
                 store:      study['store-url'] || config.store,

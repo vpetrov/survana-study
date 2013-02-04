@@ -12,16 +12,18 @@ define([
     function (Store) {
         "use strict";
 
-        var LSWF = 'workflow',
-            LSWF_CURRENT = 'workflow-current',
-            workflow;
+        var WF = 'workflow',
+            WF_WRAP = 'workflow-wrap',
+            WF_CURRENT = 'workflow-current',
+            workflow,
+            wrap;
 
         function get() {
             if (workflow) {
                 return workflow;
             }
 
-            var w = Store.get(LSWF);
+            var w = Store.get(WF);
 
             try {
                 workflow = JSON.parse(w);
@@ -34,16 +36,27 @@ define([
                 return null;
             }
 
+            wrap = Store.get(WF_WRAP);
+
             return workflow;
         }
 
+        function count() {
+            return workflow.length;
+        }
+
         function reset() {
-            Store.put(LSWF_CURRENT, -1);
+            Store.put(WF_CURRENT, -1);
         }
 
         function getCurrentIndex() {
             //get current workflow index
-            var c = Store.get(LSWF_CURRENT);
+            var c = Store.get(WF_CURRENT);
+
+            if (c === null) {
+                return null;
+            }
+
             if (c === undefined || !c.toString().length) {
                 return -1;
             }
@@ -70,11 +83,20 @@ define([
 
             c = getCurrentIndex();
 
+            if (c === null) {
+                return null;
+            }
+
             c++; // ;)
 
             //if no more items are available, wrap around
             if (workflow[c] === undefined) {
-                c = 0;
+                if (wrap) {
+                    c = 0;
+                } else {
+                    c = null;
+                }
+
             }
 
             return c;
@@ -82,6 +104,11 @@ define([
 
         function getCurrentItem() {
             var c = getCurrentIndex();
+
+            if (c === null) {
+                return null;
+            }
+
             if (c < 0) {
                 c = 0;
             }
@@ -91,22 +118,29 @@ define([
 
         function nextItem() {
             var index = getNextIndex(),
-                next = workflow[index];
+                next;
 
-            Store.put(LSWF_CURRENT, index);
+            if (index === null) {
+                return null;
+            }
+
+            next = workflow[index];
+
+            Store.put(WF_CURRENT, index);
 
             return next;
         }
 
         function getUrl(index) {
-            var item = workflow[index];
+            var _workflow = get(),
+                item = _workflow[index];
 
             if (!item) {
                 return null;
             }
 
             if (item.url === undefined) {
-                console.error("Workflow item " + nextItem.id + " does not specify a URL.");
+                console.error("Workflow item " + item.id + " does not specify a URL.");
                 return null;
             }
 
@@ -116,22 +150,45 @@ define([
         function nextUrl() {
             var item = nextItem();
 
+            if (item === null) {
+                return null;
+            }
+
             if (item.url === undefined) {
-                console.error("Workflow item " + nextItem.id + " does not specify a URL.");
+                console.error("Workflow item " + item.id + " does not specify a URL.");
                 return null;
             }
 
             return item.url;
         }
 
+        function willWrap() {
+            return (wrap === 1 || wrap === "1" || wrap === "true");
+        }
+
+        function isLast() {
+            if (!workflow) {
+                get();
+            }
+
+            if (!workflow) {
+                return true;
+            }
+
+            return (getCurrentIndex() === (workflow.length - 1));
+        }
+
         return {
             'get': get,
+            'count': count,
+            'willWrap':  willWrap,
             'reset': reset,
             'getCurrentIndex': getCurrentIndex,
             'getCurrentItem': getCurrentItem,
             'getNextIndex': getNextIndex,
             'nextItem': nextItem,
             'getUrl': getUrl,
-            'nextUrl': nextUrl
+            'nextUrl': nextUrl,
+            'isLast': isLast
         };
     });
