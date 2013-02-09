@@ -127,7 +127,6 @@ label:not([for]) {
 .s-skip {
     position:absolute;
     right:0.2em;
-    top:0.6em;
     z-index:199;
 }
 
@@ -323,6 +322,7 @@ label:not([for]) {
 }
 
 .s-error-button.s-skip {
+    margin-top:0.15em;
     right:0.1em;
 }
 
