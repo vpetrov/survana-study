@@ -45,7 +45,7 @@ define([
 
             console.log('Changing page to:', url);
             $.mobile.changePage(url, {
-                'allowSamePageTransition': true,
+                'allowSamePageTransition': false,
                 'transition': 'none'
             });
 
@@ -208,8 +208,9 @@ define([
             logevent(e);
         }
 
-        function onPageChange(e) {
+        function onPageChange(e, options) {
             logevent(e);
+            console.log('options', options);
         }
 
         function onPageChangeFailed(e) {
@@ -416,6 +417,8 @@ define([
                     'data': formToJSON(f)
                 };
 
+                console.log('data to be saved', payload);
+
                 packet = {
                     'key': {
                         'id':   Store.get('key-id'),
@@ -485,7 +488,7 @@ define([
                 $.mobile.activePage.find('.btn-save').remove();
                 Store.clear();
                 window.canClose = 1;
-                MsgBox.show('Your responses have been saved.', 'Success');
+                MsgBox.show('Your responses have been successfully saved.', 'Thank you very much for your participation.');
             }
         }
 
@@ -524,6 +527,7 @@ define([
 
                         if (!nitems) {
                             clearInterval(timer);
+                            hideLoadingMessage();
                             button.removeAttr('data-retry');
                             closeSurvey();
                         } else {
@@ -621,6 +625,7 @@ define([
             'checkPrerequisites':   checkPrerequisites,
             'reset':                reset,
             'resume':               resume,
+            'gotoPage':             gotoPage,
             'gotoNextPage':         gotoNextPage,
             'onPageSave':           onPageSave,
             'onPageBeforeLoad':     onPageBeforeLoad,
