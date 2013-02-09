@@ -2,55 +2,47 @@
     <div data-role="content">
         <script type="text/javascript">
 
-            //call to setup Survana
-            function SurvanaSetup () {
+            window['study-id'] = "{{= study.id }}";
 
-                window['study-id'] = "{{= study.id }}";
+            var startUrl = '';
 
-                //Start the Survey when this page loads
+            //This code sets up the keys and workflow, before Survana is loaded
+            require(['storage', 'workflow'], function(Store, Workflow) {
+                //server
+                Store.put({
+                    'survana-id':           "{{= server_id }}",
+                    'key-id':               "{{= key.keyID }}",
+                    'key-pem':              {{- JSON.stringify(key.publicKey) }},
+                    'key-data':             '', //clear cached key data
+                    'key-bits':             "{{= key.bits }}",
+                    'store-url':            "{{- store }}"
+                });
 
-                require(['jquery', 'storage', 'survana'],function($, Store, Survana){
-
-                    //server
+                //make sure not to overwrite any existing session information
+                if (!Store.has('session-id')) {
                     Store.put({
-                        'survana-id':           "{{= server_id }}",
-                        'key-id':               "{{= key.keyID }}",
-                        'key-pem':              {{- JSON.stringify(key.publicKey) }},
-                        'key-data':             '', //clear cached key data
-                        'key-bits':             "{{= key.bits }}",
-                        'store-url':            "{{- store }}"
+                        'session-id':               '{{= session_id }}',
+                        'session':                  0,
+                        'session-timestamp':        '{{= (new Date()).valueOf() }}',
+                        'session-timestamp-client': (new Date()).valueOf(),
+                        'workflow':                 '{{- JSON.stringify(workflow) }}',
+                        'workflow-current':         -1,
+                        'workflow-wrap':            0
                     });
 
-                    //make sure not to overwrite any existing session information
-                    if (!Store.has('session-id')) {
-                        Store.put({
-                            'session-id':               '{{= session_id }}',
-                            'session':                  0,
-                            'session-timestamp':        '{{= (new Date()).valueOf() }}',
-                            'session-timestamp-client': (new Date()).valueOf(),
-                            'workflow':                 '{{- JSON.stringify(workflow) }}',
-                            'workflow-current':         -1,
-                            'workflow-wrap':            0
-                        });
-                    }
+                    startUrl = Workflow.nextUrl();
+                } else {
+                    startUrl = Workflow.getCurrentUrl();
+                }
 
-                    /* This is a hack to get jQuery Mobile to change pages properly. This code waits until the second
-                       'pagechange' event is fired (it has an 'absUrl' property) and then calls Survana.resume() to
-                       change the current page. Otherwise, jQuery Mobile gets very confused and will hide pages or try
-                       to restore the index page. The result is a lot of flickering or nothing on the screen.
-                     */
-                    function resume(e, options) {
+                //Set the start page
+                document.location.hash='#' + startUrl;
 
-                        if (options.absUrl) {
-                            $(document).off('pagechange', resume);
-                            Survana.resume();
-                        }
-                    }
-
-                    $(document).on('pagechange', resume);
+                //Load Survana
+                require(['survana'],function($, Store, Survana){
+                    //Survana is available
                 });
-            }
-            SurvanaSetup();
+            });
         </script>
     </div>
 </div>

@@ -113,6 +113,10 @@ define([
                 c = 0;
             }
 
+            if (!workflow) {
+                get();
+            }
+
             return workflow[c];
         }
 
@@ -129,6 +133,16 @@ define([
             Store.put(WF_CURRENT, index);
 
             return next;
+        }
+
+        function getCurrentUrl() {
+            var item = getCurrentItem();
+
+            if (!item) {
+                return null;
+            }
+
+            return item.url;
         }
 
         function getUrl(index) {
@@ -183,8 +197,9 @@ define([
             'count': count,
             'willWrap':  willWrap,
             'reset': reset,
-            'getCurrentIndex': getCurrentIndex,
-            'getCurrentItem': getCurrentItem,
+            'getCurrentIndex':  getCurrentIndex,
+            'getCurrentItem':   getCurrentItem,
+            'getCurrentUrl':    getCurrentUrl,
             'getNextIndex': getNextIndex,
             'nextItem': nextItem,
             'getUrl': getUrl,
