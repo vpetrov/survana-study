@@ -57,9 +57,11 @@ define([
                 element = $(btn.ignoreEl);
 
             element.rules("remove", "required");
-            element.addClass('s-error-ignore');
+            element.addClass('s-error-ignore s-skipped');
 
             //hide the message (and the warning button).
+            //todo: this is not working properly for Skip buttons on Firefox (it seems there is a different parent that
+            //should be selected instead)
             $(btn).parent().addClass('s-hidden');
         }
 

@@ -317,7 +317,15 @@ define([
             $(data).each(function (i, field) {
                 var name = field.name,
                     value = field.value,
-                    original_value;
+                    original_value,
+                    el = $(form.get(0).elements[name]);
+
+                if (el.hasClass('s-skipped')) {
+                    value = {
+                        value: value,
+                        skipped: true
+                    };
+                }
 
                 //ignore empty values (TODO: triple check this!)
                 if (value === '') {
