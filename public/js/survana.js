@@ -179,7 +179,7 @@ define([
 
         function dependCheck(changed) {
             var form_id = $.mobile.activePage.attr('data-form'),
-                data = $('form#' + form_id).serializeArray();
+                data = $.mobile.activePage.find('form#' + form_id).serializeArray();
 
             //check all field dependencies
             //todo: build a dependency graph and only check those fields that are impacted by this change
@@ -450,7 +450,7 @@ define([
                 elheight,
                 scroll_y;
 
-            el = $(el);
+            el = $(el, $.mobile.activePage);
 
             if (!el.length) {
                 return;
@@ -459,7 +459,7 @@ define([
             if (container === undefined) {
                 container = $('body');
             } else {
-                container = $(container);
+                container = $(container, $.mobile.activePage);
             }
 
             vpheight = container.height();
