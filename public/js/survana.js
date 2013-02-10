@@ -113,8 +113,10 @@ define([
             for (i in actions) {
                 if (actions.hasOwnProperty(i)) {
 
-                    if (typeof actions[i] === 'object') {
+                    if ((typeof actions[i] === 'object') && (actions[i].action !== undefined)) {
                         action_name = actions[i].action;
+                        delete actions[i].action;
+                        //the rest of the object will serve as 'options'
                         action_data = actions[i];
                     } else {
                         action_name = actions[i];
