@@ -83,6 +83,8 @@ define([
                     gotoPage(url);
                 }
             }
+
+            return true;
         }
 
         function logevent(e) {
@@ -217,18 +219,6 @@ define([
             logevent(e);
         }
 
-        function onPageBeforeShow(e) {
-            var buttons;
-
-            logevent(e);
-
-            if (!Workflow.willWrap() && Workflow.isLast()) {
-                buttons = $.mobile.activePage.find('a.btn-next,a.btn-save');
-                buttons.filter('a.btn-next').css('display', 'none');
-                buttons.filter('a.btn-save').css('display', '').click(onSaveClick);
-            }
-        }
-
         function onPageBeforeHide(e) {
 
             var page = $(e.target);
@@ -327,7 +317,7 @@ define([
                     };
                 }
 
-                //ignore empty values (TODO: triple check this!)
+                //ignore empty values
                 if (value === '') {
                     return;
                 }
@@ -496,12 +486,14 @@ define([
                 $.mobile.activePage.find('.btn-save').remove();
                 Store.clear();
                 window.canClose = 1;
-                MsgBox.show('Your responses have been successfully saved.', 'Thank you very much for your participation.');
+                MsgBox.show('Your responses have been successfully saved.',
+                            'Thank you very much for your participation.');
             }
         }
 
         function saveFailed() {
-            MsgBox.show('We were unable to store your responses. Please check the network connection and press Finish again.');
+            MsgBox.show('We were unable to store your responses.',
+                        'Please check the network connection and press Finish to try again.');
         }
 
         function finishSurvey() {
@@ -561,6 +553,18 @@ define([
                 }
             } else {
                 scrollTo($.mobile.activePage.find('.s-error-button:visible').first(), true);
+            }
+        }
+
+        function onPageBeforeShow(e) {
+            var buttons;
+
+            logevent(e);
+
+            if (!Workflow.willWrap() && Workflow.isLast()) {
+                buttons = $.mobile.activePage.find('a.btn-next,a.btn-save');
+                buttons.filter('a.btn-next').css('display', 'none');
+                buttons.filter('a.btn-save').css('display', '').click(onSaveClick);
             }
         }
 
