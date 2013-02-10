@@ -7,8 +7,9 @@
         <div data-role='header' data-theme='{{=config.theme.nav}}'>
     {{ } }}
             <h1>{{=form.title}}</h1>
-            <a href="#results" class='ui-btn-right btn-preview' data-role='button' data-theme='{{=config.theme.active}}'
-               data-icon='check' data-rel="dialog" data-transition="slidedown">Verify</a>
+            <a href="#results" class='ui-btn-right btn-preview btn-next' data-role='button'
+               data-theme='{{=config.theme.active}}' data-icon='check' data-rel="dialog"
+               data-transition="slidedown">Verify</a>
         </div>
     {{ if (!mobile) { }}
     </div>
@@ -55,17 +56,6 @@
         </script>
         {{- html }}
     </div>
-
-    {{ if (mobile) { }}
-        <div data-role='footer' data-theme='{{=config.theme.nav}}'>
-            <h1>{{=form.title}}</h1>
-            <!--<a href="#" data-role='button' data-theme='{{=config.theme.button}}' data-rel='back' data-icon='arrow-l'
-               class='ui-btn-left btn-back'>Back</a>-->
-            <a href="#" data-role='button' data-theme='{{=config.theme.active}}' data-icon='arrow-r'
-               class='ui-btn-right btn-next'>Next</a>
-        </div>
-    {{ } }}
-
 </div>
 
 <div id="results" data-role="dialog" data-theme="a" style="visibility:hidden">

@@ -592,7 +592,7 @@ define([
 
             if (!Workflow.willWrap() && Workflow.isLast()) {
                 buttons = $.mobile.activePage.find('a.btn-next,a.btn-save');
-                buttons.filter('a.btn-next').css('display', 'none');
+                buttons.filter('a.btn-next:not(.btn-preview)').css('display', 'none');
                 buttons.filter('a.btn-save').css('display', '').click(onSaveClick);
             }
         }
