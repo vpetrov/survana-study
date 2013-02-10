@@ -95,6 +95,7 @@ define([
 
         function action(el, actions) {
             var action_name,
+                action_data,
                 elements,
                 i;
 
@@ -111,9 +112,21 @@ define([
 
             for (i in actions) {
                 if (actions.hasOwnProperty(i)) {
-                    action_name = actions[i];
+
+                    if (typeof actions[i] === 'object') {
+                        action_name = actions[i].action;
+                        action_data = actions[i];
+                    } else {
+                        action_name = actions[i];
+                    }
 
                     switch (action_name) {
+
+                    //clear
+                    case 'clear':
+                        JQM.clearField(el, false);
+                        break;
+
                     //enable
                     case 'enable':
                         JQM.enableField(el);
@@ -167,6 +180,20 @@ define([
 
                         //make sure the element is disabled
                         action(el, 'disable');
+                        break;
+
+                    case 'message':
+                        if (action_data.message) {
+                            MsgBox.show(action_data.message, action_data.title || 'Message');
+                        }
+                        break;
+
+                    case 'hidenext':
+                        $.mobile.activePage.find('.btn-next').first().hide();
+                        break;
+
+                    case 'shownext':
+                        $.mobile.activePage.find('.btn-next').first().show();
                         break;
                     }
                 }
