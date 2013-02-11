@@ -16,7 +16,11 @@
 
         requirejs.config({
             baseUrl:"{{=config.prefix}}js",
-            paths:{{- JSON.stringify(config.to_requirejs())}}
+            paths:{{- JSON.stringify(config.to_requirejs())}},
+            shim: {
+                validate: {
+                    deps: ['jquery']
+                }
         });
     </script>
 
