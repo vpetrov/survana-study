@@ -89,7 +89,7 @@ define([
                     'skip': 'c'
                 },
                 rules = el.rules(), //per-element option to allow user to ignore errors
-                controls = el.closest('.s-input-container'),
+                controls = el.parents('.s-input-container').last(),
                 btn = $('<a class="s-button-mini s-error s-error-button" href="#" data-role="button" data-mini="true"' +
                         ' data-inline="true" data-icon="alert" data-iconpos="notext" data-theme="' + theme.btn +
                         '"></a>'),
