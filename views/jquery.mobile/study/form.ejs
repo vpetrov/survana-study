@@ -1,5 +1,8 @@
 <div id='Page_{{=form.id}}'
-     data-form='{{=form.id}}'
+     data-form='{{=form.id}}' data-foo='{{=form.display_title}}'
+     {{ if ((form.display_title===undefined) || form.display_title === true || (parseInt(form.display_title)>0)) { }}
+        data-title='{{=form.title}}'
+     {{ } }}
      {{ if (store) { }}
         data-store='{{= store }}'
      {{ } }}
@@ -12,7 +15,7 @@
     {{ } else { }}
         <div data-role='header' data-theme='{{=config.theme.nav}}'>
     {{ } }}
-            {{ if (!form.display_title || parseInt(form.display_title)) { }}
+            {{ if ((form.display_title===undefined) || form.display_title === true || (parseInt(form.display_title)>0)) { }}
                 <h1>{{= form.title }}</h1>
             {{ } else { }}
                 <h1></h1>

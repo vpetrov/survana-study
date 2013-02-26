@@ -57,11 +57,13 @@ exports.views = {
 
 exports.lib = {
     'jquery': 'lib/jquery/1.7.2',
-    'jquery.mobile': 'lib/jquery/mobile/1.3.0-beta.1',
     'jquery.plugins': 'lib/jquery/plugins',
+    'jquery.mobile': 'lib/jquery/mobile/1.3.0-beta.1',
+    'jquery.mobile.plugins': 'lib/jquery/mobile/plugins',
     'require': 'lib/require/2.0.4',
     'bootstrap': 'lib/bootstrap/2.0.4',
-    'validation': 'lib/jquery/plugins'
+    'validation': 'lib/jquery/plugins',
+    'survana.widgets': 'lib/jquery/mobile/plugins'
 };
 /* default database config */
 exports.db = {

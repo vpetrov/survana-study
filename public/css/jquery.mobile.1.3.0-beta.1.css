@@ -336,7 +336,7 @@ label:not([for]) {
 
 .s-error-label-far
 {
-    padding-right:5em !important;
+    padding-right:4em !important;
 }
 
 .s-error-label-near
@@ -364,4 +364,100 @@ label:not([for]) {
 
 .s-rtf {
     font-weight: normal;
+}
+
+/* hide input by default */
+.ui-slider input.s-slider {
+    display: none;
+}
+
+.ui-slider .ui-slider-track {
+    margin-left: 5px;
+}
+
+.s-slider-labels {
+    margin-top: 1em;
+    padding-right: 0.5em;
+    width:100%;
+}
+
+.s-slider-labels tbody tr {
+    text-align:left;
+    vertical-align:top;
+}
+
+.s-slider-label2 tr td {
+    width:50%;
+}
+
+.s-slider-label3 tr td {
+    width:33%;
+}
+
+.s-slider-label4 tr td {
+    width:25%;
+}
+
+.s-slider-label5 tr td {
+    width:20%;
+}
+
+.s-slider-label6 tr td {
+    width:16%;
+}
+
+.s-slider-label7 tr td {
+    width:14%;
+}
+
+.s-slider-label8 tr td {
+    width:12%;
+}
+
+.s-slider-label9 tr td {
+    width:11%;
+}
+
+.s-slider-label10 tr td {
+    width:10%;
+}
+
+.s-slider-label11 tr td {
+    width:9%;
+}
+
+.s-slider-label12 tr td {
+    width:8%;
+}
+
+.s-slider-label13 tr td {
+    width:7.5%;
+}
+
+.s-slider-label14 tr td {
+    width:7%;
+}
+
+.s-slider-label15 tr td {
+    width:6.5%;
+}
+
+.s-slider-label16 tr td {
+    width:6%;
+}
+
+.s-slider-label17 tr td {
+    width:6%;
+}
+
+.s-slider-label18 tr td {
+    width:5.5%;
+}
+
+.s-slider-label19 tr td {
+    width:5%;
+}
+
+.s-slider-label20 tr td {
+    width:5%;
 }

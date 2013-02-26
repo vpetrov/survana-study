@@ -66,7 +66,7 @@ exports.element=function(obj,extra,extra2,extra3)
     //copy all attributes
     for (var aname in attr)
     {
-        if (aname.indexOf('s-')==0)
+        if ((aname.indexOf('s-')==0) || (aname === '_raw'))
             continue;
 
         var avalue=attr[aname];

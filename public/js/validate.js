@@ -110,7 +110,7 @@ define([
                 btn.addClass('s-hidden');
                 //create a Skip button
                 btnSkip = $('<a class="s-error s-error-button s-skip" href="#" data-role="button" data-mini="true" ' +
-                            'data-inline="true" data-icon="check" data-iconpos="right" data-theme="' + theme.skip +
+                            'data-inline="true" data-theme="' + theme.skip +
                             '">Skip</a>');
                 //append button to the error container
                 error.append(btnSkip);

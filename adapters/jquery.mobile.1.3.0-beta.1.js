@@ -631,14 +631,45 @@ Adapter.prototype.slider = function (obj) {
     var opt = {
         'type':         'range',
         'class':        's-slider',
-        'data-highlight': true,
+        'data-highlight': false,
         'min':          0,
         'max':          100
-    };
+    },
+        scale = autil.extract(obj, 's-scale'),
+        elements,
+        last_el,
+        table,
+        tbody,
+        tr,
+        td,
+        i;
 
     autil.override(opt, obj);
 
-    return this.input(opt);
+    elements = this.input(opt);
+
+    if (scale && scale.length) {
+        last_el = elements[elements.length - 1];
+        table = this.element({'tag': 'table', 'class': 's-slider-labels s-slider-label' + (scale.length - 1)});
+        tbody = this.element({'tag': 'tbody'});
+        tr    = this.element({'tag': 'tr'});
+
+        for (i = 0; i < scale.length; ++i) {
+            td = this.element({
+                'tag': 'td',
+                'html': scale[i]
+            });
+
+            tr.append(td);
+        }
+
+        tbody.append(tr);
+        table.append(tbody);
+
+        last_el.append(table);
+    }
+
+    return elements;
 };
 
 /**
