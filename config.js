@@ -44,8 +44,8 @@ exports.theme = {
 };
 
 exports.adapters = {
-    'mobile': 'adapters/jquery.mobile.1.3.0-beta.1',
-    'desktop': 'adapters/jquery.mobile.1.3.0-beta.1'
+    'mobile': 'adapters/jquery.mobile.1.3.0',
+    'desktop': 'adapters/jquery.mobile.1.3.0'
     //'desktop':'adapters/bootstrap'
 };
 
@@ -58,7 +58,7 @@ exports.views = {
 exports.lib = {
     'jquery': 'lib/jquery/1.7.2',
     'jquery.plugins': 'lib/jquery/plugins',
-    'jquery.mobile': 'lib/jquery/mobile/1.3.0-beta.1',
+    'jquery.mobile': 'lib/jquery/mobile/1.3.0',
     'jquery.mobile.plugins': 'lib/jquery/mobile/plugins',
     'require': 'lib/require/2.0.4',
     'bootstrap': 'lib/bootstrap/2.0.4',

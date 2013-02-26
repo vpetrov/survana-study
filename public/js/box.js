@@ -21,7 +21,7 @@ define(
                 box_id = button.attr('data-box'),
                 list_item = button.parentsUntil('ul', 'li').first();
 
-            //jqm 1.3.0-beta.1 doesn't set 'ui-last-child' when the last item is removed and
+            //jqm 1.3.0 doesn't set 'ui-last-child' when the last item is removed and
             //listview('refresh') is called
             if (list_item.is(':last-child')){
                 list_item.prev().addClass('ui-last-child');
