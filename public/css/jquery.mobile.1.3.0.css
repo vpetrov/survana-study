@@ -386,6 +386,10 @@ label:not([for]) {
     vertical-align:top;
 }
 
+.s-slider-labels tbody tr td:last-child {
+    text-align:right;
+}
+
 .s-slider-label2 tr td {
     width:50%;
 }
