@@ -161,7 +161,7 @@ define([
         });
 
         //override default message
-        jQuery.extend(jQuery.validator.messages, {
+        $.extend($.validator.messages, {
             required: 'This field is missing.',
             min: 'This value is too low.',
             max: 'This value is too high.'

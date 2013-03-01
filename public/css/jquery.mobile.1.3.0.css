@@ -329,7 +329,6 @@ label:not([for]) {
 .s-error-label
 {
     position:absolute;
-    z-index:98; /* error mini button -1 */
     right:0.25em;
     font-weight:normal;
 }
