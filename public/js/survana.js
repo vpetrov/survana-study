@@ -477,7 +477,7 @@ define([
             }
 
             if (container === undefined) {
-                container = $('body');
+                container = $('body,html');
             } else {
                 container = $(container, $.mobile.activePage);
             }
