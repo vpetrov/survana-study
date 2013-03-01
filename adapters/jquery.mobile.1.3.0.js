@@ -902,6 +902,30 @@ Adapter.prototype._store_item = function (data, tpl) {
     return undefined;
 };
 
+function sortStoreByValue(a, b) {
+    if (a.value < b.value) {
+        return -1;
+    }
+
+    if (a.value > b.value) {
+        return 1;
+    }
+
+    return 0;
+}
+
+function sortStoreByKey(a, b) {
+    if (a.key < b.key) {
+        return -1;
+    }
+
+    if (a.key > b.key) {
+        return 1;
+    }
+
+    return 0;
+}
+
 /**
  * Generates an array of objects given a store to load and a template for all items in the store
  * @param obj
@@ -913,7 +937,10 @@ Adapter.prototype.store = function (obj) {
     var store_name  =   autil.extract(obj,  's-store'),
         sort        =   autil.extract(obj,  's-sort'),
         item_tpl    =   autil.extract(obj,  's-item'),
+        first       =   autil.extract(obj,  's-first'),
+        first_obj,
         result      =   [],
+        items       =   [],
         data,
         item_data,
         i;
@@ -924,15 +951,46 @@ Adapter.prototype.store = function (obj) {
 
     data = store.load(store_name);
 
+    if (data[first] !== undefined) {
+        first_obj = {
+            'key':   first,
+            'value': data[first]
+        };
+
+        delete data[first];
+    }
+
+    //convert data to array of objects
     for (i in data) {
         if (data.hasOwnProperty(i)) {
-            item_data = {
-                'key':      i,
-                'value':    data[i]
-            };
-
-            result.push(this._store_item(item_data, item_tpl));
+            items.push({
+                'key': i,
+                'value': data[i]
+            });
         }
+    }
+
+    console.log('array', items);
+
+    //sort the items array
+    if (sort) {
+        if (sort === 'value') {
+            items.sort(sortStoreByValue);
+        } else {
+            //by default, sort by value (since the value is most likely what is going to be displayed to the user)
+            items.sort(sortStoreByKey);
+        }
+    }
+    else console.log('not sorting');
+
+    console.log('sorted array', items);
+
+    if (first_obj)
+        items.unshift(first_obj);
+
+    //apply a template to every item
+    for (i = 0; i < items.length; ++i) {
+        result.push(this._store_item(items[i], item_tpl));
     }
 
     return result;
