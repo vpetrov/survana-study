@@ -23,7 +23,7 @@ define(
 
             //jqm 1.3.0 doesn't set 'ui-last-child' when the last item is removed and
             //listview('refresh') is called
-            if (list_item.is(':last-child')){
+            if (list_item.is(':last-child')) {
                 list_item.prev().addClass('ui-last-child');
             }
 
@@ -41,7 +41,7 @@ define(
                 newitems    = [],
                 title       = '',
                 list_item   = $('<li></li>'),
-                remove      = $('<a>Remove</a>'),
+                remove      = $('<a class="s-box-remove-button">Remove</a>'),
                 invalid     = false;
 
 

@@ -466,3 +466,7 @@ label:not([for]) {
 .s-slider-label20 tr td {
     width:5%;
 }
+
+.s-box-remove-button span {
+    pointer-events: none; /* let Firefox pass click events to the <a> element */
+}
