@@ -42,7 +42,8 @@ define(
                 title       = '',
                 list_item   = $('<li></li>'),
                 remove      = $('<a class="s-box-remove-button">Remove</a>'),
-                invalid     = false;
+                invalid     = false,
+                dummy       = $('<span></span>');
 
 
             //only leave those elements that can contain values
@@ -53,14 +54,17 @@ define(
                 return;
             }
 
+
+
             items.each(function () {
                 var hidden = $('<input type="hidden">').get(0),
-                    label = labels.filter('[for=' + this.id + ']').first().html();
+                    label = labels.filter('[for=' + this.id + ']').first().html(),
+                    escapedValue = dummy.text(this.value).html();
 
                 hidden.value = this.value;
                 hidden.name = this.name;
 
-                title += '<span class="s-box-item ui-bar-c ui-corner-all">' + label + '<strong>' + String(this.value) +
+                title += '<span class="s-box-item ui-bar-c ui-corner-all">' + label + '<strong>' + escapedValue +
                          '</strong></span> ';
 
                 newitems.push(hidden);
