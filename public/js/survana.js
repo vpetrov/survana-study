@@ -18,8 +18,7 @@ define([
     'box',
     'jqm',
     'storage',
-    'msgbox',
-    'survana.widgets'
+    'msgbox'
 ],
     function ($, $m, Workflow, AppCache, Depend, Validate, Bind, Crypto, Box, JQM, Store, MsgBox) {
         "use strict";
@@ -422,7 +421,7 @@ define([
         }
 
         function save(success) {
-            var url = ($.mobile.activePage.attr('data-store') || Store.get('store-url')),
+            var url = String($.mobile.activePage.attr('data-store') || Store.get('store-url')).trim(),
                 payload,
                 packet;
 
