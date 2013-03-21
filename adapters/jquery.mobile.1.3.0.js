@@ -10,7 +10,6 @@
 
 var etree       = require('elementtree-raw');
 var ElementTree = etree.ElementTree;
-var Element     = etree.Element;
 var util        = require('util');
 var autil       = require('../lib/util');
 var html        = require('./html');
@@ -185,9 +184,6 @@ Adapter.prototype._stype = function (obj) {
         //if the object has an 's-group' property, it's an 's-type:group'
         if (obj['s-group'] !== undefined) {
             obj['s-type'] = 'group';
-        } else if (obj['s-items'] !== undefined) {
-            //if the object has an 'items' property, then we can assume it is a container
-            obj['s-type'] = 'container';
         } else if (obj['s-store'] !== undefined) {
             //if the object has an 's-store' property, then its stype should be 'store'
             obj['s-type'] = 'store';
@@ -328,7 +324,7 @@ Adapter.prototype.label = function (obj, for_element) {
     }
 
     if (opt['for'] === undefined) {
-        opt['for'] = (for_element) ? for_element.get('id') : undefined;
+        opt['for'] = for_element ? for_element.get('id') : undefined;
     }
 
     return this.element(opt);
@@ -903,6 +899,8 @@ Adapter.prototype._store_item = function (data, tpl) {
 };
 
 function sortStoreByValue(a, b) {
+    "use strict";
+
     if (a.value < b.value) {
         return -1;
     }
@@ -915,6 +913,8 @@ function sortStoreByValue(a, b) {
 }
 
 function sortStoreByKey(a, b) {
+    "use strict";
+
     if (a.key < b.key) {
         return -1;
     }
@@ -942,7 +942,6 @@ Adapter.prototype.store = function (obj) {
         result      =   [],
         items       =   [],
         data,
-        item_data,
         i;
 
     if (!store_name) {
@@ -980,13 +979,15 @@ Adapter.prototype.store = function (obj) {
             //by default, sort by value (since the value is most likely what is going to be displayed to the user)
             items.sort(sortStoreByKey);
         }
+    } else {
+        console.log('not sorting');
     }
-    else console.log('not sorting');
 
     console.log('sorted array', items);
 
-    if (first_obj)
+    if (first_obj) {
         items.unshift(first_obj);
+    }
 
     //apply a template to every item
     for (i = 0; i < items.length; ++i) {
@@ -1232,7 +1233,7 @@ Adapter.prototype.box = function (obj) {
         'data-mini':        !this.options.mobile,
         'data-theme':       this.options.theme.box,
         'data-divider-theme': this.options.theme.box,
-        'data-split-theme': this.options.theme.split,
+        'data-split-theme': this.options.theme.split
     };
 
     autil.override(opt, obj);
