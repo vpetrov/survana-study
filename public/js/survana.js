@@ -18,7 +18,8 @@ define([
     'box',
     'jqm',
     'storage',
-    'msgbox'
+    'msgbox',
+    'survana.widgets'
 ],
     function ($, $m, Workflow, AppCache, Depend, Validate, Bind, Crypto, Box, JQM, Store, MsgBox) {
         "use strict";
