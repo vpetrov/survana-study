@@ -1,4 +1,4 @@
-/** adapters/jquery.mobile.1.3.0-beta.1.js
+/** adapters/jquery.mobile.1.3.0.js
  *
  * @author Victor Petrov <victor.petrov@gmail.com>
  * @copyright (c) 2013, The Neuroinformatics Research Group at Harvard University.
