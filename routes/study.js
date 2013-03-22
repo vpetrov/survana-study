@@ -70,8 +70,6 @@ exports.index = function (req, res, next) {
 
             var key = study.keys[parseInt(Math.random() * 1000, 10) % study.keys.length]; //random key
 
-            console.log('study store: ', study['store-url'], 'config.store:',config.store);
-
             res.render(req.views + 'study/index', {
                 store:      study['store-url'] || config.store,
                 key:        key,
@@ -209,7 +207,11 @@ exports.create = function (req, res, next) {
     }
 
     //define some convenient shortcuts
-    study = data.study;
+    try {
+        study = JSON.parse(data.study);
+    } catch (err) {
+        return next(err);
+    }
     signature = data.signature;
     keyID = data.keyID;
 
@@ -245,7 +247,7 @@ exports.create = function (req, res, next) {
 
             console.log('using signature', signature);
 
-            verifier.update(JSON.stringify(study));
+            verifier.update(data.study);
 
             try {
                 result = verifier.verify(admin.key, signature, 'hex');
@@ -259,7 +261,7 @@ exports.create = function (req, res, next) {
             }
 
             //N.B.: because of the try block above, 'result' will always be true when it has a boolean type
-            if ((typeof (result) === "boolean") && result) {
+            if ((typeof result === "boolean") && result) {
                 return next2(null, result);
             }
 
