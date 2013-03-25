@@ -60,7 +60,7 @@ exports.lib = {
     'jquery.plugins': 'lib/jquery/plugins',
     'jquery.mobile': 'lib/jquery/mobile/1.3.0',
     'jquery.mobile.plugins': 'lib/jquery/mobile/plugins',
-    'require': 'lib/require/2.0.4',
+    'require': 'lib/require/2.1.5',
     'bootstrap': 'lib/bootstrap/2.0.4',
     'validation': 'lib/jquery/plugins',
     'survana.widgets': 'lib/jquery/mobile/plugins'
