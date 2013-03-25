@@ -26,7 +26,11 @@
     </script>
 
 </head>
-<body onbeforeunload="if (!window.canClose) return 'Are you sure you want to leave this page? You will lose all your progress.'">
+<body
+    {{ if (canClose!==true) { }}
+        onbeforeunload="if (!window.canClose) return 'Are you sure you want to leave this page? You will lose all your progress.'"
+    {{ } }}
+>
 {{- body }}
 </body>
 </html>

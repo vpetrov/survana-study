@@ -12,5 +12,7 @@
 exports.index = function (req, res) {
     "use strict";
 
-    res.render(req.views + 'index');
+    res.render(req.views + 'index', {
+        'canClose': true
+    });
 };
