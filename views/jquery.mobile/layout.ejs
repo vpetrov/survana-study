@@ -27,7 +27,7 @@
 
 </head>
 <body
-    {{ if (canClose!==true) { }}
+    {{ if ((typeof canClose === 'undefined') || (canClose!==true)) { }}
         onbeforeunload="if (!window.canClose) return 'Are you sure you want to leave this page? You will lose all your progress.'"
     {{ } }}
 >
