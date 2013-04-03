@@ -484,6 +484,10 @@ Adapter.prototype.input = function (obj) {
     var id          =   autil.extract(obj,  's-id'),
         label       =   autil.extract(obj,  's-label'),
         box         =   autil.extract(obj,  's-box'),
+        prefix      =   autil.extract(obj,  's-prefix'),
+        suffix      =   autil.extract(obj,  's-suffix'),
+        prefix_el,
+        suffix_el,
         opt,
         label_opt,
         container_opt,
@@ -543,14 +547,40 @@ Adapter.prototype.input = function (obj) {
         label_el = this.label(label_opt);
     }
 
+    //create prefix
+    if (prefix) {
+        if (typeof prefix === 'string') {
+            prefix_el = this.label({
+                'html': prefix,
+                'tag': 'span',
+                'class': 's-prefix'
+            });
+        } else {
+            prefix_el = prefix;
+        }
+    }
+
+    //create suffix
+    if (suffix) {
+        if (typeof suffix === 'string') {
+            suffix_el = this.element({
+                'html': suffix,
+                'tag': 'span',
+                'class': 's-suffix'
+            });
+        } else {
+            suffix_el = suffix;
+        }
+    }
+
     input_el = this.element(opt);
 
     if (container_el) {
         container_el.append(input_el);
-        return [label_el, container_el];
+        return [label_el, prefix_el, container_el, suffix_el];
     }
 
-    return [label_el, input_el];
+    return [label_el, prefix_el, input_el, suffix_el];
 };
 
 Adapter.prototype.question = function (obj) {
@@ -645,7 +675,7 @@ Adapter.prototype.slider = function (obj) {
     elements = this.input(opt);
 
     if (scale && scale.length) {
-        last_el = elements[elements.length - 1];
+        last_el = elements[elements.length - 2]; //skip suffix
         table = this.element({'tag': 'table', 'class': 's-slider-labels s-slider-label' + (scale.length - 1)});
         tbody = this.element({'tag': 'tbody'});
         tr    = this.element({'tag': 'tr'});

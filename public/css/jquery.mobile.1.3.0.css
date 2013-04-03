@@ -470,3 +470,15 @@ label:not([for]) {
 .s-box-remove-button span {
     pointer-events: none; /* let Firefox pass click events to the <a> element */
 }
+
+.s-prefix {
+    display: inline-block;
+    padding: 0.5em 1em 0.5em 0.5em;
+    vertical-align: top;
+}
+
+.s-suffix {
+    display: inline-block;
+    vertical-align: top;
+    margin:0.5em;
+}
