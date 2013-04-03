@@ -2,47 +2,29 @@
     <div data-role="content">
         <script type="text/javascript">
 
-            window['study-id'] = "{{= study.id }}";
-
-            var startUrl = '';
-
-            //This code sets up the keys and workflow, before Survana is loaded
-            require(['storage', 'workflow'], function(Store, Workflow) {
-                //server
-                Store.put({
+            var study_id    = "{{= study.id }}",
+                server_info = {
                     'survana-id':           "{{= server_id }}",
                     'key-id':               "{{= key.keyID }}",
                     'key-pem':              {{- JSON.stringify(key.publicKey) }},
                     'key-data':             '', //clear cached key data
                     'key-bits':             "{{= key.bits }}",
                     'store-url':            "{{- store }}"
-                });
+                },
+                session_info = {
+                    'session-id':               '{{= session_id }}',
+                    'session':                  0,
+                    'session-timestamp':        '{{= (new Date()).valueOf() }}',
+                    'session-timestamp-client': (new Date()).valueOf(),
+                    'workflow':                 '{{- JSON.stringify(workflow) }}',
+                    'workflow-current':         -1,
+                    'workflow-wrap':            0
+                };
 
-                //make sure not to overwrite any existing session information
-                if (!Store.has('session-id')) {
-                    Store.put({
-                        'session-id':               '{{= session_id }}',
-                        'session':                  0,
-                        'session-timestamp':        '{{= (new Date()).valueOf() }}',
-                        'session-timestamp-client': (new Date()).valueOf(),
-                        'workflow':                 '{{- JSON.stringify(workflow) }}',
-                        'workflow-current':         -1,
-                        'workflow-wrap':            0
-                    });
-
-                    startUrl = Workflow.nextUrl();
-                } else {
-                    startUrl = Workflow.getCurrentUrl();
-                }
-
-                //Set the start page
-                document.location.hash='#' + startUrl;
-
-                //Load Survana
-                require(['survana'],function($, Store, Survana){
-                    //Survana is available
-                });
+            require(['app'], function (App) {
+                App.init(study_id, server_info, session_info);
             });
+
         </script>
     </div>
 </div>

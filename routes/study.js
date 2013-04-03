@@ -71,6 +71,7 @@ exports.index = function (req, res, next) {
             var key = study.keys[parseInt(Math.random() * 1000, 10) % study.keys.length]; //random key
 
             res.render(req.views + 'study/index', {
+                canClose:   true,
                 store:      study['store-url'] || config.store,
                 key:        key,
                 study:      study,

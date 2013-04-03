@@ -12,13 +12,17 @@ define(
     function () {
         "use strict";
 
-        var prefix = window['study-id'];
+        var prefix = null;
 
-        if (!prefix) {
-            console.error('No study ID assigned. Namespacing will not be available.');
-            prefix = '';
-        } else {
-            prefix += '-';
+        function init(p) {
+            prefix = p;
+
+            if (!prefix) {
+                console.error('storage: No storage prefix assigned. Namespacing will not be available.');
+                prefix = '';
+            } else {
+                prefix += '-';
+            }
         }
 
         function get(key, default_value) {
@@ -95,6 +99,7 @@ define(
         }
 
         return {
+            'init':     init,
             'get':      get,
             'put':      put,
             'has':      has,

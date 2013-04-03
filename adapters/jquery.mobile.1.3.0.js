@@ -484,6 +484,7 @@ Adapter.prototype.input = function (obj) {
     var id          =   autil.extract(obj,  's-id'),
         label       =   autil.extract(obj,  's-label'),
         box         =   autil.extract(obj,  's-box'),
+        prefix      =   autil.extract(obj,  's-prefix');
         opt,
         label_opt,
         container_opt,
