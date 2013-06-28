@@ -6,6 +6,8 @@
  * @license New BSD License (see LICENSE file for details).
  */
 
+"use strict";
+
 var async       =   require('async'),
     path        =   require('path'),
     dbutil      =   require('../lib/db.util'),
@@ -16,8 +18,6 @@ var async       =   require('async'),
 
 //returns an array of objects, of the form {'id':str,'url':str}
 function build_workflow(url_prefix, forms) {
-    "use strict";
-
     //Build the workflow
     var workflow = [],
         f;
@@ -36,11 +36,12 @@ function build_workflow(url_prefix, forms) {
 }
 
 exports.index = function (req, res, next) {
-    "use strict";
 
     var db = req.app.db,
         config = req.app.config,
         study_id = req.params[0];
+
+    console.log('study_id', study_id);
 
     async.waterfall([
 
@@ -74,6 +75,7 @@ exports.index = function (req, res, next) {
                 store:      study['store-url'] || config.store,
                 key:        key,
                 study:      study,
+                study_id:   study_id,
                 server_id:  req.app.keyID,
                 session_id: req.app.randomId(16),
                 workflow:   build_workflow(req.originalUrl, study.forms),
@@ -83,7 +85,6 @@ exports.index = function (req, res, next) {
 };
 
 exports.form = function (req, res, next) {
-    "use strict";
 
     var app         = req.app,
         db          = app.db,
@@ -191,7 +192,6 @@ exports.form = function (req, res, next) {
 };
 
 exports.create = function (req, res, next) {
-    "use strict";
 
     var app = req.app,
         config = app.config,
@@ -313,4 +313,44 @@ exports.create = function (req, res, next) {
         });
 
     return true;
+};
+
+exports.manifest = function (req, res, next) {
+    var app = req.app,
+        config = app.config,
+        db = app.db,
+        study_id = req.params[0],
+        i;
+
+    async.auto({
+        'study_col': function (next2) {
+            db.collection('study', next2);
+        },
+
+        'study': [ 'study_col', function (next2, results) {
+            results.study_col.findOne({'id': study_id}, {'forms.id': 1, '_id': 0 }, next2);
+        }],
+
+        'forms': [ 'study', function (next2, results) {
+            var forms = [];
+
+            //extract the id of each form and append it to 'forms'
+            for (i = 0; i < results.study.forms.length; ++i) {
+                forms.push(results.study.forms[i].id);
+            }
+
+            next2(null, forms);
+        }]
+    }, function (err, result) {
+        if (err) {
+            return next(err);
+        }
+
+        res.render(req.views + 'manifest', {
+            layout: false,
+            study_id: study_id,
+            forms: result.forms,
+            lib: config.lib
+        });
+    });
 };

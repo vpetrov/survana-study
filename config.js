@@ -15,6 +15,7 @@ exports.routes = {
     'GET': {
         '/':                        'index',
         '/(([\\w]+))':              'study',
+        '/(([\\w]+))/manifest':     {'study': 'manifest'},
         '/(([\\w]+))/(([\\w]+))':   {'study': 'form'}
     },
 
