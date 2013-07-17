@@ -508,7 +508,12 @@ define([
         }
 
         function closeSurvey() {
+            var session = 0;
+
             if (Workflow.willWrap()) {
+                session = Store.get('session') || 0;
+                // increment session if the survey is going to be closed
+                Store.set('session', session + 1);
                 gotoNextPage();
             } else {
                 //since this is a 1 time survey, remove the save button, clear the local storage (except for any
