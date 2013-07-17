@@ -64,7 +64,7 @@ define(
 
             value = window.localStorage[prefix + key];
 
-            return (value !== undefined) && value.length;
+            return (value !== undefined) && (value !== null) && value.length;
         }
 
         function remove(key) {
