@@ -1,30 +1,38 @@
 <!-- Home -->
 <div id='pageInstall' data-role="page" data-theme="{{=config.theme.global}}" style="visibility: hidden">
     <div data-role="header">
-        <h1>Install</h1>
+        <h1>{{= study.title }}</h1>
     </div>
 
     <div data-role="content">
         <h1>
-            Welcome to some study.
+            Welcome to {{= config.brand}}! <br>
         </h1>
 
+        <p class="ui-body ui-body-c ui-corner-all ui-inline">You are now installing the '{{= study.title }}' study as a web application on this device.
+            <br>
+            <br>
+            Please follow the instructions below:</p>
+
         <br/>
-        <hr/>
-        <h1>Instructions:</h1>
-        <p>
         <p>
         <ol>
             <li>
                 <p>Choose <strong>Add to Home Screen</strong> from Safari's toolbar menu:</p>
-                <img src="img/bookmark.jpg"/>
+                <img src="img/instructions/01.png"/>
             </li>
-            <li>Click on the <strong>Start</strong> button:
+            <li>
+                <p>Set the name of the application:</p>
+                <img src="img/instructions/02.png"/>
+            </li>
+            <li>
+                <p>Launch your study from the Home screen:</p>
+                <img src="img/instructions/03.png"/>
+            </li>
+            <li>Click on this <strong>Start</strong> button:
                 <a id='start' href="#" data-role="button" data-inline="true" data-icon="arrow-r" data-iconpos="right">Start</a>
             </li>
         </ol>
-        </p>
-
         </p>
 
         <script type="text/javascript">
