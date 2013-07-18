@@ -185,6 +185,7 @@ exports.form = function (req, res, next) {
                 validation_rules:   rules,
                 bindings:           bindings,
                 html:               html,
+                study_id:           undefined,
                 layout:             '../form'
             };
 

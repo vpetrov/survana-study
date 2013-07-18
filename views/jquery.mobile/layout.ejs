@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html manifest="{{=config.prefix}}{{=study_id}}/manifest">
+
+{{ if (study_id) { }}
+<html manifest="{{= config.prefix }}{{= study_id }}/manifest">
+{{ } else { }}
+<html>
+{{ } }}
 <head>
     <title>{{=config.title}}</title>
     <meta charset="utf-8">
