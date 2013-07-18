@@ -1,0 +1,80 @@
+<!-- Home -->
+<div id='pageInstall' data-role="page" data-theme="{{=config.theme.global}}" style="visibility: hidden">
+    <div data-role="header">
+        <h1>Install</h1>
+    </div>
+
+    <div data-role="content">
+        <h1>
+            Welcome to some study.
+        </h1>
+
+        <br/>
+        <hr/>
+        <h1>Instructions:</h1>
+        <p>
+        <p>
+        <ol>
+            <li>
+                <p>Choose <strong>Add to Home Screen</strong> from Safari's toolbar menu:</p>
+                <img src="img/bookmark.jpg"/>
+            </li>
+            <li>Click on the <strong>Start</strong> button:
+                <a id='start' href="#" data-role="button" data-inline="true" data-icon="arrow-r" data-iconpos="right">Start</a>
+            </li>
+        </ol>
+        </p>
+
+        </p>
+
+        <script type="text/javascript">
+            "use strict";
+
+            var startUrl = '';
+
+            window['study-id'] = "{{= study_id }}";
+
+            //This code sets up the keys and workflow, before Survana is loaded
+            require(['storage', 'workflow'], function(Store, Workflow) {
+                //server
+                Store.put({
+                    'survana-id':           "{{= server_id }}",
+                    'key-id':               "{{= key.keyID }}",
+                    'key-pem':              {{- JSON.stringify(key.publicKey) }},
+                    'key-data':             '', //clear cached key data
+                    'key-bits':             "{{= key.bits }}",
+                    'store-url':            "{{- store }}"
+                });
+
+                //make sure not to overwrite any existing session information
+                if (!Store.has('session-id')) {
+                    Store.put({
+                        'session-id':               '{{= session_id }}',
+                        'session':                  0,
+                        'session-timestamp':        '{{= (new Date()).valueOf() }}',
+                        'session-timestamp-client': (new Date()).valueOf(),
+                        'workflow':                 '{{- JSON.stringify(workflow) }}',
+                        'workflow-current':         -1,
+                        'workflow-wrap':            1
+                    });
+
+                    startUrl = Workflow.nextUrl();
+                } else {
+                    startUrl = Workflow.getCurrentUrl();
+                }
+
+                if (Store.has('app')) {
+                    //Set the start page
+                    document.location.hash='#' + startUrl;
+                } else {
+                    Store.put('app', 1);
+                }
+
+                document.getElementById('start').onclick = function () {
+                    document.location.hash='#' + startUrl;
+                };
+            });
+        </script>
+    </div>
+
+</div>

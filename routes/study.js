@@ -14,6 +14,7 @@ var async       =   require('async'),
     depend      =   require('../lib/depend'),
     validate    =   require('../lib/validate'),
     bind        =   require('../lib/bind'),
+    url         =   require('url'),
     ursa        =   require('ursa');
 
 //returns an array of objects, of the form {'id':str,'url':str}
@@ -39,9 +40,17 @@ exports.index = function (req, res, next) {
 
     var db = req.app.db,
         config = req.app.config,
-        study_id = req.params[0];
+        study_id = req.params[0],
+        is_app = (req.query.app !== undefined),
+        urlpath = url.parse(req.url).pathname,
+        template;
 
-    console.log('study_id', study_id);
+    if (is_app) {
+        template = req.views + 'study/app';
+    } else {
+        template = req.views + 'study/index';
+    }
+
 
     async.waterfall([
 
@@ -71,14 +80,14 @@ exports.index = function (req, res, next) {
 
             var key = study.keys[parseInt(Math.random() * 1000, 10) % study.keys.length]; //random key
 
-            res.render(req.views + 'study/index', {
+            res.render(template, {
                 store:      study['store-url'] || config.store,
                 key:        key,
                 study:      study,
                 study_id:   study_id,
                 server_id:  req.app.keyID,
                 session_id: req.app.randomId(16),
-                workflow:   build_workflow(req.originalUrl, study.forms),
+                workflow:   build_workflow(urlpath, study.forms),
                 layout:     '../layout'
             });
         });
@@ -345,6 +354,9 @@ exports.manifest = function (req, res, next) {
         if (err) {
             return next(err);
         }
+
+        //iPads won't cache the app without the proper content type for the manifest file
+        res.header('Content-Type', 'text/cache-manifest');
 
         res.render(req.views + 'manifest', {
             layout: false,

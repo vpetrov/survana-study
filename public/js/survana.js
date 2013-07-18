@@ -445,8 +445,6 @@ define([
                     'data': formToJSON(f)
                 };
 
-                console.log('data to be saved', payload);
-
                 packet = {
                     'key': {
                         'id':   Store.get('key-id'),
@@ -455,8 +453,6 @@ define([
                     },
                     'payload': encrypt(payload)
                 };
-
-                console.log('Saving form', packet);
 
                 AppCache.send(packet, url);
             });
@@ -513,7 +509,7 @@ define([
             if (Workflow.willWrap()) {
                 session = Store.get('session') || 0;
                 // increment session if the survey is going to be closed
-                Store.set('session', session + 1);
+                Store.put('session', ++session);
                 gotoNextPage();
             } else {
                 //since this is a 1 time survey, remove the save button, clear the local storage (except for any
@@ -581,10 +577,14 @@ define([
                 button = $(e.currentTarget);
 
             if (validate() && !preview) {
-                if (button.attr('data-retry')) {
-                    finishSurvey();
+                if (Workflow.willWrap()) {
+                    save(closeSurvey);
                 } else {
-                    save(finishSurvey);
+                    if (button.attr('data-retry')) {
+                        finishSurvey();
+                    } else {
+                        save(finishSurvey);
+                    }
                 }
             } else {
                 scrollTo($.mobile.activePage.find('.s-error-button:visible').first(), true);
@@ -596,7 +596,7 @@ define([
 
             logevent(e);
 
-            if (!Workflow.willWrap() && Workflow.isLast()) {
+            if (Workflow.isLast()) {
                 buttons = $.mobile.activePage.find('a.btn-next,a.btn-save');
                 buttons.filter('a.btn-next:not(.btn-preview)').css('display', 'none');
                 buttons.filter('a.btn-save').css('display', '').click(onSaveClick);
