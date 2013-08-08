@@ -338,18 +338,40 @@ exports.manifest = function (req, res, next) {
         },
 
         'study': [ 'study_col', function (next2, results) {
-            results.study_col.findOne({'id': study_id}, {'forms.id': 1, '_id': 0 }, next2);
+            results.study_col.findOne({'id': study_id}, {'forms.id': 1, 'store-url': 1, 'overrides': 1, '_id': 0 }, next2);
         }],
 
-        'forms': [ 'study', function (next2, results) {
-            var forms = [];
+        'data': [ 'study', function (next2, results) {
+            var forms = [],
+                urls = [],
+                override;
 
             //extract the id of each form and append it to 'forms'
             for (i = 0; i < results.study.forms.length; ++i) {
                 forms.push(results.study.forms[i].id);
             }
 
-            next2(null, forms);
+            //add the store-url url to 'urls'
+            if (results.study['store-url'] !== undefined) {
+                urls.push(results.study['store-url']);
+            }
+
+            //add per form 'store-url' values from the 'overrides' array
+            if (results.study.overrides !== undefined) {
+                //extract any custom store-urls
+                for (i = 0; i < results.study.overrides.length; ++i) {
+                    override = results.study.overrides[i];
+                    console.log('override',override);
+                    if (override['store-url'] !== undefined) {
+                        urls.push(override['store-url']);
+                    }
+                }
+            }
+
+            next2(null, {
+                'forms': forms,
+                'urls': urls
+            });
         }]
     }, function (err, result) {
         if (err) {
@@ -362,7 +384,8 @@ exports.manifest = function (req, res, next) {
         res.render(req.views + 'manifest', {
             layout: false,
             study_id: study_id,
-            forms: result.forms,
+            forms: result.data.forms,
+            urls: result.data.urls,
             lib: config.lib
         });
     });
