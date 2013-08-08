@@ -358,11 +358,12 @@ exports.manifest = function (req, res, next) {
 
             //add per form 'store-url' values from the 'overrides' array
             if (results.study.overrides !== undefined) {
+                console.log(overrides);
                 //extract any custom store-urls
                 for (i = 0; i < results.study.overrides.length; ++i) {
                     override = results.study.overrides[i];
                     console.log('override',override);
-                    if (override['store-url'] !== undefined) {
+                    if (override && (override['store-url'] !== undefined)) {
                         urls.push(override['store-url']);
                     }
                 }
