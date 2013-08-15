@@ -21,7 +21,8 @@ exports.routes = {
 
     'POST': {
         '/':                        {'study': 'create'},
-        '/form/(([\\w]+))':         {'form': 'preview'}
+        '/form/(([\\w]+))':         {'form': 'preview'},
+        '/debug':                   {'study': 'debug'}
     }
 };
 
@@ -81,3 +82,5 @@ exports.db = {
         strict: false            //false will prevent new collections from being autocreated
     }
 };
+
+exports.debug_email = "victor.petrov+survanadebug@gmail.com";
