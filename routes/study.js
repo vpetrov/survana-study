@@ -361,7 +361,6 @@ exports.manifest = function (req, res, next) {
                 //extract any custom store-urls
                 for (i = 0; i < results.study.overrides.length; ++i) {
                     override = results.study.overrides[i];
-                    console.log('override',override);
                     if (override && (override['store-url'] !== undefined)) {
                         urls.push(override['store-url']);
                     }
@@ -388,5 +387,48 @@ exports.manifest = function (req, res, next) {
             urls: result.data.urls,
             lib: config.lib
         });
+    });
+};
+
+
+exports.debug = function (req, res, next) {
+    var app = req.app,
+        config = app.config,
+        db = app.db;
+
+    async.auto({
+        'debug_col': function (next2) {
+            db.collection('debug', next2);
+        },
+
+        'data': function (next2) {
+
+            if (typeof req.body === "object") {
+                next2(null, req.body);
+            } else {
+                next2(new Error("Invalid debug data"));
+            }
+        },
+
+        'save': ['debug_col', 'data', function (next2, results) {
+            results.debug_col.insert(results.data, {'safe': true, 'fsync': true}, next2);
+        }]
+    }, function (err, result) {
+        if (err) {
+            res.send(err.message, 500);
+        } else {
+            res.send('OK');
+
+            //attempt to send notification e-amil
+            try {
+                console.log('Sending notification e-mail to ' + config.debug_email);
+                var spawn = require('child_process').spawn; //hack for sending mail via 'mail'
+                var mail = spawn('mail', ['-s "Survana Error"', config.debug_email]);
+                mail.stdin.write(JSON.stringify(req.body, null, 4) + "\n");
+                mail.stdin.end();
+            } catch (e) {
+                console.log("Send debug notification error", e, e.stack);
+            }
+        }
     });
 };

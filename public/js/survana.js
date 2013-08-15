@@ -609,11 +609,39 @@ define([
         function onNextClick() {
             var preview = $.mobile.activePage.attr('data-preview');
 
-            if (validate() && !preview) {
-                save(gotoNextPage);
-            } else {
-                scrollTo($.mobile.activePage.find('.s-error-button:visible').first(), true);
+            try {
+                if (validate() && !preview) {
+                    save(gotoNextPage);
+                } else {
+                    scrollTo($.mobile.activePage.find('.s-error-button:visible').first(), true);
+                }
+            } catch (e) {
+                console.error(e);
+                if (navigator.onLine) {
+                    $.ajax({
+                        url: '/debug',
+                        type: 'POST',
+                        data: {
+                            'url': window.location.toString(),
+                            'message': e.message,
+                            'type': e.type,
+                            'stack': e.stack,
+                            'timestamp': Date.now(),
+                            'user-agent': navigator.userAgent
+                        },
+                        success: function () {
+                            MsgBox.show("This application has encountered an error and needs to be relaunched. The application development team has been notified of the error.", "Application Error");
+                        },
+                        failure: function () {
+                            MsgBox.show("This application has encountered an error: <" + e.type + "> " + e.message, "Application Error");
+                        }
+                    });
+                } else {
+                    //the client is offline
+                    MsgBox.show("This application has encountered an error. Please report the following error to victor_petrov@harvard.edu: <" + e.type + "> " + e.message, "Application Error");
+                }
             }
+
         }
 
         /**
