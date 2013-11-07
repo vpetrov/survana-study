@@ -44,7 +44,6 @@ define([
                 return false;
             }
 
-            console.log('Changing page to:', url);
             $.mobile.changePage(url, {
                 'allowSamePageTransition': false,
                 'transition': 'none'
@@ -427,7 +426,6 @@ define([
                 packet;
 
             $.mobile.activePage.find('form').each(function (i, f) {
-
                 payload = {
                     'id': {
                         'survana':  Store.get('survana-id'),
@@ -599,7 +597,17 @@ define([
             if (Workflow.isLast()) {
                 buttons = $.mobile.activePage.find('a.btn-next,a.btn-save');
                 buttons.filter('a.btn-next:not(.btn-preview)').css('display', 'none');
-                buttons.filter('a.btn-save').css('display', '').click(onSaveClick);
+
+                var btnsave = buttons.filter('a.btn-save'),
+                    savehandler = btnsave.attr('savehandler');
+
+                if (savehandler === undefined) {
+                    btnsave.click(onSaveClick);
+                    btnsave.attr('savehandler', 1);
+                }
+                btnsave.css('display', '');
+            } else {
+                $.mobile.activePage.find('a.btn-next').show();
             }
         }
 
@@ -611,6 +619,7 @@ define([
 
             try {
                 if (validate() && !preview) {
+                    $.mobile.activePage.find('a.btn-next').hide();
                     save(gotoNextPage);
                 } else {
                     scrollTo($.mobile.activePage.find('.s-error-button:visible').first(), true);
