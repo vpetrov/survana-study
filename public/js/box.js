@@ -57,9 +57,35 @@ define(
 
 
             items.each(function () {
+
                 var hidden = $('<input type="hidden">').get(0),
-                    label = labels.filter('[for=' + this.id + ']').first().html(),
+                    label,
+                    escapedValue;
+
+
+                if ((this.type === 'radio' || this.type === 'checkbox')) {
+                    //Skip radios or checkboxes that haven't been selected
+                    if (!this.checked) {
+                        return;
+                    }
+
+                    label = labels.filter('[for=' + this.name + ']').first().html();
+
+                    //find the label for this radio/checkbox
+                    var ilabel = box.parent().find('label[for=' + this.id + ']').first().text();
+
+                    //use the input label as the user-visible value
+                    //e.g. for a Yes/No radiogroup, the escaped value will be 'Yes' or 'No',
+                    //instead of '0' or '1'
+                    if (ilabel) {
+                        escapedValue = ilabel;
+                    } else {
+                        escapedValue = 'N/A';
+                    }
+                } else {
+                    label = labels.filter('[for=' + this.id + ']').first().html();
                     escapedValue = dummy.text(this.value).html();
+                }
 
                 hidden.value = this.value;
                 hidden.name = this.name;
@@ -68,6 +94,8 @@ define(
                          '</strong></span> ';
 
                 newitems.push(hidden);
+
+                $(this).removeClass('valid');
             });
 
             //clear all items, except hidden elements, and do not trigger 'change' events for cleared elements

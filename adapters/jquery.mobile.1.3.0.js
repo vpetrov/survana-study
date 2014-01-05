@@ -1058,6 +1058,7 @@ Adapter.prototype.group = function (obj) {
         items       =   autil.extract(obj,  's-items'),
         label       =   autil.extract(obj,  's-label'),
         direction   =   autil.extract(obj,  's-direction',  'vertical'),
+        box         =   autil.extract(obj,  's-box'),
         fieldset,
         container,
         container_opt,
@@ -1088,8 +1089,13 @@ Adapter.prototype.group = function (obj) {
     label_opt = {
         'tag':  'label',
         'html': label,
+        'for': id, //this ID shouldn't exist for group items, but it helps locate this label
         'class': 'fieldset-label'
     };
+
+    if (box) {
+        label_opt['data-box'] = box;
+    }
 
     if (opt['s-embedded']) {
         opt['data-corners'] = false;
@@ -1135,6 +1141,7 @@ Adapter.prototype.group = function (obj) {
             }
             //make sure the object is not wrapped in a container
             obj['s-container'] = false;
+            obj['s-box'] = box;
             this._append(fieldset, obj);
             return;
         }
@@ -1144,6 +1151,7 @@ Adapter.prototype.group = function (obj) {
             if (obj.hasOwnProperty(i)) {
                 if (typeof (obj[i]) === 'object') {
                     obj[i]['s-embedded'] = true;
+                    obj[i]['s-box'] = box;
                     this._append(fieldset, obj[i]);
                 } else {
                     cid = id + (++idc);
@@ -1152,12 +1160,13 @@ Adapter.prototype.group = function (obj) {
                         'name': id,
                         's-type': gtype,
                         'value': obj[i],
-                        's-container': false
+                        's-container': false,
+                        'data-box': box
                     };
 
                     ilabel = this.label({
                         "html": i,
-                        "for": cid
+                        "for": cid,
                     });
 
                     this._append(fieldset, [ilabel, item]);
