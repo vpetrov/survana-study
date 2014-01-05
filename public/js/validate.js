@@ -141,6 +141,13 @@ define([
             });
         }
 
+        function ignore(field) {
+            $(field).addClass('s-error-ignore')
+        }
+
+        function unignore(field) {
+            $(field).removeClass('s-error-ignore')
+        }
 
         function clean() {
             errors = {};
@@ -178,6 +185,7 @@ define([
             'check': check,
             'checkField': checkField,
             'init': init,
+            'ignore': ignore,
             'clean': clean
         };
     });

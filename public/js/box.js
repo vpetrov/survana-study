@@ -93,9 +93,10 @@ define(
                 title += '<span class="s-box-item ui-bar-c ui-corner-all">' + label + '<strong>' + escapedValue +
                          '</strong></span> ';
 
-                newitems.push(hidden);
+                //make sure the hidden field doesn't interfere with validation of other fields with the same name
+                Validate.ignore(hidden);
 
-                $(this).removeClass('valid');
+                newitems.push(hidden);
             });
 
             //clear all items, except hidden elements, and do not trigger 'change' events for cleared elements
