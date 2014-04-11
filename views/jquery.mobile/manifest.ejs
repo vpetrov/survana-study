@@ -1,13 +1,6 @@
 CACHE MANIFEST
 #version 18
 
-NETWORK:
-/store
-/debug
-{{ for (var i in urls) { }}
-{{= urls[i] }}
-{{ } }}
-
 CACHE:
 /js/app.js
 /js/appcache.js
@@ -35,3 +28,11 @@ CACHE:
 {{ for (var i in forms) { }}
 /{{=study_id}}/{{=forms[i]}}
 {{ } }}
+
+NETWORK:
+/store
+/debug
+{{ for (var i in urls) { }}
+{{= urls[i] }}
+{{ } }}
+*
